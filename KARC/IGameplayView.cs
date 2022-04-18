@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace KARC
 {
@@ -7,7 +8,7 @@ namespace KARC
     {
         event EventHandler CycleFinished; //Включается в конце каждого цикла в GameCycle, чтобы обновить модель
         event EventHandler<ControlsEventArgs> PlayerMoved; 
-        void LoadGameCycleParameters(Vector2 pos);
+        void LoadGameCycleParameters(Dictionary<int, IObject> _objects);
     }
 
     public class ControlsEventArgs

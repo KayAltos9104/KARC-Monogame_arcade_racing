@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace KARC
 {
@@ -14,8 +15,8 @@ namespace KARC
         public event EventHandler<ControlsEventArgs> PlayerMoved = delegate { };
 
         private GameplayPresenter gameplayPresenter;
-        private Vector2 _playerPos = Vector2.Zero;
-        private Texture2D _player;
+        private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
+        private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
         public GameCycleView()
         {
@@ -33,12 +34,12 @@ namespace KARC
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _player = Content.Load<Texture2D>("White_Placeholder");
+            _textures.Add(1, Content.Load<Texture2D>("White_Placeholder"));
         }
 
-        public void LoadGameCycleParameters(Vector2 pos)
+        public void LoadGameCycleParameters(Dictionary<int, IObject> Objects)
         {
-            _playerPos = pos;
+            _objects = Objects;
         }
 
 
@@ -92,8 +93,14 @@ namespace KARC
             base.Draw(gameTime);
 
             _spriteBatch.Begin();
-            _spriteBatch.Draw(_player, _playerPos, Color.White);
+            foreach (var o in _objects.Values)
+            {
+                _spriteBatch.Draw(_textures[o.ImageId], o.Pos, Color.White);
+            }
+           
             _spriteBatch.End();
-        }        
+        }
+
+       
     }
 }

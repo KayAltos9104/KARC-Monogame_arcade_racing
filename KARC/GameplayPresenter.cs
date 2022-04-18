@@ -12,6 +12,8 @@ namespace KARC
             _gameplayView = gameplayView;
             _gameplayModel = gameplayModel;
 
+            _gameplayModel.Initialize();
+
             _gameplayView.CycleFinished += ViewModelUpdate;
             _gameplayView.PlayerMoved += ViewModelMovePlayer;
             _gameplayModel.Updated += ModelViewUpdate;
@@ -24,7 +26,7 @@ namespace KARC
 
         private void ModelViewUpdate(object sender, GameplayEventArgs e)
         {
-            _gameplayView.LoadGameCycleParameters(e.PlayerPos);
+            _gameplayView.LoadGameCycleParameters(e.Objects);
         }
 
 

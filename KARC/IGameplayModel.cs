@@ -1,13 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace KARC
 {
     public interface IGameplayModel
     {
+        int PlayerId { get; set; }
+        Dictionary<int, IObject> Objects { get; set;}
         event EventHandler<GameplayEventArgs> Updated;
         void Update();
         void MovePlayer(Direction dir);
+        void Initialize();
 
         public enum Direction: byte
         {
@@ -16,11 +20,10 @@ namespace KARC
             right,
             left
         }
-
     }
 
     public class GameplayEventArgs
     {
-        public Vector2 PlayerPos { get; set; }
+        public Dictionary<int, IObject> Objects{ get; set; }
     }
 }
