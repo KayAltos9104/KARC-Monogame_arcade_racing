@@ -22,8 +22,8 @@ namespace KARC
         }
     }
 
-    public class GameplayEventArgs
+    public class GameplayEventArgs: EventArgs
     {
-        public Dictionary<int, IObject> Objects{ get; set; }
+        public Dictionary<int, IObject> Objects{ get; set; }       
     }
 }

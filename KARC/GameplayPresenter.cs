@@ -21,7 +21,7 @@ namespace KARC
 
         private void ViewModelMovePlayer(object sender, ControlsEventArgs e)
         {
-            _gameplayModel.MovePlayer(e.direction);
+            _gameplayModel.MovePlayer(e.Direction);
         }
 
         private void ModelViewUpdate(object sender, GameplayEventArgs e)

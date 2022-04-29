@@ -11,8 +11,8 @@ namespace KARC
         void LoadGameCycleParameters(Dictionary<int, IObject> _objects);
     }
 
-    public class ControlsEventArgs
+    public class ControlsEventArgs: EventArgs
     {
-        public IGameplayModel.Direction direction { get; set; }
+        public IGameplayModel.Direction Direction { get; set; }
     }
 }
