@@ -12,9 +12,8 @@ namespace KARC
         private SpriteBatch _spriteBatch;
 
         public event EventHandler CycleFinished = delegate { };
-        public event EventHandler<ControlsEventArgs> PlayerMoved = delegate { };
-
-        private GameplayPresenter _gameplayPresenter;
+        public event EventHandler<ControlsEventArgs> PlayerSpeedChanged = delegate { };
+       
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
@@ -27,8 +26,7 @@ namespace KARC
 
         protected override void Initialize()
         { 
-            base.Initialize();
-            _gameplayPresenter = new GameplayPresenter(this, new GameCycle());
+            base.Initialize();           
         }
 
         protected override void LoadContent()
@@ -53,22 +51,22 @@ namespace KARC
                 {                    
                     case Keys.W:
                         {
-                            PlayerMoved.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.forward });
+                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.forward });
                             break;
                         }
                     case Keys.S:
                         {
-                            PlayerMoved.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.backward });
+                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.backward });
                             break;
                         }
                     case Keys.D:
                         {
-                            PlayerMoved.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.right });
+                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.right });
                             break;
                         }
                     case Keys.A:
                         {
-                            PlayerMoved.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.left });
+                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.left });
                             break;
                         }
                     case Keys.Escape:
@@ -100,8 +98,6 @@ namespace KARC
             }
            
             _spriteBatch.End();
-        }
-
-       
+        }       
     }
 }

@@ -30,7 +30,7 @@ namespace KARC
             Updated.Invoke(this, new GameplayEventArgs { Objects = this.Objects });
         }
 
-        public void MovePlayer(IGameplayModel.Direction dir)
+        public void ChangePlayerSpeed(IGameplayModel.Direction dir)
         {
             Car p = (Car)Objects[PlayerId];
             switch (dir)

@@ -7,8 +7,11 @@ namespace KARC
         [STAThread]
         static void Main()
         {
-            using (var game = new GameCycleView())
-                game.Run();
+            //using (var game = new GameCycleView())
+            //var game = new GameCycleView();
+            //game.Run();         
+            GameplayPresenter g = new GameplayPresenter(new GameCycleView(), new GameCycle());
+            g.LaunchGame();
         }
     }
 }

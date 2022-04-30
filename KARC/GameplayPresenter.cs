@@ -15,13 +15,18 @@ namespace KARC
             _gameplayModel.Initialize();
 
             _gameplayView.CycleFinished += ViewModelUpdate;
-            _gameplayView.PlayerMoved += ViewModelMovePlayer;
+            _gameplayView.PlayerSpeedChanged += ViewModelMovePlayer;
             _gameplayModel.Updated += ModelViewUpdate;
+        }
+
+        public void LaunchGame()
+        {
+            _gameplayView.Run();
         }
 
         private void ViewModelMovePlayer(object sender, ControlsEventArgs e)
         {
-            _gameplayModel.MovePlayer(e.Direction);
+            _gameplayModel.ChangePlayerSpeed(e.Direction);
         }
 
         private void ModelViewUpdate(object sender, GameplayEventArgs e)

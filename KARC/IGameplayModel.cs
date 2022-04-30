@@ -10,7 +10,7 @@ namespace KARC
         Dictionary<int, IObject> Objects { get; set;}
         event EventHandler<GameplayEventArgs> Updated;
         void Update();
-        void MovePlayer(Direction dir);
+        void ChangePlayerSpeed(Direction dir);
         void Initialize();
 
         public enum Direction: byte
