@@ -17,27 +17,35 @@ namespace KARC
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
+        private Vector2 _visualShift = Vector2.Zero;
+
         public GameCycleView()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            IsMouseVisible = true;            
+            IsMouseVisible = true;
+            
         }
 
         protected override void Initialize()
         { 
-            base.Initialize();           
+            base.Initialize();
+            _graphics.IsFullScreen = false;
+            _graphics.PreferredBackBufferWidth = 1024;
+            _graphics.PreferredBackBufferHeight = 768;
+            _graphics.ApplyChanges();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _textures.Add(1, Content.Load<Texture2D>("White_Placeholder"));
+            _textures.Add(1, Content.Load<Texture2D>("Base_car"));
         }
 
-        public void LoadGameCycleParameters(Dictionary<int, IObject> Objects)
+        public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift)
         {
             _objects = Objects;
+            _visualShift += POVShift;
         }
 
 
@@ -87,14 +95,15 @@ namespace KARC
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            //GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DarkSeaGreen);
             base.Draw(gameTime);
             
 
             _spriteBatch.Begin();
             foreach (var o in _objects.Values)
             {
-                _spriteBatch.Draw(_textures[o.ImageId], o.Pos, Color.White);
+                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift, Color.White);
             }
            
             _spriteBatch.End();

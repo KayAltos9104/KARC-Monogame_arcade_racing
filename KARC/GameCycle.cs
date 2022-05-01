@@ -7,27 +7,40 @@ namespace KARC
 {
     public class GameCycle : IGameplayModel
     {
-        public event EventHandler<GameplayEventArgs> Updated = delegate { };                
+        public event EventHandler<GameplayEventArgs> Updated = delegate { };
 
+        private int _currentId;
         public int PlayerId { get; set;}
         public Dictionary<int, IObject> Objects { get; set; }
         public void Initialize()
         {
             Objects = new Dictionary<int, IObject>();
+            _currentId = 1;
             Car player = new Car();
-            player.Pos = new Vector2(250, 250);
+            player.Pos = new Vector2(512-90, 500);
             player.ImageId = 1;
             player.Speed = new Vector2(0, 0);
-            Objects.Add(1, player);
-            PlayerId = 1;
+            Objects.Add(_currentId, player);
+            PlayerId = _currentId;
+            _currentId++;
+
+            Car anotherCar = new Car();
+            anotherCar.Pos = new Vector2(200, 50);
+            anotherCar.Speed = new Vector2(0, 0);
+            anotherCar.ImageId = 1;
+            Objects.Add(_currentId, anotherCar);
+            _currentId++;
         }
         public void Update()
         {
+            Vector2 playerInitPos = Objects[PlayerId].Pos;
             foreach (var o in Objects.Values)
             {
+                           
                 o.Update();
             }
-            Updated.Invoke(this, new GameplayEventArgs { Objects = this.Objects });
+            Vector2 playerShift = Objects[PlayerId].Pos - playerInitPos;
+            Updated.Invoke(this, new GameplayEventArgs { Objects = this.Objects, POVShift = playerShift });
         }
 
         public void ChangePlayerSpeed(IGameplayModel.Direction dir)

@@ -24,6 +24,7 @@ namespace KARC
 
     public class GameplayEventArgs: EventArgs
     {
-        public Dictionary<int, IObject> Objects{ get; set; }       
+        public Dictionary<int, IObject> Objects{ get; set; }
+        public Vector2 POVShift { get; set; }
     }
 }

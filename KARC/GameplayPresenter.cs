@@ -31,7 +31,7 @@ namespace KARC
 
         private void ModelViewUpdate(object sender, GameplayEventArgs e)
         {
-            _gameplayView.LoadGameCycleParameters(e.Objects);
+            _gameplayView.LoadGameCycleParameters(e.Objects, e.POVShift);
         }
 
 
