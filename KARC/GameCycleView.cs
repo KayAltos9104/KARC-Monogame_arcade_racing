@@ -40,6 +40,7 @@ namespace KARC
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _textures.Add(1, Content.Load<Texture2D>("Base_car"));
+            _textures.Add(2, Content.Load<Texture2D>("Wall"));
         }
 
         public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift)
@@ -103,7 +104,7 @@ namespace KARC
             _spriteBatch.Begin();
             foreach (var o in _objects.Values)
             {
-                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift, Color.White);
+                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift, Color.White);                
             }
            
             _spriteBatch.End();

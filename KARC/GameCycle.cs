@@ -10,27 +10,60 @@ namespace KARC
         public event EventHandler<GameplayEventArgs> Updated = delegate { };
 
         private int _currentId;
+
+        private char[,] _map = new char [10,8];
+        private int _tileSize = 100;       
         public int PlayerId { get; set;}
         public Dictionary<int, IObject> Objects { get; set; }
         public void Initialize()
         {
             Objects = new Dictionary<int, IObject>();
-            _currentId = 1;
-            Car player = new Car();
-            player.Pos = new Vector2(512-90, 500);
-            player.ImageId = 1;
-            player.Speed = new Vector2(0, 0);
-            Objects.Add(_currentId, player);
-            PlayerId = _currentId;
-            _currentId++;
+            _map[5, 6] = 'P';
+            _map[4, 4] = 'C';
+            _map[6, 4] = 'C';
+            for (int y = 0; y < _map.GetLength(1); y++)
+            {
+                _map[0, y] = 'W';
+                _map[_map.GetLength(0)-1, y] = 'W';
+            }
 
-            Car anotherCar = new Car();
-            anotherCar.Pos = new Vector2(200, 50);
-            anotherCar.Speed = new Vector2(0, 0);
-            anotherCar.ImageId = 1;
-            Objects.Add(_currentId, anotherCar);
-            _currentId++;
+            _currentId = 1;
+            bool isPlacedPlayer = false;
+            for (int y = 0; y < _map.GetLength(1); y++)
+                for (int x = 0; x < _map.GetLength(0); x++)
+                {
+                    if (_map[x, y]=='P' && !isPlacedPlayer)
+                    {
+                        Car player = new Car();
+                        player.ImageId = 1;
+                        player.Pos = new Vector2(x*_tileSize - 33 +_tileSize/2, y*_tileSize-50 + _tileSize / 2);
+                        player.Speed = new Vector2(0, 0);
+                        PlayerId = _currentId;                        
+                        Objects.Add(_currentId, player);
+                        isPlacedPlayer = true;
+                        _currentId++;
+                    }
+                    else if (_map[x, y] == 'C')
+                    {
+                        Car anotherCar = new Car();
+                        anotherCar.Pos = new Vector2(x * _tileSize - 33 + _tileSize / 2, y * _tileSize - 50 + _tileSize / 2);
+                        anotherCar.Speed = new Vector2(0, 0);
+                        anotherCar.ImageId = 1;
+                        Objects.Add(_currentId, anotherCar);
+                        _currentId++;
+                    }
+                    else if (_map[x,y] == 'W')
+                    {
+                        Wall w = new Wall();
+                        w.Pos = new Vector2(x * _tileSize - 12 + _tileSize / 2, y * _tileSize - 50 + _tileSize / 2);                        
+                        w.ImageId = 2;
+                        Objects.Add(_currentId, w);
+                        _currentId++;
+                    }
+                }
         }
+        
+
         public void Update()
         {
             Vector2 playerInitPos = Objects[PlayerId].Pos;
