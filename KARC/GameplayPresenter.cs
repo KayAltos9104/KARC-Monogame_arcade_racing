@@ -12,11 +12,14 @@ namespace KARC
             _gameplayView = gameplayView;
             _gameplayModel = gameplayModel;
 
-            _gameplayModel.Initialize();
+           
 
             _gameplayView.CycleFinished += ViewModelUpdate;
             _gameplayView.PlayerSpeedChanged += ViewModelMovePlayer;
             _gameplayModel.Updated += ModelViewUpdate;
+            _gameplayModel.Initialized += ModelViewUpdate;
+
+            _gameplayModel.Initialize();
         }
 
         public void LaunchGame()

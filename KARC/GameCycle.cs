@@ -8,17 +8,18 @@ namespace KARC
     public class GameCycle : IGameplayModel
     {
         public event EventHandler<GameplayEventArgs> Updated = delegate { };
+        public event EventHandler<GameplayEventArgs> Initialized = delegate { };
 
         private int _currentId;
 
-        private char[,] _map = new char [10,8];
+        private char[,] _map = new char [10, 500];
         private int _tileSize = 100;       
         public int PlayerId { get; set;}
         public Dictionary<int, IObject> Objects { get; set; }
         public void Initialize()
         {
             Objects = new Dictionary<int, IObject>();
-            _map[5, 6] = 'P';
+            _map[5, 498] = 'P';
             _map[4, 4] = 'C';
             _map[6, 4] = 'C';
             for (int y = 0; y < _map.GetLength(1); y++)
@@ -61,6 +62,8 @@ namespace KARC
                         _currentId++;
                     }
                 }
+            Initialized.Invoke(this, new GameplayEventArgs() { Objects = this.Objects, POVShift = new Vector2(this.Objects[PlayerId].Pos.X - 512+33,
+                this.Objects[PlayerId].Pos.Y - 512 + 50)});
         }
         
 
