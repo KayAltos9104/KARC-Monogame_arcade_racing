@@ -8,8 +8,7 @@ namespace KARC
     {
         int PlayerId { get; set; }
         Dictionary<int, IObject> Objects { get; set;}
-        event EventHandler<GameplayEventArgs> Updated;
-        event EventHandler<GameplayEventArgs> Initialized;
+        event EventHandler<GameplayEventArgs> Updated;        
         void Update();
         void ChangePlayerSpeed(Direction dir);
         void Initialize();

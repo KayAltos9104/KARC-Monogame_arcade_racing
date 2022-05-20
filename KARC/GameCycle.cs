@@ -7,8 +7,7 @@ namespace KARC
 {
     public class GameCycle : IGameplayModel
     {
-        public event EventHandler<GameplayEventArgs> Updated = delegate { };
-        public event EventHandler<GameplayEventArgs> Initialized = delegate { };
+        public event EventHandler<GameplayEventArgs> Updated = delegate { };        
 
         private int _currentId;
 
@@ -32,47 +31,70 @@ namespace KARC
             bool isPlacedPlayer = false;
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
-                {
-                    if (_map[x, y]=='P' && !isPlacedPlayer)
+                {                  
+                    if (_map[x,y]!='\0')
                     {
-                        Car player = new Car();
-                        player.ImageId = 1;
-                        player.Pos = new Vector2(x*_tileSize - 33 +_tileSize/2, y*_tileSize-50 + _tileSize / 2);
-                        player.Speed = new Vector2(0, 0);
-                        PlayerId = _currentId;                        
-                        Objects.Add(_currentId, player);
-                        isPlacedPlayer = true;
-                        _currentId++;
-                    }
-                    else if (_map[x, y] == 'C')
-                    {
-                        Car anotherCar = new Car();
-                        anotherCar.Pos = new Vector2(x * _tileSize - 33 + _tileSize / 2, y * _tileSize - 50 + _tileSize / 2);
-                        anotherCar.Speed = new Vector2(0, 0);
-                        anotherCar.ImageId = 1;
-                        Objects.Add(_currentId, anotherCar);
-                        _currentId++;
-                    }
-                    else if (_map[x,y] == 'W')
-                    {
-                        Wall w = new Wall();
-                        w.Pos = new Vector2(x * _tileSize - 12 + _tileSize / 2, y * _tileSize - 50 + _tileSize / 2);                        
-                        w.ImageId = 2;
-                        Objects.Add(_currentId, w);
-                        _currentId++;
+                        IObject generatedObject = GenerateObject(_map[x, y], x, y);                        
+                        if (_map[x, y] == 'P'&&!isPlacedPlayer)
+                        {
+                            PlayerId = _currentId;
+                            isPlacedPlayer = true;
+                            Objects.Add(_currentId, generatedObject);
+                        }
+                        else if (_map[x, y] != 'P')
+                        {
+                            Objects.Add(_currentId, generatedObject);
+                        }                        
+                        _currentId++;                        
                     }
                 }
-            Initialized.Invoke(this, new GameplayEventArgs() { Objects = this.Objects, POVShift = new Vector2(this.Objects[PlayerId].Pos.X - 512+33,
-                this.Objects[PlayerId].Pos.Y - 512 + 50)});
+           
+            Updated.Invoke(this, new GameplayEventArgs()
+            {
+                Objects = this.Objects,
+                POVShift = new Vector2(this.Objects[PlayerId].Pos.X - 512 + 33,
+                this.Objects[PlayerId].Pos.Y - 512 + 50)
+            });
         }
         
+        private IObject GenerateObject (char sign, int xTile, int yTile)
+        {
+            float x = xTile * _tileSize;
+            float y = yTile * _tileSize;
+            IObject generatedObject = null;
+            if (sign == 'P'|| sign == 'C')
+            {
+                generatedObject = CreateCar(x-33 + _tileSize / 2, y - 50 + _tileSize / 2, spriteId: 1, speed: new Vector2(0, 0));
+            }            
+            else if (sign == 'W')
+            {
+                generatedObject = CreateWall(x - 12 + _tileSize / 2, y - 50 + _tileSize / 2, 2);
+            } 
+            return generatedObject;
+        }
+
+        private Car CreateCar(float x, float y, int spriteId, Vector2 speed)
+        {
+            Car c = new Car();
+            c.ImageId = spriteId;
+            c.Pos = new Vector2(x, y);
+            c.Speed = speed;
+            return c;
+        }
+
+        private Wall CreateWall(float x, float y, int spriteId)
+        {
+            Wall w = new Wall();
+            w.Pos = new Vector2(x, y);
+            w.ImageId = spriteId;
+            return w;
+        }
 
         public void Update()
         {
             Vector2 playerInitPos = Objects[PlayerId].Pos;
             foreach (var o in Objects.Values)
-            {
-                           
+            {                           
                 o.Update();
             }
             Vector2 playerShift = Objects[PlayerId].Pos - playerInitPos;
@@ -96,12 +118,12 @@ namespace KARC
                     }
                 case IGameplayModel.Direction.right:
                     {
-                        p.Speed += new Vector2(1, 0);                       
+                        p.Speed += new Vector2(5, 0);                       
                         break;
                     }
                 case IGameplayModel.Direction.left:
                     {
-                        p.Speed += new Vector2(-1, 0);                        
+                        p.Speed += new Vector2(-5, 0);                        
                         break;
                     }
             }

@@ -15,6 +15,7 @@ namespace KARC
         public void Update()
         {
             Pos += Speed;
+            Speed = new Vector2(0, Speed.Y);
         }
     }
 }

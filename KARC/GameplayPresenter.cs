@@ -16,8 +16,7 @@ namespace KARC
 
             _gameplayView.CycleFinished += ViewModelUpdate;
             _gameplayView.PlayerSpeedChanged += ViewModelMovePlayer;
-            _gameplayModel.Updated += ModelViewUpdate;
-            _gameplayModel.Initialized += ModelViewUpdate;
+            _gameplayModel.Updated += ModelViewUpdate;            
 
             _gameplayModel.Initialize();
         }
