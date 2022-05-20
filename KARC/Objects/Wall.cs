@@ -10,6 +10,7 @@ namespace KARC.Objects
     {
         public int ImageId { get; set; }
         public Vector2 Pos { get; set; }
+        public Vector2 Speed { get; set; }
 
         public void Update()
         {

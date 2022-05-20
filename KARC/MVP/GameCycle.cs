@@ -21,14 +21,15 @@ namespace KARC.MVP
         public void Initialize()
         {
             Objects = new Dictionary<int, IObject>();
-            _map[5, 498] = 'P';
-            _map[4, 4] = 'C';
+            //_map[5, 498] = 'P';
+            _map[5, 6] = 'P';
+            //_map[4, 4] = 'C';
             _map[6, 4] = 'C';
-            for (int y = 0; y < _map.GetLength(1); y++)
-            {
-                _map[0, y] = 'W';
-                _map[_map.GetLength(0) - 1, y] = 'W';
-            }
+            //for (int y = 0; y < _map.GetLength(1); y++)
+            //{
+            //    _map[0, y] = 'W';
+            //    _map[_map.GetLength(0) - 1, y] = 'W';
+            //}
 
             _currentId = 1;
             bool isPlacedPlayer = false;
@@ -78,10 +79,9 @@ namespace KARC.MVP
 
         private Car CreateCar(float x, float y, ObjectTypes spriteId, Vector2 speed)
         {
-            Car c = new Car();
-            c.ImageId = (byte)spriteId;
-            c.Pos = new Vector2(x, y);
-            c.Speed = speed;
+            Car c = new Car(new Vector2(x, y));               
+            c.ImageId = (byte)spriteId;            
+            c.Speed = speed;            
             return c;
         }
 
@@ -96,10 +96,30 @@ namespace KARC.MVP
         public void Update()
         {
             Vector2 playerInitPos = Objects[PlayerId].Pos;
-            foreach (var o in Objects.Values)
-            {
-                o.Update();
-            }
+            for (int i = 1; i <= Objects.Keys.Count; i++)
+            {                
+                Objects[i].Update();
+                if (Objects[i] is ISolid p1)
+                {
+                    for (int j = i+1; j <= Objects.Keys.Count; j++)
+                    {
+                        if (Objects[j] is ISolid p2)
+                        {
+                            if (RectangleCollider.IsCollided(p1.Collider, p2.Collider))
+                            {
+                                Objects[i].Speed = -Objects[i].Speed;
+                                Objects[j].Speed = -Objects[j].Speed;
+                                Objects[i].Update();
+                                Objects[j].Update();
+
+                                Objects[i].Speed = new Vector2(0, 0);
+                                Objects[j].Speed = new Vector2(0, 0);
+                            }
+                                                            
+                        }
+                    }
+                }
+            }            
             Vector2 playerShift = Objects[PlayerId].Pos - playerInitPos;
             Updated.Invoke(this, new GameplayEventArgs { Objects = Objects, POVShift = playerShift });
         }

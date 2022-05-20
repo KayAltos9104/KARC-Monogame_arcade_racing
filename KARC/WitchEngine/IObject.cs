@@ -9,6 +9,8 @@ namespace KARC.WitchEngine
     {
         int ImageId { get; set; }
         Vector2 Pos { get; set; }
+
+        Vector2 Speed { get; set; }
         void Update();
     }
 }
