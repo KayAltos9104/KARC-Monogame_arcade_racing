@@ -7,7 +7,8 @@ namespace KARC
 {
     public class GameCycle : IGameplayModel
     {
-        public event EventHandler<GameplayEventArgs> Updated = delegate { };        
+        public event EventHandler<GameplayEventArgs> Updated = delegate { };
+        
 
         private int _currentId;
 
@@ -52,8 +53,8 @@ namespace KARC
             Updated.Invoke(this, new GameplayEventArgs()
             {
                 Objects = this.Objects,
-                POVShift = new Vector2(this.Objects[PlayerId].Pos.X - 512 + 33,
-                this.Objects[PlayerId].Pos.Y - 512 + 50)
+                POVShift = new Vector2(this.Objects[PlayerId].Pos.X,
+                this.Objects[PlayerId].Pos.Y)
             });
         }
         
@@ -64,11 +65,11 @@ namespace KARC
             IObject generatedObject = null;
             if (sign == 'P'|| sign == 'C')
             {
-                generatedObject = CreateCar(x-33 + _tileSize / 2, y - 50 + _tileSize / 2, spriteId: 1, speed: new Vector2(0, 0));
+                generatedObject = CreateCar(x+_tileSize / 2, y + _tileSize / 2, spriteId: 1, speed: new Vector2(0, 0));
             }            
             else if (sign == 'W')
             {
-                generatedObject = CreateWall(x - 12 + _tileSize / 2, y - 50 + _tileSize / 2, 2);
+                generatedObject = CreateWall(x + _tileSize / 2, y + _tileSize / 2, 2);
             } 
             return generatedObject;
         }

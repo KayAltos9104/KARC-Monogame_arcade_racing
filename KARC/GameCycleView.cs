@@ -17,7 +17,7 @@ namespace KARC
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
-        private Vector2 _visualShift = Vector2.Zero;
+        private Vector2 _visualShift = new Vector2(0,0);
 
         public GameCycleView()
         {
@@ -34,6 +34,8 @@ namespace KARC
             _graphics.PreferredBackBufferWidth = 1024;
             _graphics.PreferredBackBufferHeight = 768;
             _graphics.ApplyChanges();
+            _visualShift.X -= _graphics.PreferredBackBufferWidth/2;
+            _visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f;
         }
 
         protected override void LoadContent()
@@ -102,9 +104,12 @@ namespace KARC
             
 
             _spriteBatch.Begin();
+            Vector2 textureHalf = new Vector2(0,0);
             foreach (var o in _objects.Values)
             {
-                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift, Color.White);                
+                textureHalf.X = _textures[o.ImageId].Width / 2;
+                textureHalf.Y = _textures[o.ImageId].Height / 2;
+                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift - textureHalf, Color.White);                
             }
            
             _spriteBatch.End();
