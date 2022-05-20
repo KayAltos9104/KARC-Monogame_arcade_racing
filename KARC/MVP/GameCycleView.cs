@@ -1,10 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using KARC.WitchEngine;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
-namespace KARC
+namespace KARC.MVP
 {
     public class GameCycleView : Game, IGameplayView
     {
@@ -13,28 +14,28 @@ namespace KARC
 
         public event EventHandler CycleFinished = delegate { };
         public event EventHandler<ControlsEventArgs> PlayerSpeedChanged = delegate { };
-       
+
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
-        private Vector2 _visualShift = new Vector2(0,0);
+        private Vector2 _visualShift = new Vector2(0, 0);
 
         public GameCycleView()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            
+
         }
 
         protected override void Initialize()
-        { 
+        {
             base.Initialize();
             _graphics.IsFullScreen = false;
             _graphics.PreferredBackBufferWidth = 1024;
             _graphics.PreferredBackBufferHeight = 768;
             _graphics.ApplyChanges();
-            _visualShift.X -= _graphics.PreferredBackBufferWidth/2;
+            _visualShift.X -= _graphics.PreferredBackBufferWidth / 2;
             _visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f;
         }
 
@@ -59,7 +60,7 @@ namespace KARC
             {
                 var k = keys[0];
                 switch (k)
-                {                    
+                {
                     case Keys.W:
                         {
                             PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.forward });
@@ -81,14 +82,14 @@ namespace KARC
                             break;
                         }
                     case Keys.Escape:
-                        {                           
+                        {
                             break;
                         }
-                } 
+                }
             }
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();            
+                Exit();
 
             base.Update(gameTime);
 
@@ -101,17 +102,17 @@ namespace KARC
             //GraphicsDevice.Clear(Color.CornflowerBlue);
             GraphicsDevice.Clear(Color.DarkSeaGreen);
             base.Draw(gameTime);
-            
+
 
             _spriteBatch.Begin();
-            Vector2 textureHalf = new Vector2(0,0);
+            Vector2 textureHalf = new Vector2(0, 0);
             foreach (var o in _objects.Values)
             {
                 textureHalf.X = _textures[o.ImageId].Width / 2;
                 textureHalf.Y = _textures[o.ImageId].Height / 2;
-                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift - textureHalf, Color.White);                
-            }           
+                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift - textureHalf, Color.White);
+            }
             _spriteBatch.End();
-        }       
+        }
     }
 }

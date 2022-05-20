@@ -1,13 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿using KARC.WitchEngine;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace KARC
+namespace KARC.Objects
 {
     public class Car : IObject
     {
-        public int ImageId {get; set;}
+        public int ImageId { get; set; }
         public Vector2 Pos { get; set; }
 
         public Vector2 Speed { get; set; }

@@ -1,9 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using KARC.WitchEngine;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace KARC
+namespace KARC.Objects
 {
     class Wall : IObject
     {
@@ -12,7 +13,7 @@ namespace KARC
 
         public void Update()
         {
-            
+
         }
     }
 }

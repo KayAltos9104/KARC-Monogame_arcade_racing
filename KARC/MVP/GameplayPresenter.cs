@@ -1,22 +1,23 @@
-﻿using System;
+﻿using KARC.WitchEngine;
+using System;
 
-namespace KARC
+namespace KARC.MVP
 {
     public class GameplayPresenter
     {
         private IGameplayView _gameplayView = null;
         private IGameplayModel _gameplayModel = null;
 
-        public GameplayPresenter (IGameplayView gameplayView, IGameplayModel gameplayModel)
+        public GameplayPresenter(IGameplayView gameplayView, IGameplayModel gameplayModel)
         {
             _gameplayView = gameplayView;
             _gameplayModel = gameplayModel;
 
-           
+
 
             _gameplayView.CycleFinished += ViewModelUpdate;
             _gameplayView.PlayerSpeedChanged += ViewModelMovePlayer;
-            _gameplayModel.Updated += ModelViewUpdate;            
+            _gameplayModel.Updated += ModelViewUpdate;
 
             _gameplayModel.Initialize();
         }

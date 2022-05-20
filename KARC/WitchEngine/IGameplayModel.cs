@@ -2,18 +2,18 @@
 using System;
 using System.Collections.Generic;
 
-namespace KARC
+namespace KARC.WitchEngine
 {
     public interface IGameplayModel
     {
         int PlayerId { get; set; }
-        Dictionary<int, IObject> Objects { get; set;}
-        event EventHandler<GameplayEventArgs> Updated;        
+        Dictionary<int, IObject> Objects { get; set; }
+        event EventHandler<GameplayEventArgs> Updated;
         void Update();
         void ChangePlayerSpeed(Direction dir);
         void Initialize();
 
-        public enum Direction: byte
+        public enum Direction : byte
         {
             forward,
             backward,
@@ -22,9 +22,9 @@ namespace KARC
         }
     }
 
-    public class GameplayEventArgs: EventArgs
+    public class GameplayEventArgs : EventArgs
     {
-        public Dictionary<int, IObject> Objects{ get; set; }
+        public Dictionary<int, IObject> Objects { get; set; }
         public Vector2 POVShift { get; set; }
     }
 }
