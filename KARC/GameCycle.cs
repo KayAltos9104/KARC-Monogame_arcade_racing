@@ -65,29 +65,29 @@ namespace KARC
             IObject generatedObject = null;
             if (sign == 'P'|| sign == 'C')
             {
-                generatedObject = CreateCar(x+_tileSize / 2, y + _tileSize / 2, spriteId: 1, speed: new Vector2(0, 0));
+                generatedObject = CreateCar(x+_tileSize / 2, y + _tileSize / 2, spriteId: ObjectTypes.car, speed: new Vector2(0, 0));
             }            
             else if (sign == 'W')
             {
-                generatedObject = CreateWall(x + _tileSize / 2, y + _tileSize / 2, 2);
+                generatedObject = CreateWall(x + _tileSize / 2, y + _tileSize / 2, spriteId: ObjectTypes.wall);
             } 
             return generatedObject;
         }
 
-        private Car CreateCar(float x, float y, int spriteId, Vector2 speed)
+        private Car CreateCar(float x, float y, ObjectTypes spriteId, Vector2 speed)
         {
             Car c = new Car();
-            c.ImageId = spriteId;
+            c.ImageId = (byte)spriteId;
             c.Pos = new Vector2(x, y);
             c.Speed = speed;
             return c;
         }
 
-        private Wall CreateWall(float x, float y, int spriteId)
+        private Wall CreateWall(float x, float y, ObjectTypes spriteId)
         {
             Wall w = new Wall();
             w.Pos = new Vector2(x, y);
-            w.ImageId = spriteId;
+            w.ImageId = (byte)spriteId;
             return w;
         }
 
@@ -129,7 +129,11 @@ namespace KARC
                     }
             }
         }
-
+        public enum ObjectTypes: byte
+        {
+            car,
+            wall
+        }
         
     }
 }

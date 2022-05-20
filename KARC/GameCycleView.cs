@@ -41,8 +41,8 @@ namespace KARC
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _textures.Add(1, Content.Load<Texture2D>("Base_car"));
-            _textures.Add(2, Content.Load<Texture2D>("Wall"));
+            _textures.Add((byte)GameCycle.ObjectTypes.car, Content.Load<Texture2D>("Base_car"));
+            _textures.Add((byte)GameCycle.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
         }
 
         public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift)
@@ -110,8 +110,7 @@ namespace KARC
                 textureHalf.X = _textures[o.ImageId].Width / 2;
                 textureHalf.Y = _textures[o.ImageId].Height / 2;
                 _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift - textureHalf, Color.White);                
-            }
-           
+            }           
             _spriteBatch.End();
         }       
     }
