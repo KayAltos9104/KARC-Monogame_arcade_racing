@@ -79,9 +79,9 @@ namespace KARC.MVP
 
         private Car CreateCar(float x, float y, ObjectTypes spriteId, Vector2 speed)
         {
-            Car c = new Car(new Vector2(x, y));               
-            c.ImageId = (byte)spriteId;            
-            c.Speed = speed;            
+            Car c = new Car(new Vector2(x, y));
+            c.ImageId = (byte)spriteId;
+            c.Speed = speed;
             return c;
         }
 
@@ -96,61 +96,54 @@ namespace KARC.MVP
         public void Update()
         {
             Vector2 playerInitPos = Objects[PlayerId].Pos;
-            for (int i = 1; i <= Objects.Keys.Count; i++)
+            Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
+            foreach (var i in Objects.Keys)
             {
-                Vector2 objInitPos = Objects[i].Pos;
+                Vector2 initPos = Objects[i].Pos;
                 Objects[i].Update();
-                if (Objects[i] is ISolid p1 && objInitPos != Objects[i].Pos)
+                collisionObjects.Add(i, initPos);
+            }
+            List<int> collisions = new List<int>();
+            foreach (var i in collisionObjects.Keys)
+            {
+                foreach (var j in collisionObjects.Keys)
                 {
-                    for (int j = 1; j <= Objects.Keys.Count; j++)
-                    {
-                        if (i == j)
-                            continue;
-                        if (Objects[j] is ISolid p2)
-                        {
-                            bool isCollided = false;
-                            while (RectangleCollider.IsCollided(p1.Collider, p2.Collider))
-                            {                                
-                                Vector2 oppositeDirection = Objects[i].Pos - objInitPos;
-                                oppositeDirection.Normalize();                               
-                                Objects[i].Move(Objects[i].Pos - oppositeDirection);
-                                isCollided = true;
-                            }
-                            if (isCollided)
-                                Objects[i].Speed = new Vector2(0, 0);
-                        }
-                    }
+                    if (i==j||collisions.Contains(i)||collisions.Contains(j)) continue;
+                    CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
+                    collisions.Add(i);
+                    collisions.Add(j);
                 }
-            }            
+            }           
+
             Vector2 playerShift = Objects[PlayerId].Pos - playerInitPos;
             Updated.Invoke(this, new GameplayEventArgs { Objects = Objects, POVShift = playerShift });
         }
 
-        private void CalculateObstacleCollision ((Vector2 initPos, IObject form) obj1, (Vector2 initPos, IObject form) obj2)
+        private void CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
         {
             bool isCollided = false;
-            if (obj1.form is ISolid p1 && obj2.form is ISolid p2)
+            if (Objects[obj1.Id] is ISolid p1 && Objects[obj2.Id] is ISolid p2)
             {
                 Vector2 oppositeDirection = new Vector2(0, 0);
                 while (RectangleCollider.IsCollided(p1.Collider, p2.Collider))
                 {
-                    if (obj1.initPos != obj1.form.Pos)
+                    if (obj1.initPos != Objects[obj1.Id].Pos)
                     {
-                        oppositeDirection = obj1.form.Pos - obj1.initPos;
+                        oppositeDirection = Objects[obj1.Id].Pos - obj1.initPos;
                         oppositeDirection.Normalize();
-                        obj1.form.Move(obj1.form.Pos - oppositeDirection);
+                        Objects[obj1.Id].Move(Objects[obj1.Id].Pos - oppositeDirection);
                     }
-                    if (obj2.initPos != obj2.form.Pos)
+                    if (obj2.initPos != Objects[obj2.Id].Pos)
                     {
-                        oppositeDirection = obj2.form.Pos - obj2.initPos;
+                        oppositeDirection = Objects[obj2.Id].Pos - obj2.initPos;
                         oppositeDirection.Normalize();
-                        obj2.form.Move(obj2.form.Pos - oppositeDirection);
+                        Objects[obj2.Id].Move(Objects[obj2.Id].Pos - oppositeDirection);
                     }
                     if (isCollided)
                     {
-                        obj1.form.Speed = new Vector2(0, 0);
-                        obj2.form.Speed = new Vector2(0, 0);
-                    }                        
+                        Objects[obj1.Id].Speed = new Vector2(0, 0);
+                        Objects[obj2.Id].Speed = new Vector2(0, 0);
+                    }
                 }
             }
         }
