@@ -8,9 +8,11 @@ namespace KARC.WitchEngine
     public interface IObject
     {
         int ImageId { get; set; }
-        Vector2 Pos { get; set; }
+        Vector2 Pos { get;}
 
         Vector2 Speed { get; set; }
         void Update();
+
+        void Move (Vector2 pos);
     }
 }

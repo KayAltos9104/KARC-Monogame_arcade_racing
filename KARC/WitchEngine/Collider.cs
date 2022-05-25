@@ -16,6 +16,6 @@ namespace KARC.WitchEngine
         public static bool IsCollided (RectangleCollider r1, RectangleCollider r2)
         {
             return r1.Boundary.Intersects(r2.Boundary);
-        }
+        } 
     }
 }

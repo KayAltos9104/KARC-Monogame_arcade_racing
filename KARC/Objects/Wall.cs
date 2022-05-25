@@ -12,6 +12,11 @@ namespace KARC.Objects
         public Vector2 Pos { get; set; }
         public Vector2 Speed { get; set; }
 
+        public void Move(Vector2 pos)
+        {
+            
+        }
+
         public void Update()
         {
 

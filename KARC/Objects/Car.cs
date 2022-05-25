@@ -5,10 +5,26 @@ namespace KARC.Objects
 {
     public class Car : IObject, ISolid
     {
+        private Vector2 _speed;
         public int ImageId { get; set; }
-        public Vector2 Pos { get; set; }
+        public Vector2 Pos { get; private set; }
 
-        public Vector2 Speed { get; set; }
+        public Vector2 Speed 
+        {
+            get
+            {
+                return _speed;
+            }
+            set
+            {
+                _speed = value;
+                if (_speed.Y > 10)
+                    _speed.Y = 10;
+                else if (_speed.Y < -10)
+                    _speed.Y = -10;
+
+            }
+        }
         public RectangleCollider Collider { get; set ; }
 
         public Car (Vector2 position)
@@ -19,9 +35,16 @@ namespace KARC.Objects
 
         public void Update()
         {            
-            Pos += Speed;
-            MoveCollider(Pos);
+            Move(Pos + Speed);
             Speed = new Vector2(0, Speed.Y);
+            //Speed = new Vector2(0, 0);
+            
+        }
+
+        public void Move (Vector2 newPos)
+        {
+            Pos = newPos;
+            MoveCollider(Pos);
         }
 
         public void MoveCollider(Vector2 newPos)
