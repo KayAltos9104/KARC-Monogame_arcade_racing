@@ -14,22 +14,22 @@ namespace KARC.MVP
 
         private int _currentId;
 
-        private char[,] _map = new char[11, 500];
+        private char[,] _map = new char[11, 100];
         private int _tileSize = 100;
         public int PlayerId { get; set; }
         public Dictionary<int, IObject> Objects { get; set; }
         public void Initialize()
         {
-            Objects = new Dictionary<int, IObject>();
-            //_map[5, 498] = 'P';
-            _map[5, 7] = 'P';
-            //_map[4, 4] = 'C';
+            Objects = new Dictionary<int, IObject>();            
+            _map[5, 98] = 'P';
+            _map[4, 4] = 'C';
             _map[6, 2] = 'C';
-            //for (int y = 0; y < _map.GetLength(1); y++)
-            //{
-            //    _map[0, y] = 'W';
-            //    _map[_map.GetLength(0) - 1, y] = 'W';
-            //}
+            _map[5, 2] = 'W';
+            for (int y = 0; y < _map.GetLength(1); y++)
+            {
+                _map[0, y] = 'W';
+                _map[_map.GetLength(0) - 1, y] = 'W';
+            }
 
             _currentId = 1;
             bool isPlacedPlayer = false;
@@ -71,7 +71,7 @@ namespace KARC.MVP
                 generatedObject = CreateCar(x + _tileSize / 2, y + _tileSize / 2, spriteId: ObjectTypes.car, speed: new Vector2(0, 0));
             }
             else if (sign == 'W')
-            {
+            {               
                 generatedObject = CreateWall(x + _tileSize / 2, y + _tileSize / 2, spriteId: ObjectTypes.wall);
             }
             return generatedObject;
@@ -87,9 +87,9 @@ namespace KARC.MVP
 
         private Wall CreateWall(float x, float y, ObjectTypes spriteId)
         {
-            Wall w = new Wall();
-            w.Pos = new Vector2(x, y);
+            Wall w = new Wall(new Vector2(x, y));
             w.ImageId = (byte)spriteId;
+            //w.ImageId = (byte)ObjectTypes.car;
             return w;
         }
 
@@ -103,15 +103,15 @@ namespace KARC.MVP
                 Objects[i].Update();
                 collisionObjects.Add(i, initPos);
             }
-            List<int> collisions = new List<int>();
+            //List<int> collisions = new List<int>();
             foreach (var i in collisionObjects.Keys)
             {
                 foreach (var j in collisionObjects.Keys)
                 {
-                    if (i==j||collisions.Contains(i)||collisions.Contains(j)) continue;
+                    if (i==j) continue;
                     CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
-                    collisions.Add(i);
-                    collisions.Add(j);
+                    //collisions.Add(i);
+                    //collisions.Add(j);
                 }
             }           
 

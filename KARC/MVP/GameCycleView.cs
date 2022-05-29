@@ -36,7 +36,7 @@ namespace KARC.MVP
             _graphics.PreferredBackBufferHeight = 768;
             _graphics.ApplyChanges();
             _visualShift.X -= _graphics.PreferredBackBufferWidth / 2;
-            _visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f;
+            _visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f-50;
         }
 
         protected override void LoadContent()
@@ -102,15 +102,11 @@ namespace KARC.MVP
             //GraphicsDevice.Clear(Color.CornflowerBlue);
             GraphicsDevice.Clear(Color.DarkSeaGreen);
             base.Draw(gameTime);
-
-
-            _spriteBatch.Begin();
-            Vector2 textureHalf = new Vector2(0, 0);
+            
+            _spriteBatch.Begin();           
             foreach (var o in _objects.Values)
             {
-                textureHalf.X = _textures[o.ImageId].Width / 2;
-                textureHalf.Y = _textures[o.ImageId].Height / 2;
-                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift - textureHalf, Color.White);
+                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift, Color.White);
             }
             _spriteBatch.End();
         }
