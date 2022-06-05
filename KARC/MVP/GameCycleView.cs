@@ -105,10 +105,13 @@ namespace KARC.MVP
             
             _spriteBatch.Begin();           
             foreach (var o in _objects.Values)
-            {
-                if (o.ImageId == -1)//Невидимые объекты
-                    continue;
-                _spriteBatch.Draw(_textures[o.ImageId], o.Pos - _visualShift, Color.White);
+            {                
+                foreach (var sprite in o.Sprites)
+                {
+                    if (sprite.ImageId == -1)
+                        continue;                    
+                    _spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
+                }
             }
             _spriteBatch.End();
         }

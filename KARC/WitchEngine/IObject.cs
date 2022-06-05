@@ -6,8 +6,10 @@ using System.Text;
 namespace KARC.WitchEngine
 {
     public interface IObject
-    {
-        int ImageId { get; set; }
+    {       
+
+        public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
+
         Vector2 Pos { get;}
 
         Vector2 Speed { get; set; }
