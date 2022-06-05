@@ -14,14 +14,17 @@ namespace KARC.MVP
 
         private int _currentId;
 
-        private char[,] _map = new char[11, 100];
+        private char[,] _map = new char[11, 2000];
         private int _tileSize = 100;
         public int PlayerId { get; set; }
         public Dictionary<int, IObject> Objects { get; set; }
+        public Dictionary<int, ISolid> SolidObjects { get; set; }
         public void Initialize()
         {
-            Objects = new Dictionary<int, IObject>();            
-            _map[5, 98] = 'P';
+            Objects = new Dictionary<int, IObject>();  
+            SolidObjects = new Dictionary<int, ISolid>();
+
+            _map[5, 1998] = 'P';
             _map[4, 4] = 'C';
             _map[6, 2] = 'C';
             _map[5, 2] = 'W';
@@ -30,7 +33,6 @@ namespace KARC.MVP
                 _map[0, y] = 'W';
                 _map[_map.GetLength(0) - 1, y] = 'W';
             }
-
             _currentId = 1;
             bool isPlacedPlayer = false;
             for (int y = 0; y < _map.GetLength(1); y++)
@@ -49,9 +51,21 @@ namespace KARC.MVP
                         {
                             Objects.Add(_currentId, generatedObject);
                         }
+                        if (generatedObject is ISolid s)
+                            SolidObjects.Add(_currentId, s);
                         _currentId++;
                     }
                 }
+            IObject border1 = new Border(new Vector2(0 + _tileSize / 2, 0));
+            border1.ImageId = -1;
+            Objects.Add(_currentId, border1);
+            SolidObjects.Add(_currentId, (ISolid)border1);
+            _currentId++;
+            IObject border2 = new Border(new Vector2(1000 + _tileSize / 2, 0));
+            border2.ImageId = -1;
+            Objects.Add(_currentId, border2);
+            SolidObjects.Add(_currentId, (ISolid)border2);
+
 
             Updated.Invoke(this, new GameplayEventArgs()
             {
@@ -88,8 +102,7 @@ namespace KARC.MVP
         private Wall CreateWall(float x, float y, ObjectTypes spriteId)
         {
             Wall w = new Wall(new Vector2(x, y));
-            w.ImageId = (byte)spriteId;
-            //w.ImageId = (byte)ObjectTypes.car;
+            w.ImageId = (byte)spriteId;            
             return w;
         }
 
@@ -101,17 +114,18 @@ namespace KARC.MVP
             {
                 Vector2 initPos = Objects[i].Pos;
                 Objects[i].Update();
-                collisionObjects.Add(i, initPos);
+                if (SolidObjects.ContainsKey(i))
+                    collisionObjects.Add(i, initPos);
             }
-            //List<int> collisions = new List<int>();
+            List<(int, int)> processedObjects = new List<(int, int)>();
+
             foreach (var i in collisionObjects.Keys)
             {
                 foreach (var j in collisionObjects.Keys)
                 {
-                    if (i==j) continue;
+                    if (i==j || processedObjects.Contains((j,i))) continue;
                     CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
-                    //collisions.Add(i);
-                    //collisions.Add(j);
+                    processedObjects.Add((i, j));
                 }
             }           
 
@@ -122,10 +136,10 @@ namespace KARC.MVP
         private void CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
         {
             bool isCollided = false;
-            if (Objects[obj1.Id] is ISolid p1 && Objects[obj2.Id] is ISolid p2)
-            {
+            //if (Objects[obj1.Id] is ISolid p1 && Objects[obj2.Id] is ISolid p2)
+            //{
                 Vector2 oppositeDirection = new Vector2(0, 0);
-                while (RectangleCollider.IsCollided(p1.Collider, p2.Collider))
+                while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Collider, SolidObjects[obj2.Id].Collider))
                 {
                     if (obj1.initPos != Objects[obj1.Id].Pos)
                     {
@@ -145,7 +159,7 @@ namespace KARC.MVP
                         Objects[obj2.Id].Speed = new Vector2(0, 0);
                     }
                 }
-            }
+            //}
         }
 
         public void ChangePlayerSpeed(IGameplayModel.Direction dir)
