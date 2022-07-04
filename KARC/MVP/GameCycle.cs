@@ -28,11 +28,11 @@ namespace KARC.MVP
             _map[4, 4] = 'C';
             _map[6, 2] = 'C';
             _map[0, 1] = '1';
-            _map[1, 10] = '1';
-            _map[_map.GetLength(0) - 1, 1] = '2';
-            _map[_map.GetLength(0) - 2, 10] = '2';
-            _map[0, 0] = '3';
-            _map[_map.GetLength(0) - 1, 0] = '3';
+            _map[2, 10] = '1';
+            //_map[_map.GetLength(0) - 1, 1] = '2';
+            //_map[_map.GetLength(0) - 1, 10] = '2';
+            //_map[0, 0] = '3';
+            //_map[_map.GetLength(0) - 1, 0] = '3';
 
             //_map[0, 0] = 'W';
             //_map[_map.GetLength(0) - 1, 0] = 'W';
@@ -101,7 +101,7 @@ namespace KARC.MVP
             IObject generatedObject = null;
             if (sign == 'P' || sign == 'C')
             {
-                generatedObject = CreateCar(x + _tileSize / 2, y + _tileSize / 2, spriteId: ObjectTypes.car, speed: new Vector2(0, 0));
+                generatedObject = Factory.CreateClassicCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, 0));
             }            
             return generatedObject;
         }
@@ -115,34 +115,14 @@ namespace KARC.MVP
             IObject generatedObject = null;
             if (sign == 'W')
             {
-                generatedObject = CreateWall(xInit + _tileSize / 2, yInit + _tileSize / 2, 
-                    xEnd + _tileSize / 2, yEnd + _tileSize / 2,
-                    spriteId: ObjectTypes.wall);
+                generatedObject = Factory.CreateWall(xInit + _tileSize / 2, yInit + _tileSize / 2, 
+                    xEnd + _tileSize / 2, yEnd + _tileSize / 2);
             }
 
             return generatedObject;
         }
 
-        private Car CreateCar(float x, float y, ObjectTypes spriteId, Vector2 speed)
-        {
-            Car c = new Car(new Vector2(x, y));
-            c.Sprites.Add(((byte)spriteId, Vector2.Zero));
-            c.Speed = speed;
-            return c;
-        }
-
-        private Wall CreateWall(float xInit, float yInit, float xEnd, float yEnd, ObjectTypes spriteId)
-        {
-            int width = Math.Abs(xEnd-xInit)==0 ? 24 : (int)Math.Abs(xEnd - xInit);
-            int length = Math.Abs(yEnd - yInit) == 0 ? 100 : (int)Math.Abs(yEnd - yInit);
-            Wall w = new Wall(new Vector2(xInit, yInit), width, length);
-            for (int i = 0; i < width; i += 24)
-                for (int j = 0; j < length; j += 100)
-                {
-                    w.Sprites.Add(((byte)spriteId, new Vector2(i, j)));
-                }
-            return w;
-        }
+       
 
         public void Update()
         {
@@ -226,11 +206,7 @@ namespace KARC.MVP
                     }
             }
         }
-        public enum ObjectTypes : byte
-        {
-            car,
-            wall
-        }
+        
 
     }
 }

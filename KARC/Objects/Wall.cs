@@ -6,7 +6,7 @@ using System.Text;
 
 namespace KARC.Objects
 {
-    class Wall : IObject, ISolid
+    public class Wall : IObject, ISolid
     {       
         public Vector2 Pos { get; set; }
         public Vector2 Speed { get; set; }
