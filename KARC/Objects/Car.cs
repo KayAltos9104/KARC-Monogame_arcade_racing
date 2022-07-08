@@ -10,6 +10,8 @@ namespace KARC.Objects
        
         public Vector2 Pos { get; private set; }
 
+        public bool IsLive { get; set; }
+
         public Vector2 Speed 
         {
             get
@@ -29,19 +31,22 @@ namespace KARC.Objects
         public RectangleCollider Collider { get; set ; }
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
 
-        public Car (Vector2 position)
+        public Car (Vector2 position, int height, int width)
         {
             Pos = position;
+            IsLive = true;
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
-            Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, 77, 100);
+            Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, width, height);
         }
 
         public void Update()
-        {            
-            Move(Pos + Speed);
-            //Speed = new Vector2(0, Speed.Y);
-            Speed = new Vector2(0, 0);
-            
+        {
+            if (IsLive)
+            {
+                Move(Pos + Speed);
+                Speed = new Vector2(0, Speed.Y);
+                //Speed = new Vector2(0, 0);
+            }
         }
 
         public void Move (Vector2 newPos)

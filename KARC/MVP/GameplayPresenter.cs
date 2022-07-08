@@ -17,9 +17,15 @@ namespace KARC.MVP
 
             _gameplayView.CycleFinished += ViewModelUpdate;
             _gameplayView.PlayerSpeedChanged += ViewModelMovePlayer;
+            _gameplayView.GamePaused += ViewModelPause;
             _gameplayModel.Updated += ModelViewUpdate;
 
             _gameplayModel.Initialize();
+        }
+
+        private void ViewModelPause(object sender, EventArgs e)
+        {
+            _gameplayModel.SwitchPause();
         }
 
         public void LaunchGame()

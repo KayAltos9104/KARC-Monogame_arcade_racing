@@ -14,7 +14,7 @@ namespace KARC.Objects
         };
         public static Car CreateClassicCar(float x, float y, Vector2 speed)
         {
-            Car c = new Car(new Vector2(x, y));
+            Car c = new Car(new Vector2(x, y),  _objects["classicCar"].height, _objects["classicCar"].width);
             c.Sprites.Add((_objects["classicCar"].type, Vector2.Zero));
             c.Speed = speed;
             return c;

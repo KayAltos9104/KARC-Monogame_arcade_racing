@@ -15,11 +15,14 @@ namespace KARC.MVP
 
         public event EventHandler CycleFinished = delegate { };
         public event EventHandler<ControlsEventArgs> PlayerSpeedChanged = delegate { };
+        public event EventHandler GamePaused = delegate { };
 
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
         private Vector2 _visualShift = new Vector2(0, 0);
+
+        private List<Keys> _pressedPrevFrame = new List<Keys>();
 
         public GameCycleView()
         {
@@ -81,7 +84,7 @@ namespace KARC.MVP
                         {
                             PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.left });
                             break;
-                        }
+                        }                   
                     case Keys.Escape:
                         {
                             break;
@@ -89,13 +92,23 @@ namespace KARC.MVP
                 }
             }
 
+            if (Keyboard.GetState().IsKeyUp(Keys.P)&&IsSinglePressed(Keys.P))
+                GamePaused.Invoke(this, new EventArgs());
+
+
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             base.Update(gameTime);
 
-
+            _pressedPrevFrame = new List<Keys>(keys);
             CycleFinished.Invoke(this, new EventArgs());
+        }
+
+        private bool IsSinglePressed(Keys key)
+        {
+            return Keyboard.GetState().IsKeyUp(key) && _pressedPrevFrame.Contains(key);
         }
 
         protected override void Draw(GameTime gameTime)

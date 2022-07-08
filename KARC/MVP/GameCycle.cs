@@ -11,6 +11,7 @@ namespace KARC.MVP
     {
         public event EventHandler<GameplayEventArgs> Updated = delegate { };
 
+        bool _isPaused;
 
         private int _currentId;
 
@@ -23,25 +24,16 @@ namespace KARC.MVP
         {
             Objects = new Dictionary<int, IObject>();
             SolidObjects = new Dictionary<int, ISolid>();
+            _isPaused = false;
 
             _map[5, 7] = 'P';
-            _map[4, 4] = 'C';
+            _map[4, 2] = 'C';
             _map[6, 2] = 'C';
-            _map[0, 1] = '1';
-            _map[2, 10] = '1';
-            //_map[_map.GetLength(0) - 1, 1] = '2';
-            //_map[_map.GetLength(0) - 1, 10] = '2';
-            //_map[0, 0] = '3';
-            //_map[_map.GetLength(0) - 1, 0] = '3';
-
-            //_map[0, 0] = 'W';
-            //_map[_map.GetLength(0) - 1, 0] = 'W';
-            //_map[5, 2] = 'W';
-            //for (int y = 0; y < _map.GetLength(1); y++)
-            //{
-            //    _map[0, y] = 'W';
-            //    _map[_map.GetLength(0) - 1, y] = 'W';
-            //}
+            _map[0, 0] = '1';
+            _map[0, 1999] = '1';
+            _map[_map.GetLength(0) - 1, 0] = '2';
+            _map[_map.GetLength(0) - 1, 1999] = '2';
+            
             _currentId = 1;
             bool isPlacedPlayer = false;
             for (int y = 0; y < _map.GetLength(1); y++)
@@ -120,35 +112,40 @@ namespace KARC.MVP
             }
 
             return generatedObject;
-        }
-
-       
+        }       
 
         public void Update()
         {
-            Vector2 playerInitPos = Objects[PlayerId].Pos;
-            Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
-            foreach (var i in Objects.Keys)
+            if (_isPaused)
             {
-                Vector2 initPos = Objects[i].Pos;
-                Objects[i].Update();
-                if (SolidObjects.ContainsKey(i))
-                    collisionObjects.Add(i, initPos);
-            }
-            List<(int, int)> processedObjects = new List<(int, int)>();
 
-            foreach (var i in collisionObjects.Keys)
+            }
+            else
             {
-                foreach (var j in collisionObjects.Keys)
+                Vector2 playerInitPos = Objects[PlayerId].Pos;
+                Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
+                foreach (var i in Objects.Keys)
                 {
-                    if (i == j || processedObjects.Contains((j, i))) continue;
-                    CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
-                    processedObjects.Add((i, j));
+                    Vector2 initPos = Objects[i].Pos;
+                    Objects[i].Update();
+                    if (SolidObjects.ContainsKey(i))
+                        collisionObjects.Add(i, initPos);
                 }
-            }
+                List<(int, int)> processedObjects = new List<(int, int)>();
 
-            Vector2 playerShift = Objects[PlayerId].Pos - playerInitPos;
-            Updated.Invoke(this, new GameplayEventArgs { Objects = Objects, POVShift = playerShift });
+                foreach (var i in collisionObjects.Keys)
+                {
+                    foreach (var j in collisionObjects.Keys)
+                    {
+                        if (i == j || processedObjects.Contains((j, i))) continue;
+                        CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
+                        processedObjects.Add((i, j));
+                    }
+                }
+
+                Vector2 playerShift = Objects[PlayerId].Pos - playerInitPos;
+                Updated.Invoke(this, new GameplayEventArgs { Objects = Objects, POVShift = playerShift });
+            }            
         }
 
         private void CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
@@ -170,13 +167,23 @@ namespace KARC.MVP
                     oppositeDirection.Normalize();
                     Objects[obj2.Id].Move(Objects[obj2.Id].Pos - oppositeDirection);
                 }
-                if (isCollided)
-                {
-                    Objects[obj1.Id].Speed = new Vector2(0, 0);
-                    Objects[obj2.Id].Speed = new Vector2(0, 0);
-                }
+                isCollided = true;
             }
-
+            if (isCollided)
+            {
+                Objects[obj1.Id].Speed = new Vector2(0, 0);
+                Objects[obj2.Id].Speed = new Vector2(0, 0);
+                //if (Objects[obj1.Id] is Car)
+                //{
+                //    Car c = (Car)Objects[obj1.Id];
+                //    c.IsLive = false;
+                //}
+                //if (Objects[obj2.Id] is Car)
+                //{
+                //    Car c = (Car)Objects[obj2.Id];
+                //    c.IsLive = false;
+                //}
+            }
         }
 
         public void ChangePlayerSpeed(IGameplayModel.Direction dir)
@@ -207,6 +214,13 @@ namespace KARC.MVP
             }
         }
         
+        public void SwitchPause()
+        {
+            if(_isPaused)
+                _isPaused = false;
+            else
+                _isPaused = true;
+        }
 
     }
 }
