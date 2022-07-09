@@ -8,11 +8,11 @@ namespace KARC.WitchEngine
     {
         int PlayerId { get; set; }
         Dictionary<int, IObject> Objects { get; set; }
-        event EventHandler<GameplayEventArgs> Updated;
+        event EventHandler<GameplayEventArgs> Updated;       
        
         void Update();
         void ChangePlayerSpeed(Direction dir);
-        void Initialize();
+        void Initialize((int width, int height) resolution);
         void SwitchPause();
 
         public enum Direction : byte

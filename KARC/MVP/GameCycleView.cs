@@ -16,6 +16,7 @@ namespace KARC.MVP
         public event EventHandler CycleFinished = delegate { };
         public event EventHandler<ControlsEventArgs> PlayerSpeedChanged = delegate { };
         public event EventHandler GamePaused = delegate { };
+        public event EventHandler<InitializeEventArgs> GameLaunched = delegate { };
 
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
@@ -23,6 +24,8 @@ namespace KARC.MVP
         private Vector2 _visualShift = new Vector2(0, 0);
 
         private List<Keys> _pressedPrevFrame = new List<Keys>();
+
+        private SpriteFont _textBlock;
 
         public GameCycleView()
         {
@@ -41,6 +44,9 @@ namespace KARC.MVP
             _graphics.ApplyChanges();
             _visualShift.X -= _graphics.PreferredBackBufferWidth / 2;
             _visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f-50;
+            GameLaunched.Invoke(this, new InitializeEventArgs() { 
+                Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) 
+            });
         }
 
         protected override void LoadContent()
@@ -48,6 +54,8 @@ namespace KARC.MVP
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _textures.Add((byte)Factory.ObjectTypes.car, Content.Load<Texture2D>("Base_car"));
             _textures.Add((byte)Factory.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
+            _textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
+            _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 
         public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift)
@@ -123,9 +131,36 @@ namespace KARC.MVP
                 foreach (var sprite in o.Sprites)
                 {
                     if (sprite.ImageId == -1)
-                        continue;                    
-                    _spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
-                }
+                        continue;
+                    if (o is IComponent component)
+                    {
+                        var s = _textBlock.MeasureString(component.Text)*1.2f;
+                        Vector2 textPos = new Vector2(
+                            o.Pos.X+(s.X- _textBlock.MeasureString(component.Text).X)/2,
+                            o.Pos.Y+ (s.Y - _textBlock.MeasureString(component.Text).Y) / 2
+                            ); 
+
+                        _spriteBatch.Draw(
+                            texture:_textures[sprite.ImageId],
+                            position: o.Pos + sprite.ImagePos,
+                            sourceRectangle: null,
+                            Color.White, 
+                            rotation: 0, 
+                            origin: Vector2.Zero, 
+                            scale: new Vector2(
+                                s.X/_textures[sprite.ImageId].Width,
+                                s.Y/_textures[sprite.ImageId].Height),
+                            SpriteEffects.None, 
+                            layerDepth: 0);
+                                             
+                        _spriteBatch.DrawString(_textBlock, component.Text, textPos, Color.Black);
+
+                    }
+                    else
+                    {
+                        _spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
+                    }                    
+                }                
             }
             _spriteBatch.End();
         }

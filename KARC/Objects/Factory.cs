@@ -37,7 +37,8 @@ namespace KARC.Objects
         public enum ObjectTypes : byte
         {
             car,
-            wall
+            wall,
+            window,
         }
     }
 }

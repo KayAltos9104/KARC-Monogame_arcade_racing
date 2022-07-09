@@ -13,18 +13,24 @@ namespace KARC.MVP
 
         bool _isPaused;
 
+        bool _isGameOver;
+
         private int _currentId;
 
         private char[,] _map = new char[11, 2000];
         private int _tileSize = 100;
+
+        public (int width, int height) Resolution;
         public int PlayerId { get; set; }
         public Dictionary<int, IObject> Objects { get; set; }
         public Dictionary<int, ISolid> SolidObjects { get; set; }
-        public void Initialize()
+        public void Initialize((int width, int height) resolution)
         {
+            Resolution = resolution;
             Objects = new Dictionary<int, IObject>();
             SolidObjects = new Dictionary<int, ISolid>();
             _isPaused = false;
+            _isGameOver = false;
 
             _map[5, 7] = 'P';
             _map[4, 2] = 'C';
@@ -77,7 +83,8 @@ namespace KARC.MVP
                             SolidObjects.Add(_currentId, s);
                         _currentId++;
                     }
-                }   
+                }            
+
             Updated.Invoke(this, new GameplayEventArgs()
             {
                 Objects = Objects,
@@ -142,7 +149,17 @@ namespace KARC.MVP
                         processedObjects.Add((i, j));
                     }
                 }
+                Car player = (Car)Objects[PlayerId];
+                if (!player.IsLive)
+                    _isGameOver = true;
 
+                if (_isGameOver)
+                {
+                    _isPaused = true;
+                    MessageBox gameOverMessage = new MessageBox(new Vector2(Resolution.width/2-100, Resolution.height/2), "Игра окончена!");
+                    Objects.Add(_currentId, gameOverMessage);
+                    _currentId++;
+                }
                 Vector2 playerShift = Objects[PlayerId].Pos - playerInitPos;
                 Updated.Invoke(this, new GameplayEventArgs { Objects = Objects, POVShift = playerShift });
             }            
@@ -182,7 +199,7 @@ namespace KARC.MVP
                 {
                     Car c = (Car)Objects[obj2.Id];
                     c.IsLive = false;
-                }
+                }                
             }
         }
 
