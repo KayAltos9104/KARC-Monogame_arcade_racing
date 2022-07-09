@@ -173,45 +173,52 @@ namespace KARC.MVP
             {
                 Objects[obj1.Id].Speed = new Vector2(0, 0);
                 Objects[obj2.Id].Speed = new Vector2(0, 0);
-                //if (Objects[obj1.Id] is Car)
-                //{
-                //    Car c = (Car)Objects[obj1.Id];
-                //    c.IsLive = false;
-                //}
-                //if (Objects[obj2.Id] is Car)
-                //{
-                //    Car c = (Car)Objects[obj2.Id];
-                //    c.IsLive = false;
-                //}
+                if (Objects[obj1.Id] is Car)
+                {
+                    Car c = (Car)Objects[obj1.Id];
+                    c.IsLive = false;
+                }
+                if (Objects[obj2.Id] is Car)
+                {
+                    Car c = (Car)Objects[obj2.Id];
+                    c.IsLive = false;
+                }
             }
         }
 
         public void ChangePlayerSpeed(IGameplayModel.Direction dir)
         {
-            Car p = (Car)Objects[PlayerId];
-            switch (dir)
+            if (_isPaused)
             {
-                case IGameplayModel.Direction.forward:
-                    {
-                        p.Speed += new Vector2(0, -5);
-                        break;
-                    }
-                case IGameplayModel.Direction.backward:
-                    {
-                        p.Speed += new Vector2(0, 5);
-                        break;
-                    }
-                case IGameplayModel.Direction.right:
-                    {
-                        p.Speed += new Vector2(5, 0);
-                        break;
-                    }
-                case IGameplayModel.Direction.left:
-                    {
-                        p.Speed += new Vector2(-5, 0);
-                        break;
-                    }
+
             }
+            else
+            {
+                Car p = (Car)Objects[PlayerId];
+                switch (dir)
+                {
+                    case IGameplayModel.Direction.forward:
+                        {
+                            p.Speed += new Vector2(0, -5);
+                            break;
+                        }
+                    case IGameplayModel.Direction.backward:
+                        {
+                            p.Speed += new Vector2(0, 5);
+                            break;
+                        }
+                    case IGameplayModel.Direction.right:
+                        {
+                            p.Speed += new Vector2(5, 0);
+                            break;
+                        }
+                    case IGameplayModel.Direction.left:
+                        {
+                            p.Speed += new Vector2(-5, 0);
+                            break;
+                        }
+                }
+            }            
         }
         
         public void SwitchPause()
