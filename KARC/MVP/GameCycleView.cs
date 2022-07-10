@@ -55,6 +55,7 @@ namespace KARC.MVP
             _textures.Add((byte)Factory.ObjectTypes.car, Content.Load<Texture2D>("Base_car"));
             _textures.Add((byte)Factory.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
             _textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
+            _textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 

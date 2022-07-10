@@ -25,11 +25,15 @@ namespace KARC.MVP
         public int PlayerId { get; set; }
         public Dictionary<int, IObject> Objects { get; set; }
         public Dictionary<int, ISolid> SolidObjects { get; set; }
+
+        public Dictionary<int, ITrigger> Triggers { get; set; }
         public void Initialize((int width, int height) resolution)
         {
             Resolution = resolution;
             Objects = new Dictionary<int, IObject>();
             SolidObjects = new Dictionary<int, ISolid>();
+            Triggers = new Dictionary<int, ITrigger>();
+
             _playerShift = Vector2.Zero;
 
             _isPaused = false;
@@ -38,10 +42,13 @@ namespace KARC.MVP
             _map[5, 7] = 'P';
             _map[4, 2] = 'C';
             _map[6, 2] = 'C';
-            _map[0, 0] = '1';
+            _map[0, 1] = '1';
             _map[0, 1999] = '1';
-            _map[_map.GetLength(0) - 1, 0] = '2';
+            _map[1, 1] = 'F';
+            _map[_map.GetLength(0) - 2, 1] = 'F';
+            _map[_map.GetLength(0) - 1, 1] = '2';
             _map[_map.GetLength(0) - 1, 1999] = '2';
+
             
             _currentId = 1;
             bool isPlacedPlayer = false;
@@ -53,17 +60,30 @@ namespace KARC.MVP
                         IObject generatedObject = null;
                         if (int.TryParse(_map[x, y].ToString(), out int corner1))
                         {
+                            _map[x, y] = '\0';
                             for (int yCorner = 0; yCorner < _map.GetLength(1); yCorner++)
                                 for (int xCorner = 0; xCorner < _map.GetLength(0); xCorner++)
                                 {
-                                    if (int.TryParse(_map[xCorner, yCorner].ToString(), out int corner2)&&(x!=xCorner||y!=yCorner))
+                                    if (int.TryParse(_map[xCorner, yCorner].ToString(), out int corner2))
                                     {
                                         if (corner1==corner2)
                                         {
-                                            generatedObject = GenerateObject('W', x, y, xCorner, yCorner);
-                                            _map[x, y] = '\0';
+                                            generatedObject = GenerateObject('W', x, y, xCorner, yCorner);                                           
                                             _map[xCorner, yCorner] = '\0';
                                         }
+                                    }
+                                }
+                        }
+                        else if (_map[x,y] == 'F')
+                        {
+                            _map[x, y] = '\0';
+                            for (int yCorner = 0; yCorner < _map.GetLength(1); yCorner++)
+                                for (int xCorner = 0; xCorner < _map.GetLength(0); xCorner++)
+                                {
+                                    if (_map[xCorner, yCorner] == 'F')
+                                    {
+                                        generatedObject = GenerateObject('F', x, y, xCorner, yCorner);                                       
+                                        _map[xCorner, yCorner] = '\0';
                                     }
                                 }
                         }
@@ -119,8 +139,13 @@ namespace KARC.MVP
             IObject generatedObject = null;
             if (sign == 'W')
             {
-                generatedObject = Factory.CreateWall(xInit + _tileSize / 2, yInit + _tileSize / 2, 
-                    xEnd + _tileSize / 2, yEnd + _tileSize / 2);
+                generatedObject = Factory.CreateWall(xInit, yInit, 
+                    xEnd+_tileSize, yEnd + _tileSize, tileSize: _tileSize);
+            }
+            if (sign == 'F')
+            {
+                generatedObject = Factory.CreateTrigger(xInit, yInit,
+                    xEnd + _tileSize, yEnd + _tileSize, spriteId: (byte)Factory.ObjectTypes.finish, tileSize:_tileSize);
             }
 
             return generatedObject;
