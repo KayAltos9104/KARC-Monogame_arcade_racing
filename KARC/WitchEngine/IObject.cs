@@ -7,8 +7,8 @@ namespace KARC.WitchEngine
 {
     public interface IObject
     {       
-
-        public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
+        float Layer { get;set; }
+        List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
 
         Vector2 Pos { get;}
 

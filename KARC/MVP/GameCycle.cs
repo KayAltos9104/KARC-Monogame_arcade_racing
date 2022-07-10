@@ -3,7 +3,7 @@ using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace KARC.MVP
 {
@@ -39,8 +39,8 @@ namespace KARC.MVP
             _isPaused = false;
             _isGameOver = false;
 
-            _map[5, 7] = 'P';
-            _map[4, 2] = 'C';
+            _map[5, 19] = 'P';
+            _map[4, 3] = 'C';
             _map[6, 2] = 'C';
             _map[0, 1] = '1';
             _map[0, 1999] = '1';
@@ -49,7 +49,7 @@ namespace KARC.MVP
             _map[_map.GetLength(0) - 1, 1] = '2';
             _map[_map.GetLength(0) - 1, 1999] = '2';
 
-            
+
             _currentId = 1;
             bool isPlacedPlayer = false;
             for (int y = 0; y < _map.GetLength(1); y++)
@@ -82,7 +82,9 @@ namespace KARC.MVP
                                 {
                                     if (_map[xCorner, yCorner] == 'F')
                                     {
-                                        generatedObject = GenerateObject('F', x, y, xCorner, yCorner);                                       
+                                        generatedObject = GenerateObject('F', x, y, xCorner, yCorner);
+                                        var trigger = (ITrigger)generatedObject;
+                                        trigger.Triggered += CalculateWin;
                                         _map[xCorner, yCorner] = '\0';
                                     }
                                 }
@@ -104,6 +106,9 @@ namespace KARC.MVP
                         }
                         if (generatedObject is ISolid s)
                             SolidObjects.Add(_currentId, s);
+
+                        if (generatedObject is ITrigger t)
+                            Triggers.Add(_currentId, t);
                         _currentId++;
                     }
                 }
@@ -178,6 +183,10 @@ namespace KARC.MVP
                         CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
                         processedObjects.Add((i, j));
                     }
+                    foreach (var t in Triggers)
+                    {
+                        CalculateTrigger(SolidObjects[i], t.Value);
+                    }
                 }
                 Car player = (Car)Objects[PlayerId];
                 if (!player.IsLive)
@@ -185,7 +194,7 @@ namespace KARC.MVP
 
                 if (_isGameOver)
                 {
-                    _isPaused = true;
+                    //_isPaused = true;
                     MessageBox gameOverMessage = new MessageBox(new Vector2(
                         Resolution.width/2-100, Resolution.height/2), 
                         "Игра окончена!\nВы проиграли!\nНажмите R для перезагрузки"
@@ -194,7 +203,13 @@ namespace KARC.MVP
                     _currentId++;
                 }
                 _playerShift += Objects[PlayerId].Pos - playerInitPos;
-                Updated.Invoke(this, new GameplayEventArgs { Objects = Objects, POVShift = _playerShift });
+
+
+                var s = Objects.OrderBy(pair => pair.Value.Layer);
+                Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
+
+
+                Updated.Invoke(this, new GameplayEventArgs { Objects = sortedObjects, POVShift = _playerShift });
             }            
         }
 
@@ -202,7 +217,7 @@ namespace KARC.MVP
         {
             bool isCollided = false;
 
-            Vector2 oppositeDirection = new Vector2(0, 0);
+            Vector2 oppositeDirection;
             while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Collider, SolidObjects[obj2.Id].Collider))
             {
                 if (obj1.initPos != Objects[obj1.Id].Pos)
@@ -236,9 +251,28 @@ namespace KARC.MVP
             }
         }
 
+        private void CalculateTrigger (ISolid s, ITrigger t)
+        {
+            if (RectangleCollider.IsCollided(s.Collider,t.Collider))
+            {
+                t.OnTrigger();
+            }
+        }
+
+        private void CalculateWin(object sender, EventArgs e)
+        {
+            //_isPaused = true;
+            _isGameOver = true;
+            MessageBox gameOverMessage = new MessageBox(new Vector2(
+                Resolution.width / 2 - 100, Resolution.height / 2),
+                "Игра окончена!\nВы выиграли!\nНажмите R, чтобы начать заново"
+                );
+            Objects.Add(_currentId, gameOverMessage);
+            _currentId++;
+        }
         public void ChangePlayerSpeed(IGameplayModel.Direction dir)
         {
-            if (_isPaused)
+            if (_isPaused||_isGameOver)
             {
 
             }

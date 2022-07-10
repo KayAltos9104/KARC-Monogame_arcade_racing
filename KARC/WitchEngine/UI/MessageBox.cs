@@ -15,6 +15,7 @@ namespace KARC.WitchEngine
         public Vector2 Speed { get; set; }
         public string Name { get; set; }
         public string Text { get; set; }
+        public float Layer { get; set; }
 
         public MessageBox(Vector2 pos, string text)
         {
@@ -23,6 +24,7 @@ namespace KARC.WitchEngine
             Name = "";
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
             Sprites.Add(((byte)Factory.ObjectTypes.window, Vector2.Zero));
+            Layer = 1.0f;
         }
 
         public MessageBox(Vector2 pos, string name, string text): this (pos, text)

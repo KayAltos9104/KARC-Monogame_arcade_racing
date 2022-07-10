@@ -12,12 +12,14 @@ namespace KARC.Objects
         public Vector2 Speed { get; set; }
         public RectangleCollider Collider { get; set; }
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
+        public float Layer { get; set; }
 
         public Wall(Vector2 position, int width, int length)
         {
             Pos = position;
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
             Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, width, length);
+            Layer = 0.5f;
         }
 
         public void Move(Vector2 newPos)

@@ -128,8 +128,9 @@ namespace KARC.MVP
         {
             //GraphicsDevice.Clear(Color.CornflowerBlue);
             GraphicsDevice.Clear(Color.DarkSeaGreen);
-            base.Draw(gameTime);
-            
+
+
+            //_spriteBatch.Begin(SpriteSortMode.BackToFront);
             _spriteBatch.Begin();           
             foreach (var o in _objects.Values)
             {                
@@ -139,35 +140,56 @@ namespace KARC.MVP
                         continue;
                     if (o is IComponent component)
                     {
-                        var s = _textBlock.MeasureString(component.Text)*1.2f;
+                        var s = _textBlock.MeasureString(component.Text) * 1.2f;
                         Vector2 textPos = new Vector2(
-                            o.Pos.X+(s.X- _textBlock.MeasureString(component.Text).X)/2,
-                            o.Pos.Y+ (s.Y - _textBlock.MeasureString(component.Text).Y) / 2
-                            ); 
+                            o.Pos.X + (s.X - _textBlock.MeasureString(component.Text).X) / 2,
+                            o.Pos.Y + (s.Y - _textBlock.MeasureString(component.Text).Y) / 2
+                            );
 
                         _spriteBatch.Draw(
-                            texture:_textures[sprite.ImageId],
+                            texture: _textures[sprite.ImageId],
                             position: o.Pos + sprite.ImagePos,
                             sourceRectangle: null,
-                            Color.White, 
-                            rotation: 0, 
-                            origin: Vector2.Zero, 
+                            Color.White,
+                            rotation: 0,
+                            origin: Vector2.Zero,
                             scale: new Vector2(
-                                s.X/_textures[sprite.ImageId].Width,
-                                s.Y/_textures[sprite.ImageId].Height),
-                            SpriteEffects.None, 
-                            layerDepth: 0);
-                                             
-                        _spriteBatch.DrawString(_textBlock, component.Text, textPos, Color.Black);
+                                s.X / _textures[sprite.ImageId].Width,
+                                s.Y / _textures[sprite.ImageId].Height),
+                            SpriteEffects.None,
+                            layerDepth: o.Layer);
+
+                        _spriteBatch.DrawString(
+                            _textBlock,
+                            component.Text,
+                            textPos,
+                            Color.Black,
+                            rotation: 0,
+                            origin: Vector2.Zero,
+                            scale: 1,
+                            SpriteEffects.None,
+                            layerDepth: 0
+                            );
 
                     }
                     else
                     {
                         _spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
+                        _spriteBatch.Draw(
+                            texture: _textures[sprite.ImageId],
+                            position: o.Pos - _visualShift + sprite.ImagePos,
+                            sourceRectangle: null,
+                            Color.White,
+                            rotation: 0,
+                            origin: Vector2.Zero,
+                            scale: 1,
+                            SpriteEffects.None,
+                            layerDepth: o.Layer);
                     }                    
                 }                
             }
             _spriteBatch.End();
+            base.Draw(gameTime);
         }
     }
 }

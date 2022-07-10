@@ -30,6 +30,7 @@ namespace KARC.Objects
         }
         public RectangleCollider Collider { get; set ; }
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
+        public float Layer { get; set; }
 
         public Car (Vector2 position, int height, int width)
         {
@@ -37,6 +38,7 @@ namespace KARC.Objects
             IsLive = true;
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
             Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, width, height);
+            Layer = 0.5f;
         }
 
         public void Update()

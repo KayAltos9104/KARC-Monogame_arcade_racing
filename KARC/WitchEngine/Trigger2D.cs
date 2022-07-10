@@ -14,11 +14,14 @@ namespace KARC.WitchEngine
 
         public Vector2 Speed { get; set; }
         public RectangleCollider Collider { get; set; }
+        public float Layer { get; set; }
+
         public Trigger2D(Vector2 position, int width, int length)
         {
             Pos = position;
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
             Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, width, length);
+            Layer = 0.4f;
         }
         public void Move(Vector2 pos)
         {
