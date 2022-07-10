@@ -19,6 +19,7 @@ namespace KARC.MVP
 
         private char[,] _map = new char[11, 2000];
         private int _tileSize = 100;
+        private Vector2 _playerShift;
 
         public (int width, int height) Resolution;
         public int PlayerId { get; set; }
@@ -29,6 +30,8 @@ namespace KARC.MVP
             Resolution = resolution;
             Objects = new Dictionary<int, IObject>();
             SolidObjects = new Dictionary<int, ISolid>();
+            _playerShift = Vector2.Zero;
+
             _isPaused = false;
             _isGameOver = false;
 
@@ -83,14 +86,16 @@ namespace KARC.MVP
                             SolidObjects.Add(_currentId, s);
                         _currentId++;
                     }
-                }            
-
+                }
+            _playerShift = new Vector2(
+                    -Resolution.width / 2 + Objects[PlayerId].Pos.X,
+                    -Resolution.height * 0.8f + Objects[PlayerId].Pos.Y
+                );
             Updated.Invoke(this, new GameplayEventArgs()
             {
                 Objects = Objects,
-                POVShift = new Vector2(Objects[PlayerId].Pos.X,
-                Objects[PlayerId].Pos.Y)
-            });
+                POVShift = _playerShift
+            }) ;
         }
 
         private IObject GenerateObject(char sign, int xTile, int yTile)
@@ -156,12 +161,15 @@ namespace KARC.MVP
                 if (_isGameOver)
                 {
                     _isPaused = true;
-                    MessageBox gameOverMessage = new MessageBox(new Vector2(Resolution.width/2-100, Resolution.height/2), "Игра окончена!");
+                    MessageBox gameOverMessage = new MessageBox(new Vector2(
+                        Resolution.width/2-100, Resolution.height/2), 
+                        "Игра окончена!\nВы проиграли!\nНажмите R для перезагрузки"
+                        );
                     Objects.Add(_currentId, gameOverMessage);
                     _currentId++;
                 }
-                Vector2 playerShift = Objects[PlayerId].Pos - playerInitPos;
-                Updated.Invoke(this, new GameplayEventArgs { Objects = Objects, POVShift = playerShift });
+                _playerShift += Objects[PlayerId].Pos - playerInitPos;
+                Updated.Invoke(this, new GameplayEventArgs { Objects = Objects, POVShift = _playerShift });
             }            
         }
 

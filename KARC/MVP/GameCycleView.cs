@@ -42,8 +42,8 @@ namespace KARC.MVP
             _graphics.PreferredBackBufferWidth = 1024;
             _graphics.PreferredBackBufferHeight = 768;
             _graphics.ApplyChanges();
-            _visualShift.X -= _graphics.PreferredBackBufferWidth / 2;
-            _visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f-50;
+            //_visualShift.X -= _graphics.PreferredBackBufferWidth / 2;
+            //_visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f-50;
             GameLaunched.Invoke(this, new InitializeEventArgs() { 
                 Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) 
             });
@@ -61,7 +61,7 @@ namespace KARC.MVP
         public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift)
         {
             _objects = Objects;
-            _visualShift += POVShift;
+            _visualShift = POVShift;
         }
 
 
@@ -100,10 +100,14 @@ namespace KARC.MVP
                 }
             }
 
-            if (Keyboard.GetState().IsKeyUp(Keys.P)&&IsSinglePressed(Keys.P))
+            if (IsSinglePressed(Keys.P))
                 GamePaused.Invoke(this, new EventArgs());
 
-
+            if(IsSinglePressed(Keys.R))
+                GameLaunched.Invoke(this, new InitializeEventArgs()
+                {
+                    Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)
+                });
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -115,7 +119,7 @@ namespace KARC.MVP
         }
 
         private bool IsSinglePressed(Keys key)
-        {
+        {            
             return Keyboard.GetState().IsKeyUp(key) && _pressedPrevFrame.Contains(key);
         }
 

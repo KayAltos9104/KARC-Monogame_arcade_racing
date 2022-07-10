@@ -10,13 +10,14 @@ namespace KARC.WitchEngine
         event EventHandler<ControlsEventArgs> PlayerSpeedChanged;
         event EventHandler<InitializeEventArgs> GameLaunched;
         event EventHandler GamePaused;
+       
         void LoadGameCycleParameters(Dictionary<int, IObject> _objects, Vector2 POVShift);
         void Run();
     }
 
     public class InitializeEventArgs
     {
-        public (int width, int height) Resolution { get; set; }
+        public (int width, int height) Resolution { get; set; }         
     }
 
     public class ControlsEventArgs : EventArgs
