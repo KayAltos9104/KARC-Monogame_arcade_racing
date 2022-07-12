@@ -158,7 +158,7 @@ namespace KARC.MVP
 
         public void Update()
         {
-            if (_isPaused)
+            if (!_isPaused)
             {
 
             }
@@ -196,7 +196,7 @@ namespace KARC.MVP
                 {
                     //_isPaused = true;
                     MessageBox gameOverMessage = new MessageBox(new Vector2(
-                        Resolution.width/2-100, Resolution.height/2), 
+                        Resolution.width / 2 - 100, Resolution.height / 2),
                         "Игра окончена!\nВы проиграли!\nНажмите R для перезагрузки"
                         );
                     Objects.Add(_currentId, gameOverMessage);
