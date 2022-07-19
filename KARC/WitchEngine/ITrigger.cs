@@ -6,9 +6,15 @@ namespace KARC.WitchEngine
 {
     public interface ITrigger
     {
-        event EventHandler Triggered;
+        event EventHandler<TriggerEventArgs> Triggered;
         RectangleCollider Collider { get; set; }
-        void OnTrigger();        
+        void OnTrigger(IObject activator, int id);
+        
     }
     
+    public class TriggerEventArgs:EventArgs
+    {       
+        public IObject Activator { get; set; }
+        public int ActivatorId { get; set; }
+    }
 }

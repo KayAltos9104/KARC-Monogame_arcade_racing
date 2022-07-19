@@ -44,11 +44,10 @@ namespace KARC.MVP
             _map[6, 2] = 'C';
             _map[0, 1] = '1';
             _map[0, 1999] = '1';
-            _map[1, 1] = 'F';
-            _map[_map.GetLength(0) - 2, 1] = 'F';
+            _map[1, 3] = 'F';
+            _map[_map.GetLength(0) - 2, 3] = 'F';
             _map[_map.GetLength(0) - 1, 1] = '2';
             _map[_map.GetLength(0) - 1, 1999] = '2';
-
 
             _currentId = 1;
             bool isPlacedPlayer = false;
@@ -158,11 +157,7 @@ namespace KARC.MVP
 
         public void Update()
         {
-            if (!_isPaused)
-            {
-
-            }
-            else
+            if (!_isPaused)            
             {
                 Vector2 playerInitPos = Objects[PlayerId].Pos;
                 Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
@@ -185,29 +180,17 @@ namespace KARC.MVP
                     }
                     foreach (var t in Triggers)
                     {
-                        CalculateTrigger(SolidObjects[i], t.Value);
+                        CalculateTrigger(i, t.Value);
                     }
                 }
                 Car player = (Car)Objects[PlayerId];
-                if (!player.IsLive)
-                    _isGameOver = true;
-
-                if (_isGameOver)
-                {
-                    //_isPaused = true;
-                    MessageBox gameOverMessage = new MessageBox(new Vector2(
-                        Resolution.width / 2 - 100, Resolution.height / 2),
-                        "Игра окончена!\nВы проиграли!\nНажмите R для перезагрузки"
-                        );
-                    Objects.Add(_currentId, gameOverMessage);
-                    _currentId++;
-                }
+                if (!player.IsLive)                    
+                    ProcessGameOver("Игра окончена!\nВы проиграли!\nНажмите R для перезагрузки");
+                
                 _playerShift += Objects[PlayerId].Pos - playerInitPos;
-
 
                 var s = Objects.OrderBy(pair => pair.Value.Layer);
                 Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
-
 
                 Updated.Invoke(this, new GameplayEventArgs { Objects = sortedObjects, POVShift = _playerShift });
             }            
@@ -251,32 +234,33 @@ namespace KARC.MVP
             }
         }
 
-        private void CalculateTrigger (ISolid s, ITrigger t)
+        private void CalculateTrigger (int i, ITrigger t)
         {
-            if (RectangleCollider.IsCollided(s.Collider,t.Collider))
+            if (RectangleCollider.IsCollided(SolidObjects[i].Collider, t.Collider))
             {
-                t.OnTrigger();
+                t.OnTrigger(Objects[i], i);
             }
+        }       
+        private void CalculateWin(object sender, TriggerEventArgs e)
+        {
+            if (e.ActivatorId == PlayerId)
+                ProcessGameOver("Игра окончена!\nВы выиграли!\nНажмите R, чтобы начать заново");           
         }
 
-        private void CalculateWin(object sender, EventArgs e)
+        private void ProcessGameOver (string message)
         {
-            //_isPaused = true;
             _isGameOver = true;
             MessageBox gameOverMessage = new MessageBox(new Vector2(
                 Resolution.width / 2 - 100, Resolution.height / 2),
-                "Игра окончена!\nВы выиграли!\nНажмите R, чтобы начать заново"
+                message
                 );
             Objects.Add(_currentId, gameOverMessage);
             _currentId++;
         }
-        public void ChangePlayerSpeed(IGameplayModel.Direction dir)
-        {
-            if (_isPaused||_isGameOver)
-            {
 
-            }
-            else
+        public void ChangePlayerSpeed(IGameplayModel.Direction dir)
+        {           
+            if (!_isPaused&&!_isGameOver)
             {
                 Car p = (Car)Objects[PlayerId];
                 switch (dir)
@@ -303,8 +287,7 @@ namespace KARC.MVP
                         }
                 }
             }            
-        }
-        
+        }        
         public void SwitchPause()
         {
             if(_isPaused)
@@ -315,3 +298,4 @@ namespace KARC.MVP
 
     }
 }
+

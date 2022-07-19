@@ -7,7 +7,7 @@ namespace KARC.WitchEngine
 {
     public class Trigger2D : IObject, ITrigger
     {
-        public event EventHandler Triggered = delegate { };
+        public event EventHandler<TriggerEventArgs> Triggered = delegate { };
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
 
         public Vector2 Pos { get; private set; }
@@ -29,11 +29,11 @@ namespace KARC.WitchEngine
             Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, Collider.Boundary.Width, Collider.Boundary.Height);           
         }
 
-        public void OnTrigger()
+        public void OnTrigger(IObject activator, int id)
         {
-            Triggered.Invoke(this, new EventArgs());
+            Triggered.Invoke(this, new TriggerEventArgs() { Activator = activator, ActivatorId = id });
         }
 
-        public void Update() { }
+        public void Update() { }        
     }
 }
