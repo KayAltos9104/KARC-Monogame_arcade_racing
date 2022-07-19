@@ -251,9 +251,10 @@ namespace KARC.MVP
         {
             _isGameOver = true;
             MessageBox gameOverMessage = new MessageBox(new Vector2(
-                Resolution.width / 2 - 100, Resolution.height / 2),
+                Resolution.width / 2, Resolution.height / 2),
                 message
                 );
+            gameOverMessage.IsCentered = true;
             Objects.Add(_currentId, gameOverMessage);
             _currentId++;
         }

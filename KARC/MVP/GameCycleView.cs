@@ -142,13 +142,13 @@ namespace KARC.MVP
                     {
                         var s = _textBlock.MeasureString(component.Text) * 1.2f;
                         Vector2 textPos = new Vector2(
-                            o.Pos.X + (s.X - _textBlock.MeasureString(component.Text).X) / 2,
-                            o.Pos.Y + (s.Y - _textBlock.MeasureString(component.Text).Y) / 2
+                            o.Pos.X + (s.X - _textBlock.MeasureString(component.Text).X) / 2 - (component.IsCentered?s.X/2:0),
+                            o.Pos.Y + (s.Y - _textBlock.MeasureString(component.Text).Y) / 2 - (component.IsCentered ? s.Y / 2 : 0)
                             );
 
                         _spriteBatch.Draw(
                             texture: _textures[sprite.ImageId],
-                            position: o.Pos + sprite.ImagePos,
+                            position: o.Pos + sprite.ImagePos - (component.IsCentered ? s / 2 : Vector2.Zero),
                             sourceRectangle: null,
                             Color.White,
                             rotation: 0,

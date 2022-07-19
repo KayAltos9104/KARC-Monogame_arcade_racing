@@ -9,5 +9,6 @@ namespace KARC.WitchEngine
     {
        string  Name { get; set; }
        string  Text { get; set; }
+       public bool IsCentered { get; set; }
     }
 }
