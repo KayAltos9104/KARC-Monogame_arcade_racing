@@ -8,7 +8,8 @@ namespace KARC.WitchEngine
     {
         int PlayerId { get; set; }
         Dictionary<int, IObject> Objects { get; set; }
-        event EventHandler<GameplayEventArgs> Updated;       
+        event EventHandler<GameplayEventArgs> Updated; 
+        event EventHandler<GameOverEventArgs> GameFinished;
        
         void Update();
         void ChangePlayerSpeed(Direction dir);
@@ -22,6 +23,11 @@ namespace KARC.WitchEngine
             right,
             left
         }
+    }
+
+    public class GameOverEventArgs
+    {
+        public bool IsWin { get; set; }
     }
 
     public class GameplayEventArgs : EventArgs

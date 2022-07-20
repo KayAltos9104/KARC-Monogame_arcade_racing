@@ -21,7 +21,13 @@ namespace KARC.MVP
             _gameplayView.GameLaunched += ViewModelInitialize;
 
             _gameplayModel.Updated += ModelViewUpdate;
+            _gameplayModel.GameFinished += ModelViewFinish;
             
+        }
+
+        private void ModelViewFinish(object sender, GameOverEventArgs e)
+        {
+            _gameplayView.ShowGameOver(e.IsWin);
         }
 
         private void ViewModelInitialize(object sender, InitializeEventArgs e)

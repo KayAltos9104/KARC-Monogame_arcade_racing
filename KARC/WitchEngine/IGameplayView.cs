@@ -12,6 +12,7 @@ namespace KARC.WitchEngine
         event EventHandler GamePaused;
        
         void LoadGameCycleParameters(Dictionary<int, IObject> _objects, Vector2 POVShift);
+        void ShowGameOver(bool isWin);
         void Run();
     }
 

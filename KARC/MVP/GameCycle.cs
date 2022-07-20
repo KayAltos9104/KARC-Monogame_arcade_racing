@@ -10,6 +10,7 @@ namespace KARC.MVP
     public class GameCycle : IGameplayModel
     {
         public event EventHandler<GameplayEventArgs> Updated = delegate { };
+        public event EventHandler<GameOverEventArgs> GameFinished = delegate { };
 
         bool _isPaused;
 
@@ -184,8 +185,8 @@ namespace KARC.MVP
                     }
                 }
                 Car player = (Car)Objects[PlayerId];
-                if (!player.IsLive)                    
-                    ProcessGameOver("Игра окончена!\nВы проиграли!\nНажмите R для перезагрузки");
+                if (!player.IsLive)                   
+                    ProcessGameOver(isWin : false);
                 
                 _playerShift += Objects[PlayerId].Pos - playerInitPos;
 
@@ -243,20 +244,14 @@ namespace KARC.MVP
         }       
         private void CalculateWin(object sender, TriggerEventArgs e)
         {
-            if (e.ActivatorId == PlayerId)
-                ProcessGameOver("Игра окончена!\nВы выиграли!\nНажмите R, чтобы начать заново");           
+            if (e.ActivatorId == PlayerId)                
+                ProcessGameOver(isWin : true);
         }
 
-        private void ProcessGameOver (string message)
+        private void ProcessGameOver (bool isWin)
         {
-            _isGameOver = true;
-            MessageBox gameOverMessage = new MessageBox(new Vector2(
-                Resolution.width / 2, Resolution.height / 2),
-                message
-                );
-            gameOverMessage.IsCentered = true;
-            Objects.Add(_currentId, gameOverMessage);
-            _currentId++;
+            _isGameOver = true;            
+            GameFinished.Invoke(this, new GameOverEventArgs { IsWin = isWin });  
         }
 
         public void ChangePlayerSpeed(IGameplayModel.Direction dir)

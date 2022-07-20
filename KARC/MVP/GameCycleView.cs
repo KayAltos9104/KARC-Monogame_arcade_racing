@@ -19,6 +19,8 @@ namespace KARC.MVP
         public event EventHandler<InitializeEventArgs> GameLaunched = delegate { };
 
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
+        private int _componentId = 1;
+        private Dictionary<int, IComponent> _components = new Dictionary<int, IComponent>();
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
         private Vector2 _visualShift = new Vector2(0, 0);
@@ -42,6 +44,7 @@ namespace KARC.MVP
             _graphics.PreferredBackBufferWidth = 1024;
             _graphics.PreferredBackBufferHeight = 768;
             _graphics.ApplyChanges();
+            
             //_visualShift.X -= _graphics.PreferredBackBufferWidth / 2;
             //_visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f-50;
             GameLaunched.Invoke(this, new InitializeEventArgs() { 
@@ -105,10 +108,15 @@ namespace KARC.MVP
                 GamePaused.Invoke(this, new EventArgs());
 
             if(IsSinglePressed(Keys.R))
+            {
+                _components.Clear();
+                _componentId = 1;
                 GameLaunched.Invoke(this, new InitializeEventArgs()
                 {
                     Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)
                 });
+            }
+                
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -138,58 +146,75 @@ namespace KARC.MVP
                 {
                     if (sprite.ImageId == -1)
                         continue;
-                    if (o is IComponent component)
-                    {
-                        var s = _textBlock.MeasureString(component.Text) * 1.2f;
-                        Vector2 textPos = new Vector2(
-                            o.Pos.X + (s.X - _textBlock.MeasureString(component.Text).X) / 2 - (component.IsCentered?s.X/2:0),
-                            o.Pos.Y + (s.Y - _textBlock.MeasureString(component.Text).Y) / 2 - (component.IsCentered ? s.Y / 2 : 0)
-                            );
-
-                        _spriteBatch.Draw(
-                            texture: _textures[sprite.ImageId],
-                            position: o.Pos + sprite.ImagePos - (component.IsCentered ? s / 2 : Vector2.Zero),
-                            sourceRectangle: null,
-                            Color.White,
-                            rotation: 0,
-                            origin: Vector2.Zero,
-                            scale: new Vector2(
-                                s.X / _textures[sprite.ImageId].Width,
-                                s.Y / _textures[sprite.ImageId].Height),
-                            SpriteEffects.None,
-                            layerDepth: o.Layer);
-
-                        _spriteBatch.DrawString(
-                            _textBlock,
-                            component.Text,
-                            textPos,
-                            Color.Black,
-                            rotation: 0,
-                            origin: Vector2.Zero,
-                            scale: 1,
-                            SpriteEffects.None,
-                            layerDepth: 0
-                            );
-
-                    }
-                    else
-                    {
-                        _spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
-                        _spriteBatch.Draw(
-                            texture: _textures[sprite.ImageId],
-                            position: o.Pos - _visualShift + sprite.ImagePos,
-                            sourceRectangle: null,
-                            Color.White,
-                            rotation: 0,
-                            origin: Vector2.Zero,
-                            scale: 1,
-                            SpriteEffects.None,
-                            layerDepth: o.Layer);
-                    }                    
-                }                
+                    _spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
+                    _spriteBatch.Draw(
+                        texture: _textures[sprite.ImageId],
+                        position: o.Pos - _visualShift + sprite.ImagePos,
+                        sourceRectangle: null,
+                        Color.White,
+                        rotation: 0,
+                        origin: Vector2.Zero,
+                        scale: 1,
+                        SpriteEffects.None,
+                        layerDepth: o.Layer);
+                }              
             }
+            foreach (var c in _components.Values)
+            {
+                var o = (IObject)c;
+                foreach (var sprite in o.Sprites)
+                {
+                    if (sprite.ImageId == -1)
+                        continue;
+
+                    var s = _textBlock.MeasureString(c.Text) * 1.2f;
+                    Vector2 textPos = new Vector2(
+                        o.Pos.X + (s.X - _textBlock.MeasureString(c.Text).X) / 2 - (c.IsCentered ? s.X / 2 : 0),
+                        o.Pos.Y + (s.Y - _textBlock.MeasureString(c.Text).Y) / 2 - (c.IsCentered ? s.Y / 2 : 0)
+                        );
+
+                    _spriteBatch.Draw(
+                        texture: _textures[sprite.ImageId],
+                        position: o.Pos + sprite.ImagePos - (c.IsCentered ? s / 2 : Vector2.Zero),
+                        sourceRectangle: null,
+                        Color.White,
+                        rotation: 0,
+                        origin: Vector2.Zero,
+                        scale: new Vector2(
+                            s.X / _textures[sprite.ImageId].Width,
+                            s.Y / _textures[sprite.ImageId].Height),
+                        SpriteEffects.None,
+                        layerDepth: o.Layer);
+
+                    _spriteBatch.DrawString(
+                        _textBlock,
+                        c.Text,
+                        textPos,
+                        Color.Black,
+                        rotation: 0,
+                        origin: Vector2.Zero,
+                        scale: 1,
+                        SpriteEffects.None,
+                        layerDepth: 0
+                        );
+                }
+            }
+
             _spriteBatch.End();
             base.Draw(gameTime);
+        }
+        public void ShowGameOver(bool isWin)
+        {
+            string message = isWin 
+                ? "Игра окончена!\nВы выиграли!\nНажмите R, чтобы начать заново"
+                : "Игра окончена!\nВы проиграли!\nНажмите R для перезагрузки";
+            MessageBox gameOverMessage = new MessageBox(new Vector2(
+                _graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2),
+                message
+                );
+            gameOverMessage.IsCentered = true;
+            _components.Add(_componentId, gameOverMessage);
+            _componentId++;
         }
     }
 }
