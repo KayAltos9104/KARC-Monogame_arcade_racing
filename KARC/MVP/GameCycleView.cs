@@ -41,8 +41,8 @@ namespace KARC.MVP
         {
             base.Initialize();
             _graphics.IsFullScreen = false;
-            _graphics.PreferredBackBufferWidth = 1024;
-            _graphics.PreferredBackBufferHeight = 768;
+            _graphics.PreferredBackBufferWidth = 1600;
+            _graphics.PreferredBackBufferHeight = 900;
             _graphics.ApplyChanges();
             
             //_visualShift.X -= _graphics.PreferredBackBufferWidth / 2;

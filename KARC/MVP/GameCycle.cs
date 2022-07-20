@@ -18,16 +18,47 @@ namespace KARC.MVP
 
         private int _currentId;
 
-        private char[,] _map = new char[11, 2000];
+        private char[,] _map;
         private int _tileSize = 100;
         private Vector2 _playerShift;
+        private Random _random = new Random();
 
         public (int width, int height) Resolution;
         public int PlayerId { get; set; }
         public Dictionary<int, IObject> Objects { get; set; }
         public Dictionary<int, ISolid> SolidObjects { get; set; }
-
         public Dictionary<int, ITrigger> Triggers { get; set; }
+
+        private void GenerateMap(int width, int height)
+        {
+            _map = new char[width, height];
+            _map[width / 2, height - 1] = 'P';
+            _map[1, 0] = '1';
+            _map[1, _map.GetLength(1) - 1] = '1';
+            _map[_map.GetLength(0) - 2, 0] = '2';
+            _map[_map.GetLength(0) - 2, _map.GetLength(1) - 1] = '2';
+
+            _map[2, 0] = 'F';
+            _map[_map.GetLength(0) - 3, 1] = 'F';
+        }
+        private void GenerateEnemies(float enemiesFraction)
+        {
+            for (int y = 2; y < _map.GetLength(1) - 3; y++)
+                for (int x = 2; x < _map.GetLength(0) - 3; x++)
+                {
+                    bool isClearBorders = true;
+                    for (int yN = -1; yN <= 1; yN++)
+                        for (int xN = -1; xN <= 1; xN++)
+                        {
+                            if (_map[x+xN, y+yN] != '\0')
+                                isClearBorders = false;
+                        }
+                    if ((_map[x, y] == '\0' && isClearBorders) && _random.NextDouble() <= enemiesFraction)
+                    {
+                        _map[x, y] = 'C';
+                    }
+                }
+        }
         public void Initialize((int width, int height) resolution)
         {
             Resolution = resolution;
@@ -39,19 +70,10 @@ namespace KARC.MVP
 
             _isPaused = false;
             _isGameOver = false;
-
-            _map[5, 19] = 'P';
-            _map[4, 3] = 'C';
-            _map[6, 2] = 'C';
-            _map[0, 1] = '1';
-            _map[0, 1999] = '1';
-            _map[1, 3] = 'F';
-            _map[_map.GetLength(0) - 2, 3] = 'F';
-            _map[_map.GetLength(0) - 1, 1] = '2';
-            _map[_map.GetLength(0) - 1, 1999] = '2';
-
             _currentId = 1;
             bool isPlacedPlayer = false;
+            GenerateMap(11, 200);
+            GenerateEnemies(0.035f);
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
                 {
