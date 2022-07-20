@@ -250,8 +250,11 @@ namespace KARC.MVP
 
         private void ProcessGameOver (bool isWin)
         {
-            _isGameOver = true;            
-            GameFinished.Invoke(this, new GameOverEventArgs { IsWin = isWin });  
+            if (!_isGameOver)
+            {
+                _isGameOver = true;
+                GameFinished.Invoke(this, new GameOverEventArgs { IsWin = isWin });
+            }            
         }
 
         public void ChangePlayerSpeed(IGameplayModel.Direction dir)
