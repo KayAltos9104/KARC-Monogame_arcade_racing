@@ -34,5 +34,8 @@ namespace KARC.WitchEngine
     {
         public Dictionary<int, IObject> Objects { get; set; }
         public Vector2 POVShift { get; set; }
+        public int Score { get; set; }
+        public int Speed { get; set; }
+
     }
 }

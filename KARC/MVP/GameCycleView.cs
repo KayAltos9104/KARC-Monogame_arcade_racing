@@ -18,9 +18,8 @@ namespace KARC.MVP
         public event EventHandler GamePaused = delegate { };
         public event EventHandler<InitializeEventArgs> GameLaunched = delegate { };
 
-        private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
-        private int _componentId = 1;
-        private Dictionary<int, IComponent> _components = new Dictionary<int, IComponent>();
+        private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();        
+        private Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
         private Vector2 _visualShift = new Vector2(0, 0);
@@ -28,6 +27,8 @@ namespace KARC.MVP
         private List<Keys> _pressedPrevFrame = new List<Keys>();
 
         private SpriteFont _textBlock;
+
+        private int _frameCounter = 0; 
 
         public GameCycleView()
         {
@@ -44,9 +45,26 @@ namespace KARC.MVP
             _graphics.PreferredBackBufferWidth = 1600;
             _graphics.PreferredBackBufferHeight = 900;
             _graphics.ApplyChanges();
-            
-            //_visualShift.X -= _graphics.PreferredBackBufferWidth / 2;
-            //_visualShift.Y -= _graphics.PreferredBackBufferHeight * 0.8f-50;
+
+            MessageBox MbxScore = new MessageBox(new Vector2(
+                0, 0),
+                "Очки: 0"
+                );
+
+            MessageBox MbxSpeed = new MessageBox(new Vector2(
+                0, 100),
+                "Скорость: 0 км/ч"
+                );
+
+            MessageBox MbxFps = new MessageBox(new Vector2(
+                0, 200),
+                "FPS: "
+                );
+
+            _components.Add("MbxScore", MbxScore);
+            _components.Add("MbxSpeed", MbxSpeed);
+            _components.Add("FPS", MbxFps);
+
             GameLaunched.Invoke(this, new InitializeEventArgs() { 
                 Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) 
             });
@@ -62,10 +80,12 @@ namespace KARC.MVP
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 
-        public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift)
+        public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift, int score, int speed)
         {
             _objects = Objects;
             _visualShift = POVShift;
+            _components["MbxScore"].Text = "Очки: " + score;
+            _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(speed * (3600.0/1000.0)) +" км/ч";
         }
 
 
@@ -109,8 +129,8 @@ namespace KARC.MVP
 
             if(IsSinglePressed(Keys.R))
             {
-                _components.Clear();
-                _componentId = 1;
+                _components.Remove("MbxGameOver");
+                
                 GameLaunched.Invoke(this, new InitializeEventArgs()
                 {
                     Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)
@@ -124,6 +144,8 @@ namespace KARC.MVP
             base.Update(gameTime);
 
             _pressedPrevFrame = new List<Keys>(keys);
+            
+
             CycleFinished.Invoke(this, new EventArgs());
         }
 
@@ -146,6 +168,11 @@ namespace KARC.MVP
                 {
                     if (sprite.ImageId == -1)
                         continue;
+
+                    Vector2 v = o.Pos + sprite.ImagePos - _visualShift;
+                    if (v.X < -100 || v.X > _graphics.PreferredBackBufferWidth+100 || v.Y < -100 || v.Y > _graphics.PreferredBackBufferHeight+100)
+                        continue;
+
                     _spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
                     _spriteBatch.Draw(
                         texture: _textures[sprite.ImageId],
@@ -199,6 +226,8 @@ namespace KARC.MVP
                         );
                 }
             }
+            _frameCounter++;            
+            _components["FPS"].Text = "FPS: "+(_frameCounter / gameTime.TotalGameTime.TotalSeconds).ToString("N0");             
 
             _spriteBatch.End();
             base.Draw(gameTime);
@@ -213,8 +242,7 @@ namespace KARC.MVP
                 message
                 );
             gameOverMessage.IsCentered = true;
-            _components.Add(_componentId, gameOverMessage);
-            _componentId++;
+            _components.Add("MbxGameOver", gameOverMessage);            
         }
     }
 }

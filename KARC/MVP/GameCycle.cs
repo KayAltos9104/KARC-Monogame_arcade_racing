@@ -21,6 +21,9 @@ namespace KARC.MVP
         private char[,] _map;
         private int _tileSize = 100;
         private Vector2 _playerShift;
+        private int _score;
+        
+
         private Random _random = new Random();
 
         public (int width, int height) Resolution;
@@ -67,12 +70,13 @@ namespace KARC.MVP
             Triggers = new Dictionary<int, ITrigger>();
 
             _playerShift = Vector2.Zero;
+            _score = 0;
 
             _isPaused = false;
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 200);
+            GenerateMap(11, 500);
             GenerateEnemies(0.035f);
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
@@ -137,12 +141,15 @@ namespace KARC.MVP
             _playerShift = new Vector2(
                     -Resolution.width / 2 + Objects[PlayerId].Pos.X,
                     -Resolution.height * 0.8f + Objects[PlayerId].Pos.Y
-                );
+                );            
+
             Updated.Invoke(this, new GameplayEventArgs()
             {
                 Objects = Objects,
-                POVShift = _playerShift
-            }) ;
+                POVShift = _playerShift,
+                Score = _score,
+                Speed = (int)Objects[PlayerId].Speed.Y
+            });
         }
 
         private IObject GenerateObject(char sign, int xTile, int yTile)
@@ -215,7 +222,13 @@ namespace KARC.MVP
                 var s = Objects.OrderBy(pair => pair.Value.Layer);
                 Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
 
-                Updated.Invoke(this, new GameplayEventArgs { Objects = sortedObjects, POVShift = _playerShift });
+                if((int)Objects[PlayerId].Speed.Y<0) _score++;
+                Updated.Invoke(this, new GameplayEventArgs { 
+                    Objects = sortedObjects, 
+                    POVShift = _playerShift, 
+                    Score = _score,
+                    Speed = (int)Objects[PlayerId].Speed.Y
+                });
             }            
         }
 

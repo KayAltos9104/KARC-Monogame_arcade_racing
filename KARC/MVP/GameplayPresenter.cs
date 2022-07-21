@@ -52,7 +52,7 @@ namespace KARC.MVP
 
         private void ModelViewUpdate(object sender, GameplayEventArgs e)
         {
-            _gameplayView.LoadGameCycleParameters(e.Objects, e.POVShift);
+            _gameplayView.LoadGameCycleParameters(e.Objects, e.POVShift, e.Score, e.Speed);
         }
 
 
