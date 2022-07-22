@@ -1,5 +1,6 @@
 ﻿using KARC.Objects;
 using KARC.WitchEngine;
+using KARC.WitchEngine.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -28,7 +29,8 @@ namespace KARC.MVP
 
         private SpriteFont _textBlock;
 
-        private int _frameCounter = 0; 
+        private int _frameCounter = 0;
+        
 
         public GameCycleView()
         {
@@ -61,9 +63,13 @@ namespace KARC.MVP
                 "FPS: "
                 );
 
+            FinishCounter finishCounter = Factory.CreateFinishCounter(0, 0);            
+            finishCounter.Move(new Vector2((_graphics.PreferredBackBufferWidth - finishCounter.Width) / 2, 0));
+
             _components.Add("MbxScore", MbxScore);
             _components.Add("MbxSpeed", MbxSpeed);
             _components.Add("FPS", MbxFps);
+            _components.Add("FinishCounter", finishCounter);
 
             GameLaunched.Invoke(this, new InitializeEventArgs() { 
                 Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) 
@@ -77,15 +83,20 @@ namespace KARC.MVP
             _textures.Add((byte)Factory.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
             _textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
             _textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
+            _textures.Add((byte)Factory.ObjectTypes.finishCounterField, Content.Load<Texture2D>("FinishCounterField"));
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 
-        public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift, int score, int speed)
+        public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift, int score, int speed, float distToFinish)
         {
             _objects = Objects;
             _visualShift = POVShift;
             _components["MbxScore"].Text = "Очки: " + score;
-            _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(speed * (3600.0/1000.0)) +" км/ч";
+            _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(speed * (3600.0 / 1000.0)) + " км/ч";
+            var f = (FinishCounter)_components["FinishCounter"];
+            f.FinishDistance = distToFinish;
+            f.Update();
+            
         }
 
 
@@ -141,11 +152,13 @@ namespace KARC.MVP
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+          
+
             base.Update(gameTime);
 
             _pressedPrevFrame = new List<Keys>(keys);
-            
 
+            
             CycleFinished.Invoke(this, new EventArgs());
         }
 
@@ -207,7 +220,7 @@ namespace KARC.MVP
                         Color.White,
                         rotation: 0,
                         origin: Vector2.Zero,
-                        scale: new Vector2(
+                        scale: s==Vector2.Zero ? Vector2.One : new Vector2(
                             s.X / _textures[sprite.ImageId].Width,
                             s.Y / _textures[sprite.ImageId].Height),
                         SpriteEffects.None,

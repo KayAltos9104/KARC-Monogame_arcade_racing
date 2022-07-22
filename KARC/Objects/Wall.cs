@@ -25,7 +25,7 @@ namespace KARC.Objects
         public void Move(Vector2 newPos)
         {
             Pos = newPos;
-            MoveCollider(Pos);
+            MoveCollider(Pos);            
         }
 
         public void Update()

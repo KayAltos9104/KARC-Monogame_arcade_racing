@@ -36,6 +36,6 @@ namespace KARC.WitchEngine
         public Vector2 POVShift { get; set; }
         public int Score { get; set; }
         public int Speed { get; set; }
-
+        public float DistanceToFinish { get; set; }
     }
 }

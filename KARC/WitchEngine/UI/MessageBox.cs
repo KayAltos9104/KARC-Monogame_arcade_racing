@@ -1,10 +1,11 @@
 ﻿using KARC.Objects;
+using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace KARC.WitchEngine
+namespace KARC.WitchEngine.UI
 {
     public class MessageBox : IObject, IComponent
     {
@@ -28,7 +29,7 @@ namespace KARC.WitchEngine
             Layer = 1.0f;
         }
 
-        public MessageBox(Vector2 pos, string name, string text): this (pos, text)
+        public MessageBox(Vector2 pos, string name, string text) : this(pos, text)
         {
             Name = name;
         }
@@ -40,7 +41,7 @@ namespace KARC.WitchEngine
 
         public void Update()
         {
-            
+
         }
     }
 }

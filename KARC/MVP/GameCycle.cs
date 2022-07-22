@@ -21,10 +21,12 @@ namespace KARC.MVP
         private char[,] _map;
         private int _tileSize = 100;
         private Vector2 _playerShift;
-        private int _score;
-        
+        private int _score;        
 
         private Random _random = new Random();
+
+        private int _finishPos;
+        private float _distance;
 
         public (int width, int height) Resolution;
         public int PlayerId { get; set; }
@@ -46,7 +48,7 @@ namespace KARC.MVP
         }
         private void GenerateEnemies(float enemiesFraction)
         {
-            for (int y = 2; y < _map.GetLength(1) - 3; y++)
+            for (int y = 2; y < _map.GetLength(1) - 10; y++)
                 for (int x = 2; x < _map.GetLength(0) - 3; x++)
                 {
                     bool isClearBorders = true;
@@ -76,8 +78,9 @@ namespace KARC.MVP
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 500);
-            GenerateEnemies(0.035f);
+            GenerateMap(11, 2000);
+            GenerateEnemies(0.020f);
+
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
                 {
@@ -111,7 +114,7 @@ namespace KARC.MVP
                                         generatedObject = GenerateObject('F', x, y, xCorner, yCorner);
                                         var trigger = (ITrigger)generatedObject;
                                         trigger.Triggered += CalculateWin;
-                                        _map[xCorner, yCorner] = '\0';
+                                        _map[xCorner, yCorner] = '\0';                                        
                                     }
                                 }
                         }
@@ -138,20 +141,23 @@ namespace KARC.MVP
                         _currentId++;
                     }
                 }
+
+            _distance = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y);
+
             _playerShift = new Vector2(
                     -Resolution.width / 2 + Objects[PlayerId].Pos.X,
                     -Resolution.height * 0.8f + Objects[PlayerId].Pos.Y
-                );            
+                );
 
             Updated.Invoke(this, new GameplayEventArgs()
             {
                 Objects = Objects,
                 POVShift = _playerShift,
                 Score = _score,
-                Speed = (int)Objects[PlayerId].Speed.Y
+                Speed = (int)Objects[PlayerId].Speed.Y,
+                DistanceToFinish = 1
             });
         }
-
         private IObject GenerateObject(char sign, int xTile, int yTile)
         {
             float x = xTile * _tileSize;
@@ -180,9 +186,9 @@ namespace KARC.MVP
             {
                 generatedObject = Factory.CreateTrigger(xInit, yInit,
                     xEnd + _tileSize, yEnd + _tileSize, spriteId: (byte)Factory.ObjectTypes.finish, tileSize:_tileSize);
+                _finishPos = (int)yInit;
             }
-
-            return generatedObject;
+            return generatedObject;            
         }       
 
         public void Update()
@@ -204,7 +210,7 @@ namespace KARC.MVP
                 {
                     foreach (var j in collisionObjects.Keys)
                     {
-                        if (i == j || processedObjects.Contains((j, i))) continue;
+                        if (i == j || processedObjects.Contains((j, i)) || Objects[i].Speed == Vector2.Zero) continue;
                         CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
                         processedObjects.Add((i, j));
                     }
@@ -217,17 +223,20 @@ namespace KARC.MVP
                 if (!player.IsLive)                   
                     ProcessGameOver(isWin : false);
                 
-                _playerShift += Objects[PlayerId].Pos - playerInitPos;
+               // _playerShift += Objects[PlayerId].Pos - playerInitPos;
+               _playerShift.Y += Objects[PlayerId].Pos.Y - playerInitPos.Y;
 
                 var s = Objects.OrderBy(pair => pair.Value.Layer);
                 Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
 
                 if((int)Objects[PlayerId].Speed.Y<0) _score++;
-                Updated.Invoke(this, new GameplayEventArgs { 
-                    Objects = sortedObjects, 
-                    POVShift = _playerShift, 
+                Updated.Invoke(this, new GameplayEventArgs
+                {
+                    Objects = sortedObjects,
+                    POVShift = _playerShift,
                     Score = _score,
-                    Speed = (int)Objects[PlayerId].Speed.Y
+                    Speed = (int)Objects[PlayerId].Speed.Y,
+                    DistanceToFinish = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y) / _distance
                 });
             }            
         }
@@ -301,22 +310,22 @@ namespace KARC.MVP
                 {
                     case IGameplayModel.Direction.forward:
                         {
-                            p.Speed += new Vector2(0, -5);
+                            p.Speed += new Vector2(0, -20);
                             break;
                         }
                     case IGameplayModel.Direction.backward:
                         {
-                            p.Speed += new Vector2(0, 5);
+                            p.Speed += new Vector2(0, 0);
                             break;
                         }
                     case IGameplayModel.Direction.right:
                         {
-                            p.Speed += new Vector2(5, 0);
+                            p.Speed += new Vector2(8, 0);
                             break;
                         }
                     case IGameplayModel.Direction.left:
                         {
-                            p.Speed += new Vector2(-5, 0);
+                            p.Speed += new Vector2(-8, 0);
                             break;
                         }
                 }
