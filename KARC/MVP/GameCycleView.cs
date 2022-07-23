@@ -63,7 +63,7 @@ namespace KARC.MVP
                 "FPS: "
                 );
 
-            FinishCounter finishCounter = Factory.CreateFinishCounter(0, 0);            
+            FinishCounter finishCounter = Factory.CreateFinishCounter(0, 0);           
             finishCounter.Move(new Vector2((_graphics.PreferredBackBufferWidth - finishCounter.Width) / 2, 0));
 
             _components.Add("MbxScore", MbxScore);
@@ -207,7 +207,9 @@ namespace KARC.MVP
                     if (sprite.ImageId == -1)
                         continue;
 
-                    var s = _textBlock.MeasureString(c.Text) * 1.2f;
+                    var s = _textBlock.MeasureString(c.Text) != Vector2.Zero ? 
+                        _textBlock.MeasureString(c.Text) * 1.2f : 
+                        new Vector2 (_textures[sprite.ImageId].Width, _textures[sprite.ImageId].Height) ;
                     Vector2 textPos = new Vector2(
                         o.Pos.X + (s.X - _textBlock.MeasureString(c.Text).X) / 2 - (c.IsCentered ? s.X / 2 : 0),
                         o.Pos.Y + (s.Y - _textBlock.MeasureString(c.Text).Y) / 2 - (c.IsCentered ? s.Y / 2 : 0)
