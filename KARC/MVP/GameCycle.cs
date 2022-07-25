@@ -246,8 +246,10 @@ namespace KARC.MVP
             bool isCollided = false;
 
             Vector2 oppositeDirection;
-            while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Collider, SolidObjects[obj2.Id].Collider))
-            {
+            
+            //while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Collider, SolidObjects[obj2.Id].Collider))
+            while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Colliders, SolidObjects[obj2.Id].Colliders))
+                {
                 if (obj1.initPos != Objects[obj1.Id].Pos)
                 {
                     oppositeDirection = Objects[obj1.Id].Pos - obj1.initPos;
@@ -281,7 +283,7 @@ namespace KARC.MVP
 
         private void CalculateTrigger (int i, ITrigger t)
         {
-            if (RectangleCollider.IsCollided(SolidObjects[i].Collider, t.Collider))
+            if (RectangleCollider.IsCollided(SolidObjects[i].Colliders, t.Collider))
             {
                 t.OnTrigger(Objects[i], i);
             }
