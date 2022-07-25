@@ -22,8 +22,8 @@ namespace KARC.MVP
         private char[,] _map;
         //private Dictionary<int, Vector2>[,] _screens;
 
-        private int _screenWidth = 250;
-        private int _screenHeight = 250;
+        private int _screenWidth = 1000;
+        private int _screenHeight = 1000;
         private int _tileSize = 100;
 
 
@@ -46,7 +46,7 @@ namespace KARC.MVP
         {
             _map = new char[width, height];
             _map[width / 2, height - 1] = 'P';
-            //_map[width / 2, height - 4] = 'C';
+            //_map[width / 2-1, height - 1] = 'C';
             _map[1, 0] = '1';
             _map[1, _map.GetLength(1) - 1] = '1';
             _map[_map.GetLength(0) - 2, 0] = '2';
@@ -275,7 +275,7 @@ namespace KARC.MVP
             
             //while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Collider, SolidObjects[obj2.Id].Collider))
             while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Colliders, SolidObjects[obj2.Id].Colliders))
-                {
+            {               
                 if (obj1.initPos != Objects[obj1.Id].Pos)
                 {
                     oppositeDirection = Objects[obj1.Id].Pos - obj1.initPos;
