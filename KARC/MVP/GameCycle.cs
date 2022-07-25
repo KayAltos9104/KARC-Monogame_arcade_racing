@@ -3,6 +3,7 @@ using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace KARC.MVP
@@ -34,6 +35,7 @@ namespace KARC.MVP
         public Dictionary<int, ISolid> SolidObjects { get; set; }
         public Dictionary<int, ITrigger> Triggers { get; set; }
 
+        Stopwatch watch = new Stopwatch();
         private void GenerateMap(int width, int height)
         {
             _map = new char[width, height];
@@ -78,7 +80,7 @@ namespace KARC.MVP
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 2000);
+            GenerateMap(11, 850);
             GenerateEnemies(0.020f);
 
             for (int y = 0; y < _map.GetLength(1); y++)
@@ -166,7 +168,7 @@ namespace KARC.MVP
             if (sign == 'P' || sign == 'C')
             {
                 //generatedObject = Factory.CreateClassicCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, 0));
-                generatedObject = Factory.CreateComplexCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, 0));
+                generatedObject = Factory.CreateComplexCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, -5));
             }            
             return generatedObject;
         }
@@ -196,6 +198,7 @@ namespace KARC.MVP
         {
             if (!_isPaused)            
             {
+                watch.Restart();
                 Vector2 playerInitPos = Objects[PlayerId].Pos;
                 Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
                 foreach (var i in Objects.Keys)
@@ -235,10 +238,11 @@ namespace KARC.MVP
                 {
                     Objects = sortedObjects,
                     POVShift = _playerShift,
-                    Score = _score,
+                    //Score = _score,
+                    Score = (int)watch.ElapsedMilliseconds,
                     Speed = (int)Objects[PlayerId].Speed.Y,
                     DistanceToFinish = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y) / _distance
-                });
+                }); 
             }            
         }
 
