@@ -165,7 +165,8 @@ namespace KARC.MVP
             IObject generatedObject = null;
             if (sign == 'P' || sign == 'C')
             {
-                generatedObject = Factory.CreateClassicCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, 0));
+                //generatedObject = Factory.CreateClassicCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, 0));
+                generatedObject = Factory.CreateComplexCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, 0));
             }            
             return generatedObject;
         }
