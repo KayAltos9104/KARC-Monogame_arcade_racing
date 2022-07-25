@@ -20,6 +20,7 @@ namespace KARC.Objects
         {
             Car c = new Car(new Vector2(x, y),  _objects["classicCar"].height, _objects["classicCar"].width);
             c.Sprites.Add((_objects["classicCar"].type, Vector2.Zero));
+            
             c.Speed = speed;
             return c;
         }

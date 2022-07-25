@@ -10,7 +10,8 @@ namespace KARC.Objects
     {       
         public Vector2 Pos { get; set; }
         public Vector2 Speed { get; set; }
-        public RectangleCollider Collider { get; set; }
+        //public RectangleCollider Collider { get; set; }
+        public List<(Vector2 shift, RectangleCollider collider)> Colliders { get; set; }
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
         public float Layer { get; set; }
 
@@ -18,7 +19,9 @@ namespace KARC.Objects
         {
             Pos = position;
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
-            Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, width, length);
+            //Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, width, length);
+            Colliders = new List<(Vector2 shift, RectangleCollider collider)>();
+            Colliders.Add((Vector2.Zero, new RectangleCollider((int)Pos.X, (int)Pos.Y, width, length)));
             Layer = 0.5f;
         }
 
@@ -35,7 +38,11 @@ namespace KARC.Objects
 
         public void MoveCollider(Vector2 newPos)
         {
-            Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, Collider.Boundary.Width, Collider.Boundary.Height);
+            //Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, Collider.Boundary.Width, Collider.Boundary.Height);
+            foreach (var c in Colliders)
+            {
+                c.collider.Boundary = new Rectangle((int)(Pos.X + c.shift.X), (int)(Pos.Y + c.shift.Y), c.collider.Boundary.Width, c.collider.Boundary.Height);
+            }
         }
     }
 }
