@@ -31,16 +31,19 @@ namespace KARC.Objects
         //public RectangleCollider Collider { get; set ; }
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
         public float Layer { get; set; }
-        public List<(Vector2 shift, RectangleCollider collider)> Colliders { get; set; }
+        public List<(Vector2 Shift, RectangleCollider Collider)> Colliders { get; set; }
 
-        public Car (Vector2 position, int height, int width)
+        public Car(Vector2 position)
         {
             Pos = position;
             IsLive = true;
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
-            Colliders = new List<(Vector2 shift, RectangleCollider collider)>();
-            Colliders.Add((Vector2.Zero, new RectangleCollider((int)Pos.X, (int)Pos.Y, width, height)));
+            Colliders = new List<(Vector2, RectangleCollider)>();            
             Layer = 0.5f;
+        }
+        public Car (Vector2 position, int height, int width):this(position)
+        {            
+            Colliders.Add((Vector2.Zero, new RectangleCollider((int)Pos.X, (int)Pos.Y, width, height)));
         }
 
         public void Update()
@@ -65,7 +68,9 @@ namespace KARC.Objects
             //Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, Collider.Boundary.Width, Collider.Boundary.Height);
             foreach(var c in Colliders)
             {
-                c.collider.Boundary = new Rectangle((int)(Pos.X + c.shift.X), (int)(Pos.Y + c.shift.Y), c.collider.Boundary.Width, c.collider.Boundary.Height);
+                c.Collider.Boundary = new Rectangle(
+                    (int)(Pos.X + c.Shift.X), (int)(Pos.Y + c.Shift.Y), 
+                    c.Collider.Boundary.Width, c.Collider.Boundary.Height);
             }
         }
     }

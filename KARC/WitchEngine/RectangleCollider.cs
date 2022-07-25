@@ -18,12 +18,12 @@ namespace KARC.WitchEngine
             return r1.Boundary.Intersects(r2.Boundary);
         }
 
-        public static bool IsCollided(List<(Vector2 shift, RectangleCollider collider)> b1, 
+        public static bool IsCollided(List<(Vector2 Shift, RectangleCollider Collider)> b1, 
             RectangleCollider r2)
         {
             foreach (var r1 in b1)
             {
-                if (r1.collider.Boundary.Intersects(r2.Boundary))
+                if (r1.Collider.Boundary.Intersects(r2.Boundary))
                     return true;
             }
             return false;
@@ -43,13 +43,13 @@ namespace KARC.WitchEngine
         }
 
         public static bool IsCollided(
-            List<(Vector2 shift, RectangleCollider collider)> b1, 
-            List<(Vector2 shift, RectangleCollider collider)> b2)
+            List<(Vector2 Shift, RectangleCollider Collider)> b1, 
+            List<(Vector2 Shift, RectangleCollider Collider)> b2)
         {
             foreach (var r1 in b1)
                 foreach (var r2 in b2)
                 {
-                    if (r1.collider.Boundary.Intersects(r2.collider.Boundary))
+                    if (r1.Collider.Boundary.Intersects(r2.Collider.Boundary))
                     {
                         return true;
                     }
