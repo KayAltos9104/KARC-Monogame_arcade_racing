@@ -27,8 +27,7 @@ namespace KARC.Objects
                     _speed.Y = -20;
 
             }
-        }
-        //public RectangleCollider Collider { get; set ; }
+        }        
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
         public float Layer { get; set; }
         public List<(Vector2 Shift, RectangleCollider Collider)> Colliders { get; set; }
@@ -63,9 +62,7 @@ namespace KARC.Objects
         }
 
         public void MoveCollider(Vector2 newPos)
-        {
-
-            //Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, Collider.Boundary.Width, Collider.Boundary.Height);
+        {            
             foreach(var c in Colliders)
             {
                 c.Collider.Boundary = new Rectangle(

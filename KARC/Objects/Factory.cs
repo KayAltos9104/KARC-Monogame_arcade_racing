@@ -28,7 +28,8 @@ namespace KARC.Objects
         {
             Car c = new Car(new Vector2(x, y));
             var cabin = new RectangleCollider((int)x,(int)y, _objects["wall"].width, _objects["wall"].height);
-            var hull = new RectangleCollider((int)x, (int)y, _objects["classicCar"].width, _objects["classicCar"].height - _objects["wall"].height);
+            var hull = new RectangleCollider((int)x, (int)y, 
+                _objects["classicCar"].width, _objects["classicCar"].height - _objects["wall"].height);
             c.Colliders.Add((new Vector2(_objects["classicCar"].width/2- _objects["wall"].width/2, 0), cabin));
             c.Colliders.Add((new Vector2(0, _objects["wall"].height), hull));
             c.Sprites.Add((_objects["classicCar"].type, Vector2.Zero));
