@@ -13,6 +13,8 @@ namespace KARC.WitchEngine
         Vector2 Pos { get;}
 
         Vector2 Speed { get; set; }
+
+       
         void Update();
 
         void Move (Vector2 pos);

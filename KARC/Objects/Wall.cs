@@ -13,6 +13,7 @@ namespace KARC.Objects
         public List<(Vector2 Shift, RectangleCollider Collider)> Colliders { get; set; }
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
         public float Layer { get; set; }
+        public bool isMoved { get; set; }
 
         public Wall(Vector2 position, int width, int length)
         {

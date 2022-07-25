@@ -20,7 +20,13 @@ namespace KARC.MVP
         private int _currentId;
 
         private char[,] _map;
+        //private Dictionary<int, Vector2>[,] _screens;
+
+        private int _screenWidth = 250;
+        private int _screenHeight = 250;
         private int _tileSize = 100;
+
+
         private Vector2 _playerShift;
         private int _score;        
 
@@ -40,6 +46,7 @@ namespace KARC.MVP
         {
             _map = new char[width, height];
             _map[width / 2, height - 1] = 'P';
+            //_map[width / 2, height - 4] = 'C';
             _map[1, 0] = '1';
             _map[1, _map.GetLength(1) - 1] = '1';
             _map[_map.GetLength(0) - 2, 0] = '2';
@@ -80,8 +87,8 @@ namespace KARC.MVP
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 850);
-            GenerateEnemies(0.020f);
+            GenerateMap(11, 1200);
+            GenerateEnemies(0.020f);          
 
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
@@ -183,7 +190,7 @@ namespace KARC.MVP
             if (sign == 'W')
             {
                 generatedObject = Factory.CreateWall(xInit, yInit, 
-                    xEnd+_tileSize, yEnd + _tileSize, tileSize: _tileSize);
+                    xEnd+_tileSize, yEnd + _tileSize, tileSize: _tileSize);               
             }
             if (sign == 'F')
             {
@@ -191,6 +198,7 @@ namespace KARC.MVP
                     xEnd + _tileSize, yEnd + _tileSize, spriteId: (byte)Factory.ObjectTypes.finish, tileSize:_tileSize);
                 _finishPos = (int)yInit;
             }
+            
             return generatedObject;            
         }       
 
@@ -200,6 +208,7 @@ namespace KARC.MVP
             {
                 watch.Restart();
                 Vector2 playerInitPos = Objects[PlayerId].Pos;
+
                 Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
                 foreach (var i in Objects.Keys)
                 {
@@ -211,12 +220,24 @@ namespace KARC.MVP
                 List<(int, int)> processedObjects = new List<(int, int)>();
 
                 foreach (var i in collisionObjects.Keys)
-                {
+                {                    
                     foreach (var j in collisionObjects.Keys)
-                    {
-                        if (i == j || processedObjects.Contains((j, i)) || Objects[i].Speed == Vector2.Zero) continue;
-                        CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
-                        processedObjects.Add((i, j));
+                    {   
+                        if (i == j || processedObjects.Contains((j, i)) || Objects[i].Speed == Vector2.Zero)
+                            continue;
+                        if ((int)collisionObjects[i].X / _screenWidth ==(int) collisionObjects[j].X / _screenWidth &&
+                            (int)collisionObjects[i].Y / _screenHeight == (int)collisionObjects[j].Y / _screenHeight ||
+                            SolidObjects[i].Colliders[0].Collider.Boundary.Width>_screenWidth|| 
+                            SolidObjects[i].Colliders[0].Collider.Boundary.Height > _screenHeight||
+                             SolidObjects[j].Colliders[0].Collider.Boundary.Width > _screenWidth||
+                             SolidObjects[j].Colliders[0].Collider.Boundary.Height > _screenHeight)
+                        {
+                            CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j));
+                            processedObjects.Add((i, j));
+                        }
+                       
+                                
+                                               
                     }
                     foreach (var t in Triggers)
                     {

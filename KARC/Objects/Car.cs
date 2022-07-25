@@ -31,6 +31,7 @@ namespace KARC.Objects
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
         public float Layer { get; set; }
         public List<(Vector2 Shift, RectangleCollider Collider)> Colliders { get; set; }
+        public bool isMoved { get; set; }
 
         public Car(Vector2 position)
         {
