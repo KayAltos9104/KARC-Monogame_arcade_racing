@@ -34,19 +34,20 @@ namespace KARC.MVP
 
         private int _finishPos;
         private float _distance;
+        private int _framesPerCollisionUpdate = 1;
+        private int _framesPassed;
 
         public (int width, int height) Resolution;
         public int PlayerId { get; set; }
         public Dictionary<int, IObject> Objects { get; set; }
         public Dictionary<int, ISolid> SolidObjects { get; set; }
         public Dictionary<int, ITrigger> Triggers { get; set; }
-
-        Stopwatch watch = new Stopwatch();
+        
         private void GenerateMap(int width, int height)
         {
             _map = new char[width, height];
             _map[width / 2, height - 1] = 'P';
-            //_map[width / 2-1, height - 1] = 'C';
+            //_map[width / 2, height - 5] = 'C';
             _map[1, 0] = '1';
             _map[1, _map.GetLength(1) - 1] = '1';
             _map[_map.GetLength(0) - 2, 0] = '2';
@@ -87,8 +88,8 @@ namespace KARC.MVP
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 4000);
-            GenerateEnemies(0.045f);          
+            GenerateMap(11, 20000);
+            GenerateEnemies(0.010f);          
 
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
@@ -173,12 +174,9 @@ namespace KARC.MVP
             float y = yTile * _tileSize;
             IObject generatedObject = null;
             if (sign == 'C')
-            {
-                //generatedObject = Factory.CreateClassicCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, 0));
-                //generatedObject = Factory.CreateComplexCar(
-                //    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-15,0)));
-                generatedObject = Factory.CreateClassicCar(
-                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-10, 0)));
+            {                
+                generatedObject = Factory.CreateComplexCar(
+                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-15, -5)));
             }
             else if (sign == 'P')
             {
@@ -213,70 +211,83 @@ namespace KARC.MVP
         {
             if (!_isPaused)            
             {
-                (int screenX, int screenY) playerScreen = GetScreenNumber(Objects[PlayerId].Pos);
-                watch.Restart();
+                (int screenX, int screenY) playerScreen = GetScreenNumber(Objects[PlayerId].Pos);               
                 Vector2 playerInitPos = Objects[PlayerId].Pos;
 
                 Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
+                //Обновление состояния объектов
                 foreach (var i in Objects.Keys)
                 {
                     Vector2 initPos = Objects[i].Pos;
-                    var objectScreen = GetScreenNumber (initPos);
-                    if (playerScreen==objectScreen)
+                    var objectScreen = GetScreenNumber (initPos);                    
+                    if (IsOnNeighborScreen(playerScreen, objectScreen))
                     {
-                        Objects[i].Update();                        
+                        Objects[i].Update();    
                     }
-                    if (SolidObjects.ContainsKey(i)&&(playerScreen == objectScreen || IsLongSolid(SolidObjects[i])))
-                        collisionObjects.Add(i, initPos);
-
+                    else if (_framesPassed >= _framesPerCollisionUpdate)
+                    {                        
+                        Objects[i].Update();
+                    }
+                //Запись тех объектов, для которых нужно обсчитывать столкновение
+                    if (SolidObjects.ContainsKey(i))
+                    {                        
+                        if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(SolidObjects[i]))
+                        {
+                            collisionObjects.Add(i, initPos);
+                            Objects[i].Update();
+                        }
+                        else if (_framesPassed >= _framesPerCollisionUpdate)
+                        {
+                            _framesPassed = 0;
+                            collisionObjects.Add(i, initPos);
+                            Objects[i].Update();
+                        }
+                    }  
                 }
-                List<(int, int)> processedObjects = new List<(int, int)>();
 
+                //Обработка столкновений
+                List<(int, int)> processedObjects = new List<(int, int)>();
                 foreach (var i in collisionObjects.Keys)
                 {
-                    (int screenX, int screenY) screenNumber1 = GetScreenNumber(collisionObjects[i]);
-                    bool isLong1 = IsLongSolid(SolidObjects[i]);
                     foreach (var j in collisionObjects.Keys)
                     {
-                        if (i == j || processedObjects.Contains((j, i)) || Objects[i].Speed == Vector2.Zero)
-                            continue;                      
-
-                        //if (IsOnSameScreen(collisionObjects[i], collisionObjects[j]) || 
-                        //    isLong1 || IsLongSolid(SolidObjects[j]))/*&& 
-                         //   (screenNumber1 == playerScreen||screenNumber2 == playerScreen)
-                        //{
-                            if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
-                            {
-                                CalculateCrushing(i, j);
-                            }
-
-                            processedObjects.Add((i, j));
-                        //}
+                        if (i == j || processedObjects.Contains((j, i)) || collisionObjects[i] == Objects[i].Pos)
+                            continue;
+                        if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
+                        {
+                            CalculateCrushing(i, j);
+                        }
+                        processedObjects.Add((i, j));
                     }
                     foreach (var t in Triggers)
                     {
                         CalculateTrigger(i, t.Value);
                     }
                 }
+
                 Car player = (Car)Objects[PlayerId];
                 if (!player.IsLive)                   
-                    ProcessGameOver(isWin : false);                
-               
+                    ProcessGameOver(isWin : false);    
+                
+               //Сдвиг игрока для смещения камеры
                _playerShift.Y += Objects[PlayerId].Pos.Y - playerInitPos.Y;
 
+                //Сортировка объектов по слоям для отрисовки
                 var s = Objects.OrderBy(pair => pair.Value.Layer);
                 Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
 
                 if((int)Objects[PlayerId].Speed.Y<0) _score++;
+
+                _framesPassed++;
+
                 Updated.Invoke(this, new GameplayEventArgs
                 {
                     Objects = sortedObjects,
                     POVShift = _playerShift,
-                    Score = _score,
-                    //Score = (int)watch.ElapsedMilliseconds,
+                    Score = _score,                    
                     Speed = (int)Objects[PlayerId].Speed.Y,
                     DistanceToFinish = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y) / _distance
-                }); 
+                });                
             }            
         }
 
@@ -284,9 +295,23 @@ namespace KARC.MVP
         {
             return ((int)pos.X / _screenWidth, (int)pos.Y / _screenHeight);
         }
-        private bool IsOnSameScreen(Vector2 pos1, Vector2 pos2)
+        
+
+        private bool IsOnNeighborScreen((int X, int Y) screen1, (int X, int Y) screen2)
         {
-            return GetScreenNumber(pos1) == GetScreenNumber(pos2);
+            for (int y = screen1.Y - 1; y <= screen1.Y + 1; y++)
+                for (int x = screen1.X - 1; x <= screen1.X + 1; x++)
+                {
+                    if (screen2 == (x, y))
+                        return true;
+                }
+            return false;
+        }
+        private bool IsOnNeighborScreen(Vector2 pos1, Vector2 pos2)
+        {
+            var screen1 = GetScreenNumber(pos1);
+            var screen2 = GetScreenNumber(pos2);
+            return IsOnNeighborScreen(screen1, screen2);
         }
         private bool IsLongSolid(ISolid o)
         {
@@ -297,7 +322,7 @@ namespace KARC.MVP
         {
             Vector2 oppositeDirection;
             bool isCollided = false;
-            byte tries = 20;
+            byte tries = 100;
             while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Colliders, SolidObjects[obj2.Id].Colliders)&&tries>0)
             {
                 if(tries > 1)
@@ -321,7 +346,7 @@ namespace KARC.MVP
                 {
                     var oppositeDirection1 = Objects[obj1.Id].Pos - obj1.initPos;
                     var oppositeDirection2 = Objects[obj2.Id].Pos - obj2.initPos;
-                    Objects[obj1.Id].Move(Objects[obj1.Id].Pos - 10*oppositeDirection1);
+                    Objects[obj1.Id].Move(Objects[obj1.Id].Pos - 10 * oppositeDirection1);
                     Objects[obj2.Id].Move(Objects[obj2.Id].Pos - 10 * oppositeDirection2);
                     tries--;
                 }
