@@ -30,7 +30,8 @@ namespace KARC.MVP
         private SpriteFont _textBlock;
 
         private int _frameCounter = 0;
-        
+        private int _timeRange = 3; //Время между измерениями в миллисекундах
+        private int _elapsedFPSTime = 0;
 
         public GameCycleView()
         {
@@ -241,8 +242,18 @@ namespace KARC.MVP
                         );
                 }
             }
-            _frameCounter++;            
-            _components["FPS"].Text = "FPS: "+(_frameCounter / gameTime.TotalGameTime.TotalSeconds).ToString("N0");             
+            _frameCounter++;
+            
+            if ((int)gameTime.TotalGameTime.TotalSeconds - _elapsedFPSTime > _timeRange)
+            {
+                
+                _components["FPS"].Text = "FPS: " + (_frameCounter / 
+                    ((int)gameTime.TotalGameTime.TotalSeconds - _elapsedFPSTime)).ToString("N0");
+                _elapsedFPSTime = (int)gameTime.TotalGameTime.TotalSeconds;
+                _frameCounter = 0;
+                //_elapsedFPSTime = 0;
+            }
+            //_components["FPS"].Text = "FPS: "+(_frameCounter / gameTime.TotalGameTime.TotalSeconds).ToString("N0");             
 
             _spriteBatch.End();
             base.Draw(gameTime);
