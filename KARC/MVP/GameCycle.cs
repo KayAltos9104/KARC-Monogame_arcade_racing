@@ -87,8 +87,8 @@ namespace KARC.MVP
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 2000);
-            GenerateEnemies(0.015f);          
+            GenerateMap(11, 4000);
+            GenerateEnemies(0.045f);          
 
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
@@ -178,7 +178,7 @@ namespace KARC.MVP
                 //generatedObject = Factory.CreateComplexCar(
                 //    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-15,0)));
                 generatedObject = Factory.CreateClassicCar(
-                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-5, 0)));
+                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-10, 0)));
             }
             else if (sign == 'P')
             {
@@ -213,8 +213,7 @@ namespace KARC.MVP
         {
             if (!_isPaused)            
             {
-                (int screenX, int screenY) playerScreen =
-                    ((int)Objects[PlayerId].Pos.X / _screenWidth, (int)Objects[PlayerId].Pos.Y / _screenHeight);
+                (int screenX, int screenY) playerScreen = GetScreenNumber(Objects[PlayerId].Pos);
                 watch.Restart();
                 Vector2 playerInitPos = Objects[PlayerId].Pos;
 
@@ -222,39 +221,37 @@ namespace KARC.MVP
                 foreach (var i in Objects.Keys)
                 {
                     Vector2 initPos = Objects[i].Pos;
-                    Objects[i].Update();
-                    if (SolidObjects.ContainsKey(i))
+                    var objectScreen = GetScreenNumber (initPos);
+                    if (playerScreen==objectScreen)
+                    {
+                        Objects[i].Update();                        
+                    }
+                    if (SolidObjects.ContainsKey(i)&&(playerScreen == objectScreen || IsLongSolid(SolidObjects[i])))
                         collisionObjects.Add(i, initPos);
+
                 }
                 List<(int, int)> processedObjects = new List<(int, int)>();
 
                 foreach (var i in collisionObjects.Keys)
                 {
-                    (int screenX, int screenY) screenNumber1 =
-                            ((int)collisionObjects[i].X / _screenWidth, (int)collisionObjects[i].Y / _screenHeight);
-                    bool isLong1 = SolidObjects[i].Colliders[0].Collider.Boundary.Width > _screenWidth ||
-                            SolidObjects[i].Colliders[0].Collider.Boundary.Height > _screenHeight;
-
+                    (int screenX, int screenY) screenNumber1 = GetScreenNumber(collisionObjects[i]);
+                    bool isLong1 = IsLongSolid(SolidObjects[i]);
                     foreach (var j in collisionObjects.Keys)
                     {
                         if (i == j || processedObjects.Contains((j, i)) || Objects[i].Speed == Vector2.Zero)
-                            continue;
-                        (int screenX, int screenY) screenNumber2 =
-                            ((int)collisionObjects[j].X / _screenWidth, (int)collisionObjects[j].Y / _screenHeight);
+                            continue;                      
 
-                        bool isLong2 = SolidObjects[j].Colliders[0].Collider.Boundary.Width > _screenWidth ||
-                            SolidObjects[j].Colliders[0].Collider.Boundary.Height > _screenHeight;
-
-                        if ((screenNumber1 == screenNumber2 || isLong1 || isLong2)/*&& 
-                            (screenNumber1 == playerScreen||screenNumber2 == playerScreen)*/)
-                        {
+                        //if (IsOnSameScreen(collisionObjects[i], collisionObjects[j]) || 
+                        //    isLong1 || IsLongSolid(SolidObjects[j]))/*&& 
+                         //   (screenNumber1 == playerScreen||screenNumber2 == playerScreen)
+                        //{
                             if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
                             {
                                 CalculateCrushing(i, j);
                             }
 
                             processedObjects.Add((i, j));
-                        }
+                        //}
                     }
                     foreach (var t in Triggers)
                     {
@@ -283,6 +280,19 @@ namespace KARC.MVP
             }            
         }
 
+        private (int X, int Y) GetScreenNumber (Vector2 pos)
+        {
+            return ((int)pos.X / _screenWidth, (int)pos.Y / _screenHeight);
+        }
+        private bool IsOnSameScreen(Vector2 pos1, Vector2 pos2)
+        {
+            return GetScreenNumber(pos1) == GetScreenNumber(pos2);
+        }
+        private bool IsLongSolid(ISolid o)
+        {
+            return o.Colliders[0].Collider.Boundary.Width > _screenWidth ||
+                           o.Colliders[0].Collider.Boundary.Height > _screenHeight;
+        }
         private bool CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
         {
             Vector2 oppositeDirection;
