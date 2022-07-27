@@ -87,8 +87,8 @@ namespace KARC.MVP
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 1200);
-            GenerateEnemies(0.020f);          
+            GenerateMap(11, 2000);
+            GenerateEnemies(0.015f);          
 
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
@@ -172,12 +172,19 @@ namespace KARC.MVP
             float x = xTile * _tileSize;
             float y = yTile * _tileSize;
             IObject generatedObject = null;
-            if (sign == 'P' || sign == 'C')
+            if (sign == 'C')
             {
                 //generatedObject = Factory.CreateClassicCar(x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, 0));
+                //generatedObject = Factory.CreateComplexCar(
+                //    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-15,0)));
+                generatedObject = Factory.CreateClassicCar(
+                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-5, 0)));
+            }
+            else if (sign == 'P')
+            {
                 generatedObject = Factory.CreateComplexCar(
-                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, -5));
-            }            
+                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(0, 0)));
+            }
             return generatedObject;
         }
         private IObject GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
@@ -227,8 +234,9 @@ namespace KARC.MVP
                             ((int)collisionObjects[i].X / _screenWidth, (int)collisionObjects[i].Y / _screenHeight);
                     bool isLong1 = SolidObjects[i].Colliders[0].Collider.Boundary.Width > _screenWidth ||
                             SolidObjects[i].Colliders[0].Collider.Boundary.Height > _screenHeight;
+
                     foreach (var j in collisionObjects.Keys)
-                    {   
+                    {
                         if (i == j || processedObjects.Contains((j, i)) || Objects[i].Speed == Vector2.Zero)
                             continue;
                         (int screenX, int screenY) screenNumber2 =
@@ -237,7 +245,8 @@ namespace KARC.MVP
                         bool isLong2 = SolidObjects[j].Colliders[0].Collider.Boundary.Width > _screenWidth ||
                             SolidObjects[j].Colliders[0].Collider.Boundary.Height > _screenHeight;
 
-                        if (screenNumber1==screenNumber2&&screenNumber1==playerScreen ||isLong1||isLong2)
+                        if ((screenNumber1 == screenNumber2 || isLong1 || isLong2)/*&& 
+                            (screenNumber1 == playerScreen||screenNumber2 == playerScreen)*/)
                         {
                             if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
                             {
@@ -245,7 +254,7 @@ namespace KARC.MVP
                             }
 
                             processedObjects.Add((i, j));
-                        }                       
+                        }
                     }
                     foreach (var t in Triggers)
                     {
@@ -277,29 +286,43 @@ namespace KARC.MVP
         private bool CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
         {
             Vector2 oppositeDirection;
-            bool isCollided = false;            
-            while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Colliders, SolidObjects[obj2.Id].Colliders))
-            {               
-                if (obj1.initPos != Objects[obj1.Id].Pos)
+            bool isCollided = false;
+            byte tries = 20;
+            while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Colliders, SolidObjects[obj2.Id].Colliders)&&tries>0)
+            {
+                if(tries > 1)
                 {
-                    oppositeDirection = Objects[obj1.Id].Pos - obj1.initPos;
-                    oppositeDirection.Normalize();
-                    Objects[obj1.Id].Move(Objects[obj1.Id].Pos - oppositeDirection);
+                    if (obj1.initPos != Objects[obj1.Id].Pos)
+                    {
+                        oppositeDirection = Objects[obj1.Id].Pos - obj1.initPos;
+                        oppositeDirection.Normalize();
+                        Objects[obj1.Id].Move(Objects[obj1.Id].Pos - oppositeDirection);
+                    }
+                    if (obj2.initPos != Objects[obj2.Id].Pos)
+                    {
+                        oppositeDirection = Objects[obj2.Id].Pos - obj2.initPos;
+                        oppositeDirection.Normalize();
+                        Objects[obj2.Id].Move(Objects[obj2.Id].Pos - oppositeDirection);
+                    }
+                    isCollided = true;
+                    tries--;
                 }
-                if (obj2.initPos != Objects[obj2.Id].Pos)
+                else
                 {
-                    oppositeDirection = Objects[obj2.Id].Pos - obj2.initPos;
-                    oppositeDirection.Normalize();
-                    Objects[obj2.Id].Move(Objects[obj2.Id].Pos - oppositeDirection);
+                    var oppositeDirection1 = Objects[obj1.Id].Pos - obj1.initPos;
+                    var oppositeDirection2 = Objects[obj2.Id].Pos - obj2.initPos;
+                    Objects[obj1.Id].Move(Objects[obj1.Id].Pos - 10*oppositeDirection1);
+                    Objects[obj2.Id].Move(Objects[obj2.Id].Pos - 10 * oppositeDirection2);
+                    tries--;
                 }
-                isCollided = true;               
+                
             }
             return isCollided;
         }
         private void CalculateCrushing (int Id1, int Id2)
         {
-            //Objects[Id1].Speed = new Vector2(0, 0);
-            //Objects[Id2].Speed = new Vector2(0, 0);
+            Objects[Id1].Speed = new Vector2(0, 0);
+            Objects[Id2].Speed = new Vector2(0, 0);
             if (Objects[Id1] is Car)
             {
                 Car c = (Car)Objects[Id1];

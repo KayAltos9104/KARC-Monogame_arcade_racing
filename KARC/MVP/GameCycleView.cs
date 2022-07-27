@@ -30,7 +30,7 @@ namespace KARC.MVP
         private SpriteFont _textBlock;
 
         private int _frameCounter = 0;
-        private int _timeRange = 3; //Время между измерениями в миллисекундах
+        private int _timeRange = 1; //Время между измерениями в миллисекундах
         private int _elapsedFPSTime = 0;
 
         public GameCycleView()
