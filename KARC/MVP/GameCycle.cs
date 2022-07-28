@@ -88,7 +88,7 @@ namespace KARC.MVP
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 20000);
+            GenerateMap(11, 4000);
             GenerateEnemies(0.010f);          
 
             for (int y = 0; y < _map.GetLength(1); y++)
@@ -136,13 +136,10 @@ namespace KARC.MVP
                         if (_map[x, y] == 'P' && !isPlacedPlayer)
                         {
                             PlayerId = _currentId;
-                            isPlacedPlayer = true;
-                            Objects.Add(_currentId, generatedObject);
+                            isPlacedPlayer = true;                            
                         }
-                        else if (_map[x, y] != 'P')
-                        {
-                            Objects.Add(_currentId, generatedObject);
-                        }
+                      
+                        Objects.Add(_currentId, generatedObject);
                         if (generatedObject is ISolid s)
                             SolidObjects.Add(_currentId, s);
 
