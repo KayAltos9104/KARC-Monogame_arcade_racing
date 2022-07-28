@@ -46,8 +46,7 @@ namespace KARC.MVP
         private void GenerateMap(int width, int height)
         {
             _map = new char[width, height];
-            _map[width / 2, height - 1] = 'P';
-            //_map[width / 2, height - 5] = 'C';
+            _map[width / 2, height - 1] = 'P';            
             _map[1, 0] = '1';
             _map[1, _map.GetLength(1) - 1] = '1';
             _map[_map.GetLength(0) - 2, 0] = '2';
@@ -88,7 +87,7 @@ namespace KARC.MVP
             _isGameOver = false;
             _currentId = 1;
             bool isPlacedPlayer = false;
-            GenerateMap(11, 4000);
+            GenerateMap(11, 5000);
             GenerateEnemies(0.010f);          
 
             for (int y = 0; y < _map.GetLength(1); y++)
@@ -346,8 +345,7 @@ namespace KARC.MVP
                     Objects[obj1.Id].Move(Objects[obj1.Id].Pos - 10 * oppositeDirection1);
                     Objects[obj2.Id].Move(Objects[obj2.Id].Pos - 10 * oppositeDirection2);
                     tries--;
-                }
-                
+                }                
             }
             return isCollided;
         }
@@ -365,8 +363,7 @@ namespace KARC.MVP
                 Car c = (Car)Objects[Id2];
                 c.IsLive = false;
             }
-        }
-
+        }        
         private void CalculateTrigger (int i, ITrigger t)
         {
             if (RectangleCollider.IsCollided(SolidObjects[i].Colliders, t.Collider))
