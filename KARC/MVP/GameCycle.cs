@@ -215,15 +215,8 @@ namespace KARC.MVP
                 foreach (var i in Objects.Keys)
                 {
                     Vector2 initPos = Objects[i].Pos;
-                    var objectScreen = GetScreenNumber (initPos);                    
-                    if (IsOnNeighborScreen(playerScreen, objectScreen))
-                    {
-                        Objects[i].Update();    
-                    }
-                    else if (_framesPassed >= _framesPerCollisionUpdate)
-                    {                        
-                        Objects[i].Update();
-                    }
+                    var objectScreen = GetScreenNumber (initPos);
+                    Objects[i].Update();
                 //Запись тех объектов, для которых нужно обсчитывать столкновение
                     if (SolidObjects.ContainsKey(i))
                     {                        
