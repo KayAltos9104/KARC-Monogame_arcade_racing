@@ -52,6 +52,19 @@ namespace KARC.Objects
             return w;
         }
 
+        public static Wall CreateWall(float x, float y, int size)
+        {
+            int segmentWidth = _objects["wall"].width;
+            int segmentHeight = _objects["wall"].height;
+            Wall w = new Wall(new Vector2(x, y), size, size);
+            for (int i = 0; i < size / segmentWidth; i++)
+                for (int j = 0; j < size / segmentHeight; j++)
+                {
+                    w.Sprites.Add((_objects["wall"].type, new Vector2(i * segmentWidth, j * segmentHeight)));
+                }
+            return w;
+        }
+
         public static Trigger2D CreateTrigger(float xInit, float yInit, float xEnd, float yEnd, int spriteId, int tileSize)
         {
             int segmentWidth = _objects["trigger"].width;

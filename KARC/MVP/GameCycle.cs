@@ -46,7 +46,8 @@ namespace KARC.MVP
         private void GenerateMap(int width, int height)
         {
             _map = new char[width, height];
-            _map[width / 2, height - 1] = 'P';            
+            _map[width / 2, height - 1] = 'P';
+            //_map[width / 2, height - 3] = 'W';
             _map[1, 0] = '1';
             _map[1, _map.GetLength(1) - 1] = '1';
             _map[_map.GetLength(0) - 2, 0] = '2';
@@ -54,6 +55,22 @@ namespace KARC.MVP
 
             _map[2, 0] = 'F';
             _map[_map.GetLength(0) - 3, 1] = 'F';
+            for (int y = 2; y < _map.GetLength(1) - 1; y++)
+                for (int x = 2; x < _map.GetLength(0) - 20; x++)
+                {
+                    bool isClearBorders = true;
+                    for (int yN = -1; yN <= 1; yN++)
+                        for (int xN = -1; xN <= 1; xN++)
+                        {
+                            if (_map[x + xN, y + yN] != '\0')
+                                isClearBorders = false;
+                        }
+                    if (_map[x, y] == '\0' && isClearBorders && _random.NextDouble() <= 0.01f)
+                    {
+                        _map[x, y] = 'W';
+                    }
+                }
+
         }
         private void GenerateEnemies(float enemiesFraction)
         {
@@ -67,7 +84,7 @@ namespace KARC.MVP
                             if (_map[x+xN, y+yN] != '\0')
                                 isClearBorders = false;
                         }
-                    if ((_map[x, y] == '\0' && isClearBorders) && _random.NextDouble() <= enemiesFraction)
+                    if (_map[x, y] == '\0' && isClearBorders && _random.NextDouble() <= enemiesFraction)
                     {
                         _map[x, y] = 'C';
                     }
@@ -88,7 +105,7 @@ namespace KARC.MVP
             _currentId = 1;
             bool isPlacedPlayer = false;
             GenerateMap(11, 5000);
-            GenerateEnemies(0.010f);          
+            //GenerateEnemies(0.010f);          
 
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
@@ -178,6 +195,10 @@ namespace KARC.MVP
             {
                 generatedObject = Factory.CreateComplexCar(
                     x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(0, 0)));
+            }
+            else if (sign == 'W')
+            {
+                generatedObject = Factory.CreateWall(x + _tileSize / 2, y + _tileSize / 2, _tileSize / 2);
             }
             return generatedObject;
         }
