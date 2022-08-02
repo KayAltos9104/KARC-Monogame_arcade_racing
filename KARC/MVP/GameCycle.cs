@@ -46,7 +46,8 @@ namespace KARC.MVP
         private void GenerateMap(int width, int height)
         {
             _map = new char[width, height];
-            _map[width / 2, height - 1] = 'P';            
+            _map[width / 2, height - 1] = 'P';
+            //_map[width / 2, height - 3] = 'W';
             _map[1, 0] = '1';
             _map[1, _map.GetLength(1) - 1] = '1';
             _map[_map.GetLength(0) - 2, 0] = '2';
@@ -54,6 +55,22 @@ namespace KARC.MVP
 
             _map[2, 0] = 'F';
             _map[_map.GetLength(0) - 3, 1] = 'F';
+            for (int y = 2; y < _map.GetLength(1) - 20; y++)
+                for (int x = 2; x < _map.GetLength(0) - 3; x++)
+                {
+                    bool isClearBorders = true;
+                    for (int yN = -1; yN <= 1; yN++)
+                        for (int xN = -1; xN <= 1; xN++)
+                        {
+                            if (_map[x + xN, y + yN] != '\0')
+                                isClearBorders = false;
+                        }
+                    if (_map[x, y] == '\0' && isClearBorders && _random.NextDouble() <= 0.001f)
+                    {
+                        _map[x, y] = 'W';
+                    }
+                }
+
         }
         private void GenerateEnemies(float enemiesFraction)
         {
@@ -67,7 +84,7 @@ namespace KARC.MVP
                             if (_map[x+xN, y+yN] != '\0')
                                 isClearBorders = false;
                         }
-                    if ((_map[x, y] == '\0' && isClearBorders) && _random.NextDouble() <= enemiesFraction)
+                    if (_map[x, y] == '\0' && isClearBorders && _random.NextDouble() <= enemiesFraction)
                     {
                         _map[x, y] = 'C';
                     }
@@ -179,6 +196,10 @@ namespace KARC.MVP
                 generatedObject = Factory.CreateComplexCar(
                     x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(0, 0)));
             }
+            else if (sign == 'W')
+            {
+                generatedObject = Factory.CreateWall(x + _tileSize / 2, y + _tileSize / 2, _tileSize / 2);
+            }
             return generatedObject;
         }
         private IObject GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
@@ -215,15 +236,8 @@ namespace KARC.MVP
                 foreach (var i in Objects.Keys)
                 {
                     Vector2 initPos = Objects[i].Pos;
-                    var objectScreen = GetScreenNumber (initPos);                    
-                    if (IsOnNeighborScreen(playerScreen, objectScreen))
-                    {
-                        Objects[i].Update();    
-                    }
-                    else if (_framesPassed >= _framesPerCollisionUpdate)
-                    {                        
-                        Objects[i].Update();
-                    }
+                    var objectScreen = GetScreenNumber (initPos);
+                    Objects[i].Update();
                 //Запись тех объектов, для которых нужно обсчитывать столкновение
                     if (SolidObjects.ContainsKey(i))
                     {                        
@@ -405,12 +419,12 @@ namespace KARC.MVP
                         }
                     case IGameplayModel.Direction.right:
                         {
-                            p.Speed += new Vector2(8, 0);
+                            p.Speed += new Vector2(9, 0);
                             break;
                         }
                     case IGameplayModel.Direction.left:
                         {
-                            p.Speed += new Vector2(-8, 0);
+                            p.Speed += new Vector2(-9, 0);
                             break;
                         }
                 }
