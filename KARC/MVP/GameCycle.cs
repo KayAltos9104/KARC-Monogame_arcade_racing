@@ -55,6 +55,7 @@ namespace KARC.MVP
 
             _map[2, 0] = 'F';
             _map[_map.GetLength(0) - 3, 1] = 'F';
+            _map[5, 4995] = 'S';
             for (int y = 2; y < _map.GetLength(1) - 20; y++)
                 for (int x = 2; x < _map.GetLength(0) - 3; x++)
                 {
@@ -200,6 +201,12 @@ namespace KARC.MVP
             {
                 generatedObject = Factory.CreateWall(x + _tileSize / 2, y + _tileSize / 2, _tileSize / 2);
             }
+            else if (sign == 'S')
+            {
+                generatedObject = Factory.CreateShield(x + _tileSize / 2, y + _tileSize / 2);
+                var trigger = (ITrigger)generatedObject;
+                trigger.Triggered += GiveShield;
+            }
             return generatedObject;
         }
         private IObject GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
@@ -221,6 +228,8 @@ namespace KARC.MVP
                 _finishPos = (int)yInit;
             }
             
+
+
             return generatedObject;            
         }       
 
@@ -370,12 +379,12 @@ namespace KARC.MVP
             if (Objects[Id1] is Car)
             {
                 Car c = (Car)Objects[Id1];
-                c.IsLive = false;
+                c.Die();
             }
             if (Objects[Id2] is Car)
             {
                 Car c = (Car)Objects[Id2];
-                c.IsLive = false;
+                c.Die();
             }
         }        
         private void CalculateTrigger (int i, ITrigger t)
@@ -389,6 +398,12 @@ namespace KARC.MVP
         {
             if (e.ActivatorId == PlayerId)                
                 ProcessGameOver(isWin : true);
+        }
+
+        private void GiveShield(object sender, TriggerEventArgs e)
+        {
+            if (e.ActivatorId == PlayerId)
+                (Objects[PlayerId] as Car).IsImmortal = true;
         }
 
         private void ProcessGameOver (bool isWin)

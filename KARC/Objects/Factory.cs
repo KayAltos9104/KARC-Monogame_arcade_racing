@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace KARC.Objects
@@ -10,11 +11,12 @@ namespace KARC.Objects
     {
         private static Dictionary<string, (int type, int width, int height)> _objects = new Dictionary<string, (int, int, int)>()
         {
-            {"classicCar", ((int)ObjectTypes.car, 77,100)},
-            {"wall", ((int)ObjectTypes.wall, 24,24)},
+            {"classicCar", ((int)ObjectTypes.car, 77, 100)},
+            {"wall", ((int)ObjectTypes.wall, 24, 24)},
             {"trigger", (-1, 20, 20)},
             {"finishCounterField",((int)ObjectTypes.finishCounterField, 1000, 28) },
-            {"finishTape",((int)ObjectTypes.finish, 20, 20) }
+            {"finishTape",((int)ObjectTypes.finish, 20, 20) },
+            {"shield",((int)ObjectTypes.shield, 48, 48) },
         };
         public static Car CreateClassicCar(float x, float y, Vector2 speed)
         {
@@ -79,6 +81,24 @@ namespace KARC.Objects
                 }
             return t;
         }
+        public static Trigger2D CreateShield(float x, float y)
+        {           
+            Trigger2D t = new Trigger2D(new Vector2(x, y), _objects["shield"].width, _objects["shield"].height);
+            t.Sprites.Add((_objects["shield"].type, new Vector2(0, 0)));
+            return t;
+        }
+        public static Trigger2D CreateTrigger(float x, float y, int size, int spriteId)
+        {
+            int segmentWidth = _objects["trigger"].width;
+            int segmentHeight = _objects["trigger"].height;            
+            Trigger2D t = new Trigger2D(new Vector2(x, y), size, size);
+            for (int i = 0; i < size / segmentWidth; i++)
+                for (int j = 0; j < size / segmentHeight; j++)
+                {
+                    t.Sprites.Add((spriteId, new Vector2(i * segmentWidth, j * segmentHeight)));
+                }
+            return t;
+        }
 
         public static FinishCounter CreateFinishCounter (float x, float y)
         {
@@ -102,7 +122,8 @@ namespace KARC.Objects
             wall,
             window,
             finish,
-            finishCounterField
+            finishCounterField,
+            shield
         }
     }
 }

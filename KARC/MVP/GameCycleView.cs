@@ -85,6 +85,7 @@ namespace KARC.MVP
             _textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
             _textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
             _textures.Add((byte)Factory.ObjectTypes.finishCounterField, Content.Load<Texture2D>("FinishCounterField"));
+            _textures.Add((byte)Factory.ObjectTypes.shield, Content.Load<Texture2D>("Immortality"));
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 

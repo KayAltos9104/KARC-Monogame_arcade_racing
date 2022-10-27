@@ -20,3 +20,4 @@ namespace KARC.WitchEngine
         void Move (Vector2 pos);
     }
 }
+
