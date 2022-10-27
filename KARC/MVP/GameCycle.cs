@@ -281,6 +281,11 @@ namespace KARC.MVP
                     foreach (var t in Triggers)
                     {
                         CalculateTrigger(i, t.Value);
+                        if (!t.Value.IsActive)
+                        {
+                            Objects.Remove(t.Key);
+                            Triggers.Remove(t.Key);
+                        }
                     }
                 }
 
@@ -401,9 +406,10 @@ namespace KARC.MVP
         }
 
         private void GiveShield(object sender, TriggerEventArgs e)
-        {
+        {            
             if (e.ActivatorId == PlayerId)
                 (Objects[PlayerId] as Car).IsImmortal = true;
+            (sender as Trigger2D).IsActive = false;
         }
 
         private void ProcessGameOver (bool isWin)

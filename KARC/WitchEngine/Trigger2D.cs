@@ -10,11 +10,13 @@ namespace KARC.WitchEngine
         public event EventHandler<TriggerEventArgs> Triggered = delegate { };
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
 
+        public bool IsActive { get; set; }
         public Vector2 Pos { get; private set; }
 
         public Vector2 Speed { get; set; }
         public RectangleCollider Collider { get; set; }
         public float Layer { get; set; }
+        
 
         public Trigger2D(Vector2 position, int width, int length)
         {
@@ -22,6 +24,7 @@ namespace KARC.WitchEngine
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
             Collider = new RectangleCollider((int)Pos.X, (int)Pos.Y, width, length);
             Layer = 0.4f;
+            IsActive = true;
         }
         public void Move(Vector2 pos)
         {

@@ -8,6 +8,7 @@ namespace KARC.WitchEngine
     {
         event EventHandler<TriggerEventArgs> Triggered;
         RectangleCollider Collider { get; set; }
+        bool IsActive { get; set; }
         void OnTrigger(IObject activator, int id);
         
     }
@@ -15,6 +16,6 @@ namespace KARC.WitchEngine
     public class TriggerEventArgs:EventArgs
     {       
         public IObject Activator { get; set; }
-        public int ActivatorId { get; set; }
+        public int ActivatorId { get; set; }        
     }
 }
