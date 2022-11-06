@@ -13,14 +13,15 @@ namespace KARC.MVP
         public event EventHandler<GameplayEventArgs> Updated = delegate { };
         public event EventHandler<GameOverEventArgs> GameFinished = delegate { };
 
-        bool _isPaused;
+        public GameTime GameTime { get; set; }
 
-        bool _isGameOver;
+        private bool _isPaused;
+
+        private bool _isGameOver;
 
         private int _currentId;
 
-        private char[,] _map;
-        //private Dictionary<int, Vector2>[,] _screens;
+        private char[,] _map;        
 
         private int _screenWidth = 1000;
         private int _screenHeight = 1000;

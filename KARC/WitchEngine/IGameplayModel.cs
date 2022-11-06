@@ -7,6 +7,8 @@ namespace KARC.WitchEngine
     public interface IGameplayModel
     {
         int PlayerId { get; set; }
+
+        GameTime GameTime { get; set; }
         Dictionary<int, IObject> Objects { get; set; }
         event EventHandler<GameplayEventArgs> Updated; 
         event EventHandler<GameOverEventArgs> GameFinished;

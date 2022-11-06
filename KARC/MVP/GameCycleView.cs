@@ -14,7 +14,7 @@ namespace KARC.MVP
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        public event EventHandler CycleFinished = delegate { };
+        public event EventHandler<CycleViewEventArgs> CycleFinished = delegate { };
         public event EventHandler<ControlsEventArgs> PlayerSpeedChanged = delegate { };
         public event EventHandler GamePaused = delegate { };
         public event EventHandler<InitializeEventArgs> GameLaunched = delegate { };
@@ -97,8 +97,7 @@ namespace KARC.MVP
             _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(speed * (3600.0 / 1000.0)) + " км/ч";
             var f = (FinishCounter)_components["FinishCounter"];
             f.FinishDistance = distToFinish;
-            f.Update();
-            
+            f.Update();            
         }
 
 
@@ -157,11 +156,10 @@ namespace KARC.MVP
           
 
             base.Update(gameTime);
-
-            _pressedPrevFrame = new List<Keys>(keys);
-
             
-            CycleFinished.Invoke(this, new EventArgs());
+            _pressedPrevFrame = new List<Keys>(keys);
+            
+            CycleFinished.Invoke(this, new CycleViewEventArgs() { GameTime = gameTime});
         }
 
         private bool IsSinglePressed(Keys key)

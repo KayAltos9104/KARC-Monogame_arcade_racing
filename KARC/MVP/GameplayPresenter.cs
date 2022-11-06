@@ -56,8 +56,9 @@ namespace KARC.MVP
         }
 
 
-        private void ViewModelUpdate(object sender, EventArgs e)
+        private void ViewModelUpdate(object sender, CycleViewEventArgs e)
         {
+            _gameplayModel.GameTime = e.GameTime;
             _gameplayModel.Update();
         }
     }

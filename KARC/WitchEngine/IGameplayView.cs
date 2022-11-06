@@ -6,7 +6,7 @@ namespace KARC.WitchEngine
 {
     public interface IGameplayView
     {
-        event EventHandler CycleFinished; //Включается в конце каждого цикла в GameCycle, чтобы обновить модель
+        event EventHandler<CycleViewEventArgs> CycleFinished; //Включается в конце каждого цикла в GameCycle, чтобы обновить модель
         event EventHandler<ControlsEventArgs> PlayerSpeedChanged;
         event EventHandler<InitializeEventArgs> GameLaunched;
         event EventHandler GamePaused;
@@ -24,5 +24,9 @@ namespace KARC.WitchEngine
     public class ControlsEventArgs : EventArgs
     {
         public IGameplayModel.Direction Direction { get; set; }
+    }
+    public class CycleViewEventArgs
+    {
+        public GameTime GameTime { get; set; }
     }
 }
