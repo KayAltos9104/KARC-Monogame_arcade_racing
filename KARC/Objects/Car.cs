@@ -1,6 +1,8 @@
-﻿using KARC.WitchEngine;
+﻿using KARC.Objects;
+using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace KARC.Objects
 {
@@ -27,7 +29,7 @@ namespace KARC.Objects
 
             }
         }        
-        public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
+        public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }        
         public float Layer { get; set; }
         public List<(Vector2 Shift, RectangleCollider Collider)> Colliders { get; set; }
         public bool isMoved { get; set; }

@@ -5,6 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static System.Formats.Asn1.AsnWriter;
+using System.Xml.Linq;
+using System.Security.AccessControl;
+using System.Runtime.CompilerServices;
 
 namespace KARC.MVP
 {
@@ -42,8 +46,8 @@ namespace KARC.MVP
         public int PlayerId { get; set; }
         public Dictionary<int, IObject> Objects { get; set; }
         public Dictionary<int, ISolid> SolidObjects { get; set; }
-        public Dictionary<int, ITrigger> Triggers { get; set; }
-        
+        public Dictionary<int, ITrigger> Triggers { get; set; }        
+        public List<Timer> Timers { get; set; }
         private void GenerateMap(int width, int height)
         {
             _map = new char[width, height];
@@ -98,7 +102,7 @@ namespace KARC.MVP
             Objects = new Dictionary<int, IObject>();
             SolidObjects = new Dictionary<int, ISolid>();
             Triggers = new Dictionary<int, ITrigger>();
-
+            Timers = new List<Timer>();
             _playerShift = Vector2.Zero;
             _score = 0;
 
@@ -247,7 +251,7 @@ namespace KARC.MVP
                 {
                     Vector2 initPos = Objects[i].Pos;
                     var objectScreen = GetScreenNumber (initPos);
-                    Objects[i].Update();
+                    Objects[i].Update();                    
                 //Запись тех объектов, для которых нужно обсчитывать столкновение
                     if (SolidObjects.ContainsKey(i))
                     {                        
@@ -289,6 +293,9 @@ namespace KARC.MVP
                         }
                     }
                 }
+
+                foreach (var timer in Timers)
+                    timer.Update();
 
                 Car player = (Car)Objects[PlayerId];
                 if (!player.IsLive)                   
@@ -409,8 +416,18 @@ namespace KARC.MVP
         private void GiveShield(object sender, TriggerEventArgs e)
         {            
             if (e.ActivatorId == PlayerId)
-                (Objects[PlayerId] as Car).IsImmortal = true;
-            (sender as Trigger2D).IsActive = false;
+            {
+                var playerCar = Objects[PlayerId] as Car;
+                playerCar.IsImmortal = true;
+                Timer immortalTimer = new Timer(600); //Пока в качестве времени выступают тики, что неправильно. Тут примерно 10 секунд
+                immortalTimer.TimeIsOver +=
+                (s, a) =>
+                {                    
+                    playerCar.IsImmortal = false;
+                };
+                Timers.Add(immortalTimer);
+            }                
+            (sender as Trigger2D).IsActive = false;   
         }
 
         private void ProcessGameOver (bool isWin)
@@ -462,4 +479,5 @@ namespace KARC.MVP
 
     }
 }
+
 

@@ -9,15 +9,11 @@ namespace KARC.WitchEngine
     {       
         float Layer { get;set; }
         List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
-
         Vector2 Pos { get;}
-
-        Vector2 Speed { get; set; }
-
-       
+        Vector2 Speed { get; set; }       
         void Update();
-
         void Move (Vector2 pos);
     }
 }
+
 
