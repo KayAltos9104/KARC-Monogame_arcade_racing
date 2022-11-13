@@ -20,7 +20,7 @@ namespace KARC.MVP
         public event EventHandler<InitializeEventArgs> GameLaunched = delegate { };
 
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();        
-        private Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
+        private Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();        
         private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
 
         private Vector2 _visualShift = new Vector2(0, 0);
@@ -89,12 +89,38 @@ namespace KARC.MVP
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 
-        public void LoadGameCycleParameters(Dictionary<int, IObject> Objects, Vector2 POVShift, int score, int speed, float distToFinish)
+        public void LoadGameCycleParameters(
+            Dictionary<int, IObject> Objects, 
+            Vector2 POVShift, 
+            int score, 
+            int speed, 
+            float distToFinish, 
+            List<(byte effectSprite, int timeLeft)> effects)
         {
             _objects = Objects;
             _visualShift = POVShift;
             _components["MbxScore"].Text = "Очки: " + score;
-            _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(speed * (3600.0 / 1000.0)) + " км/ч";
+            _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(speed * (3600.0 / 1000.0)) + " км/ч";            
+                
+            foreach (var e in effects)
+            {
+                if (_components.ContainsKey(e.effectSprite.ToString()))
+                {
+                    _components[e.effectSprite.ToString()].Text = e.timeLeft.ToString();
+                }                    
+                else
+                {
+                    _components.Add(e.effectSprite.ToString(), 
+                        new Parameter(
+                        new Vector2(0, 100 + 50 * _components.Count - 4), 
+                        e.timeLeft.ToString(), 
+                        e.effectSprite)
+                        );
+                }
+                if (e.timeLeft <= 0)
+                    _components.Remove(e.effectSprite.ToString());
+            }
+            
             var f = (FinishCounter)_components["FinishCounter"];
             f.FinishDistance = distToFinish;
             f.Update();            
@@ -222,7 +248,7 @@ namespace KARC.MVP
                         Color.White,
                         rotation: 0,
                         origin: Vector2.Zero,
-                        scale: s==Vector2.Zero ? Vector2.One : new Vector2(
+                        scale: s==Vector2.Zero||!c.IsSpriteScaled ? Vector2.One : new Vector2(
                             s.X / _textures[sprite.ImageId].Width,
                             s.Y / _textures[sprite.ImageId].Height),
                         SpriteEffects.None,
@@ -231,7 +257,7 @@ namespace KARC.MVP
                     _spriteBatch.DrawString(
                         _textBlock,
                         c.Text,
-                        textPos,
+                        textPos+c.TextPos,
                         Color.Black,
                         rotation: 0,
                         origin: Vector2.Zero,

@@ -8,7 +8,9 @@ namespace KARC.WitchEngine
     public interface IComponent
     {
        string  Name { get; set; }
+       Vector2 TextPos { get; set; }  
        string  Text { get; set; }
-       public bool IsCentered { get; set; }
+       bool IsCentered { get; set; }         
+       bool IsSpriteScaled { get; set; } 
     }
 }

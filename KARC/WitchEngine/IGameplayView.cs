@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using KARC.Objects;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -10,8 +11,16 @@ namespace KARC.WitchEngine
         event EventHandler<ControlsEventArgs> PlayerSpeedChanged;
         event EventHandler<InitializeEventArgs> GameLaunched;
         event EventHandler GamePaused;
+
+        void LoadGameCycleParameters(
+            Dictionary<int, IObject> _objects, 
+            Vector2 POVShift, 
+            int score, 
+            int speed, 
+            float distToFin,
+            List<(byte effectSprite, int timeLeft)> effects
+            );
        
-        void LoadGameCycleParameters(Dictionary<int, IObject> _objects, Vector2 POVShift, int score, int speed, float distToFin);
         void ShowGameOver(bool isWin);
         void Run();
     }

@@ -1,15 +1,16 @@
 ﻿using KARC.Objects;
-using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace KARC.WitchEngine.UI
 {
-    public class MessageBox : IObject, IComponent    
+    public class Parameter : IObject, IComponent
     {
-        
+        public float Layer { get; set; }
         public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
 
         public Vector2 Pos { get; private set; }
@@ -17,31 +18,21 @@ namespace KARC.WitchEngine.UI
         public Vector2 Speed { get; set; }
         public string Name { get; set; }
         public string Text { get; set; }
-       
-        public float Layer { get; set; }
         public bool IsCentered { get; set; }
         public Vector2 TextPos { get; set; }
         public bool IsSpriteScaled { get; set; }
-        
-        public MessageBox(Vector2 pos, string text)
-        {            
 
+        public Parameter (Vector2 pos, string text, byte sprite)
+        {
             Pos = pos;
             Text = text;
+            TextPos = new Vector2 (70, 0);
             Name = "";
-            TextPos = Vector2.Zero;
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
-            Sprites.Add(((byte)Factory.ObjectTypes.window, Vector2.Zero));
-            IsSpriteScaled = true;
-            Layer = 1.0f;            
+            Sprites.Add((sprite, Vector2.Zero));
+            IsSpriteScaled = false;
+            Layer = 1.0f;
         }
-
-        public MessageBox(Vector2 pos, string name, string text) : this(pos, text)
-        {
-            Name = name;
-        }
-
-        
 
         public void Move(Vector2 pos)
         {
@@ -50,7 +41,7 @@ namespace KARC.WitchEngine.UI
 
         public void Update()
         {
-
+            
         }
     }
 }

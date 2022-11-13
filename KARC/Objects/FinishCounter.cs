@@ -20,6 +20,8 @@ namespace KARC.Objects
         public float Width { get; set; }   
         public float CarSignShift { get; set; }
         public float FinishSignShift { get; set; }
+        public Vector2 TextPos { get; set; }
+        public bool IsSpriteScaled { get; set; }
 
         private (int id, Vector2 pos) _carSign;
         private (int id, Vector2 pos) _finishSign;
@@ -35,6 +37,7 @@ namespace KARC.Objects
             Sprites.Add(carSign);
             _carSign = Sprites.Single(s => s.ImageId == carSign.id);
             _finishSign = Sprites.Single(s => s.ImageId == finishSign.id);
+            IsSpriteScaled = false;
             Width = width;
             Layer = 1.0f; 
             _isFinished = false;
@@ -56,8 +59,7 @@ namespace KARC.Objects
                 Sprites[Sprites.FindIndex(s => s.ImageId == _finishSign.id)] = _finishSign;
             }
             if ((1 - FinishDistance) * Width + CarSignShift >= Width)
-                _isFinished = true;
-            
+                _isFinished = true;            
         }
     }
 }

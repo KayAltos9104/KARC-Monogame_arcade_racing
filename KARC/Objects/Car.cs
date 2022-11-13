@@ -53,6 +53,10 @@ namespace KARC.Objects
                 Move(Pos + Speed);
                 Speed = new Vector2(0, Speed.Y);                
             }
+            //else
+            //{
+            //    Speed = new Vector2(0, 0);
+            //}
         }
         public void Move (Vector2 newPos)
         {

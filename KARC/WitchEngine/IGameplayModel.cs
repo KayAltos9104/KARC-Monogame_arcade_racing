@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using KARC.Objects;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -38,6 +39,8 @@ namespace KARC.WitchEngine
         public Vector2 POVShift { get; set; }
         public int Score { get; set; }
         public int Speed { get; set; }
+        public List<(byte, int timeLeft)>  Effects {get; set;}
         public float DistanceToFinish { get; set; }
     }
+    
 }

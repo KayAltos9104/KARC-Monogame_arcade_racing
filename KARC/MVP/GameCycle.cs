@@ -9,6 +9,7 @@ using static System.Formats.Asn1.AsnWriter;
 using System.Xml.Linq;
 using System.Security.AccessControl;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace KARC.MVP
 {
@@ -47,7 +48,8 @@ namespace KARC.MVP
         public Dictionary<int, IObject> Objects { get; set; }
         public Dictionary<int, ISolid> SolidObjects { get; set; }
         public Dictionary<int, ITrigger> Triggers { get; set; }        
-        public List<Timer> Timers { get; set; }
+        public Dictionary<string, Timer> Timers { get; set; }
+        public Dictionary<string, Factory.ObjectTypes> Effects { get; set; }
         private void GenerateMap(int width, int height)
         {
             _map = new char[width, height];
@@ -102,7 +104,8 @@ namespace KARC.MVP
             Objects = new Dictionary<int, IObject>();
             SolidObjects = new Dictionary<int, ISolid>();
             Triggers = new Dictionary<int, ITrigger>();
-            Timers = new List<Timer>();
+            Timers = new Dictionary<string, Timer>();
+            Effects = new Dictionary<string, Factory.ObjectTypes>();
             _playerShift = Vector2.Zero;
             _score = 0;
 
@@ -184,6 +187,7 @@ namespace KARC.MVP
                 POVShift = _playerShift,
                 Score = _score,
                 Speed = (int)Objects[PlayerId].Speed.Y,
+                Effects = new List<(byte, int timeLeft)>(),
                 DistanceToFinish = 1
             });
         }
@@ -294,8 +298,11 @@ namespace KARC.MVP
                     }
                 }
 
-                foreach (var timer in Timers)
+                foreach (var timer in Timers.Values)
+                {
                     timer.Update();
+                }
+                    
 
                 Car player = (Car)Objects[PlayerId];
                 if (!player.IsLive)                   
@@ -312,12 +319,19 @@ namespace KARC.MVP
 
                 _framesPassed++;
 
+                var effectsOut = new List<(byte, int timeLeft)>();
+                foreach (var e in Effects)
+                {
+                    effectsOut.Add(((byte)e.Value, Timers[e.Key].Time));
+                }
+
                 Updated.Invoke(this, new GameplayEventArgs
                 {
                     Objects = sortedObjects,
                     POVShift = _playerShift,
                     Score = _score,                    
                     Speed = (int)Objects[PlayerId].Speed.Y,
+                    Effects = effectsOut,
                     DistanceToFinish = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y) / _distance
                 });                
             }            
@@ -420,12 +434,16 @@ namespace KARC.MVP
                 var playerCar = Objects[PlayerId] as Car;
                 playerCar.IsImmortal = true;
                 Timer immortalTimer = new Timer(600); //Пока в качестве времени выступают тики, что неправильно. Тут примерно 10 секунд
+                var timerId = Guid.NewGuid().ToString();
+                Effects.Add(timerId, Factory.ObjectTypes.shield);
                 immortalTimer.TimeIsOver +=
                 (s, a) =>
                 {                    
                     playerCar.IsImmortal = false;
+                    Effects.Remove(timerId);
                 };
-                Timers.Add(immortalTimer);
+               
+                Timers.Add(timerId, immortalTimer);
             }                
             (sender as Trigger2D).IsActive = false;   
         }
