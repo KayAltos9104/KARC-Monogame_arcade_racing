@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace KARC.MVP
 {
@@ -280,7 +281,8 @@ namespace KARC.MVP
             }
             //_components["FPS"].Text = "FPS: "+(_frameCounter / gameTime.TotalGameTime.TotalSeconds).ToString("N0");             
 
-            _spriteBatch.End();
+            
+
             base.Draw(gameTime);
         }
         public void ShowGameOver(bool isWin)

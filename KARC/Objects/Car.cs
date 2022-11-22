@@ -8,8 +8,7 @@ namespace KARC.Objects
 {
     public class Car : IObject, ISolid
     {
-        private Vector2 _speed;
-        
+        private Vector2 _speed;        
         public Vector2 Pos { get; private set; }
         public bool IsLive { get; private set; }       
         public bool IsImmortal { get; set; }

@@ -22,6 +22,10 @@ public class Animator
     {
         IsActive = true;
     }
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
     public void Update(GameTime gameTime)
     {
         if (IsActive == false)
