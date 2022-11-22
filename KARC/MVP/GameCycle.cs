@@ -65,7 +65,7 @@ namespace KARC.MVP
 
             _map[2, 0] = 'F';
             _map[_map.GetLength(0) - 3, 1] = 'F';
-            _map[5, 4995] = 'S';
+            //_map[5, 4995] = 'S';
             for (int y = 2; y < _map.GetLength(1) - 20; y++)
                 for (int x = 2; x < _map.GetLength(0) - 3; x++)
                 {
@@ -76,9 +76,14 @@ namespace KARC.MVP
                             if (_map[x + xN, y + yN] != '\0')
                                 isClearBorders = false;
                         }
-                    if (_map[x, y] == '\0' && isClearBorders && _random.NextDouble() <= 0.001f)
+                    if (_map[x, y] == '\0' && isClearBorders && _random.NextDouble() <= 0.003f)
                     {
                         _map[x, y] = 'W';
+                    }
+
+                    if (_map[x, y] == '\0' && isClearBorders && _random.NextDouble() <= 0.001f)
+                    {
+                        _map[x, y] = 'S';
                     }
                 }
 
@@ -117,7 +122,7 @@ namespace KARC.MVP
             _currentId = 1;
             bool isPlacedPlayer = false;
             GenerateMap(11, 5000);
-            GenerateEnemies(0.010f);          
+            GenerateEnemies(0.025f);          
 
             for (int y = 0; y < _map.GetLength(1); y++)
                 for (int x = 0; x < _map.GetLength(0); x++)
@@ -202,7 +207,7 @@ namespace KARC.MVP
             if (sign == 'C')
             {                
                 generatedObject = Factory.CreateComplexCar(
-                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-15, -5)));
+                    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-8, -4)));
             }
             else if (sign == 'P')
             {
@@ -521,8 +526,10 @@ namespace KARC.MVP
                 };
                
                 Timers.Add(timerId, immortalTimer);
+                _score += 5000;
+                (sender as Trigger2D).IsActive = false;
             }                
-            (sender as Trigger2D).IsActive = false;   
+              
         }
 
         private void ProcessGameOver (bool isWin)

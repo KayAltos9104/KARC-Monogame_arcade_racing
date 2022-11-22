@@ -21,10 +21,10 @@ namespace KARC.Objects
             set
             {
                 _speed = value;
-                if (_speed.Y > 20)
-                    _speed.Y = 20;
-                else if (_speed.Y < -20)
-                    _speed.Y = -20;
+                if (_speed.Y > 10)
+                    _speed.Y = 10;
+                else if (_speed.Y < -10)
+                    _speed.Y = -10;
 
             }
         }        
