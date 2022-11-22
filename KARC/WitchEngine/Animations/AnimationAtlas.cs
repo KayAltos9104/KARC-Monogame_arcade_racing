@@ -15,8 +15,13 @@ public class AnimationAtlas
     public void AddFrame (AnimationFrame animationFrame)
     {        
         if (_counter < AnimationFrames.Length)
+        {
             AnimationFrames[_counter] = animationFrame;
+            _counter++;
+        }            
         else
+        {
             throw new Exception("Too many frames");
+        }            
     }
 }

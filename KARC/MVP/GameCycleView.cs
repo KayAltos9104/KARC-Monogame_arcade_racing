@@ -1,5 +1,6 @@
 ﻿using KARC.Objects;
 using KARC.WitchEngine;
+using KARC.WitchEngine.Animations;
 using KARC.WitchEngine.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -87,6 +88,7 @@ namespace KARC.MVP
             _textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
             _textures.Add((byte)Factory.ObjectTypes.finishCounterField, Content.Load<Texture2D>("FinishCounterField"));
             _textures.Add((byte)Factory.ObjectTypes.shield, Content.Load<Texture2D>("Immortality"));
+            _textures.Add((byte)Factory.ObjectTypes.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 
@@ -203,28 +205,56 @@ namespace KARC.MVP
             //_spriteBatch.Begin(SpriteSortMode.BackToFront);
             _spriteBatch.Begin();           
             foreach (var o in _objects.Values)
-            {                
-                foreach (var sprite in o.Sprites)
-                {
-                    if (sprite.ImageId == -1)
+            {
+                if (o is IAnimated && (o as IAnimated).ActiveAnimation.IsActive)
+                {                    
+                    var a = o as IAnimated;
+                    var centerShift = a.ActiveAnimation.IsCentered ? 
+                        new Vector2(a.ActiveAnimation.CurrentFrame.Width / 2, a.ActiveAnimation.CurrentFrame.Height / 2) :
+                        Vector2.Zero;
+                    Vector2 v = o.Pos - _visualShift - centerShift;
+
+                    if (v.X < -100 || v.X > _graphics.PreferredBackBufferWidth + 100 || v.Y < -100 || v.Y > _graphics.PreferredBackBufferHeight + 100)
                         continue;
 
-                    Vector2 v = o.Pos + sprite.ImagePos - _visualShift;
-                    if (v.X < -100 || v.X > _graphics.PreferredBackBufferWidth+100 || v.Y < -100 || v.Y > _graphics.PreferredBackBufferHeight+100)
-                        continue;
-
-                    _spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
                     _spriteBatch.Draw(
-                        texture: _textures[sprite.ImageId],
-                        position: o.Pos - _visualShift + sprite.ImagePos,
-                        sourceRectangle: null,
-                        Color.White,
-                        rotation: 0,
-                        origin: Vector2.Zero,
-                        scale: 1,
-                        SpriteEffects.None,
-                        layerDepth: o.Layer);
-                }              
+                       _textures[a.ActiveAnimation.GetPictureId()], 
+                        v,                       
+                        new Rectangle(
+                            a.ActiveAnimation.CurrentFrame.Point,
+                            new Point(
+                            a.ActiveAnimation.CurrentFrame.Width, 
+                            a.ActiveAnimation.CurrentFrame.Height)),
+                        Color.White, 
+                        0, 
+                        Vector2.Zero,
+                        1, 
+                        SpriteEffects.None, 0);
+                }
+                else
+                {
+                    foreach (var sprite in o.Sprites)
+                    {
+                        if (sprite.ImageId == -1)
+                            continue;
+
+                        Vector2 v = o.Pos + sprite.ImagePos - _visualShift;
+                        if (v.X < -100 || v.X > _graphics.PreferredBackBufferWidth + 100 || v.Y < -100 || v.Y > _graphics.PreferredBackBufferHeight + 100)
+                            continue;
+
+                        //_spriteBatch.Draw(_textures[sprite.ImageId], o.Pos - _visualShift + sprite.ImagePos, Color.White);
+                        _spriteBatch.Draw(
+                            texture: _textures[sprite.ImageId],
+                            position: o.Pos - _visualShift + sprite.ImagePos,
+                            sourceRectangle: null,
+                            Color.White,
+                            rotation: 0,
+                            origin: Vector2.Zero,
+                            scale: 1,
+                            SpriteEffects.None,
+                            layerDepth: o.Layer);
+                    }
+                }                            
             }
             foreach (var c in _components.Values)
             {
@@ -281,8 +311,8 @@ namespace KARC.MVP
             }
             //_components["FPS"].Text = "FPS: "+(_frameCounter / gameTime.TotalGameTime.TotalSeconds).ToString("N0");             
 
-            
 
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
         public void ShowGameOver(bool isWin)

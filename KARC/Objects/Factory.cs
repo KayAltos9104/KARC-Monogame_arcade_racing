@@ -123,7 +123,8 @@ namespace KARC.Objects
             window,
             finish,
             finishCounterField,
-            shield
+            shield,
+            explosion
         }
     }
 }

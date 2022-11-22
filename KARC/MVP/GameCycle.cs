@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using System.Security.AccessControl;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Graphics;
+using KARC.WitchEngine.Animations;
 
 namespace KARC.MVP
 {
@@ -19,6 +20,8 @@ namespace KARC.MVP
         public event EventHandler<GameOverEventArgs> GameFinished = delegate { };
 
         public GameTime GameTime { get; set; }
+
+        private double _deltaTime = 0;
 
         private bool _isPaused;
 
@@ -246,6 +249,7 @@ namespace KARC.MVP
         {
             if (!_isPaused)            
             {
+                
                 (int screenX, int screenY) playerScreen = GetScreenNumber(Objects[PlayerId].Pos);               
                 Vector2 playerInitPos = Objects[PlayerId].Pos;
 
@@ -255,7 +259,9 @@ namespace KARC.MVP
                 {
                     Vector2 initPos = Objects[i].Pos;
                     var objectScreen = GetScreenNumber (initPos);
-                    Objects[i].Update();                    
+                    Objects[i].Update();
+                    if (Objects[i] is IAnimated)
+                        (Objects[i] as IAnimated).UpdateAnimation(GameTime);
                 //Запись тех объектов, для которых нужно обсчитывать столкновение
                     if (SolidObjects.ContainsKey(i))
                     {                        
@@ -297,16 +303,43 @@ namespace KARC.MVP
                         }
                     }
                 }
-
-                foreach (var timer in Timers.Values)
+                _deltaTime += GameTime.ElapsedGameTime.TotalMilliseconds;
+                if (_deltaTime > 1000)
                 {
-                    timer.Update();
+                    foreach (var timer in Timers.Values)
+                    {
+                        timer.Update();
+                    }
+                    _deltaTime = 0;
                 }
-                    
+                                   
 
                 Car player = (Car)Objects[PlayerId];
+                //if (!player.IsLive && !_isGameOver)
+                //{
+                //    AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
+                //    AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
+                //    AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
+                //    AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
+                //    AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
+                //    AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
+                //    explosionAtlas.AddFrame(frame1);
+                //    explosionAtlas.AddFrame(frame2);
+                //    explosionAtlas.AddFrame(frame3);
+                //    explosionAtlas.AddFrame(frame4);
+                //    explosionAtlas.AddFrame(frame5);
+
+                //    Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
+
+                //    IAnimated playerCrushExplosion = new Explosion(Objects[PlayerId].Pos);
+                //    Objects.Add(_currentId, playerCrushExplosion as IObject);
+                //    _currentId++;
+                //    playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
+                //    playerCrushExplosion.PlayAnimation("explosion");
+                //}
+
                 if (!player.IsLive)                   
-                    ProcessGameOver(isWin : false);    
+                    ProcessGameOver(isWin : false);  
                 
                //Сдвиг игрока для смещения камеры
                _playerShift.Y += Objects[PlayerId].Pos.Y - playerInitPos.Y;
@@ -324,6 +357,8 @@ namespace KARC.MVP
                 {
                     effectsOut.Add(((byte)e.Value, Timers[e.Key].Time));
                 }
+
+                
 
                 Updated.Invoke(this, new GameplayEventArgs
                 {
@@ -406,11 +441,53 @@ namespace KARC.MVP
             if (Objects[Id1] is Car)
             {
                 Car c = (Car)Objects[Id1];
+
+                AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
+                AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
+                AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
+                AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
+                AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
+                AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
+                explosionAtlas.AddFrame(frame1);
+                explosionAtlas.AddFrame(frame2);
+                explosionAtlas.AddFrame(frame3);
+                explosionAtlas.AddFrame(frame4);
+                explosionAtlas.AddFrame(frame5);
+
+                Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
+
+                IAnimated playerCrushExplosion = new Explosion(Objects[Id1].Pos);
+                Objects.Add(_currentId, playerCrushExplosion as IObject);
+                _currentId++;
+                playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
+                playerCrushExplosion.PlayAnimation("explosion");
+
                 c.Die();
             }
             if (Objects[Id2] is Car)
             {
                 Car c = (Car)Objects[Id2];
+
+                AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
+                AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
+                AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
+                AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
+                AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
+                AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
+                explosionAtlas.AddFrame(frame1);
+                explosionAtlas.AddFrame(frame2);
+                explosionAtlas.AddFrame(frame3);
+                explosionAtlas.AddFrame(frame4);
+                explosionAtlas.AddFrame(frame5);
+
+                Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
+
+                IAnimated playerCrushExplosion = new Explosion(Objects[Id2].Pos);
+                Objects.Add(_currentId, playerCrushExplosion as IObject);
+                _currentId++;
+                playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
+                playerCrushExplosion.PlayAnimation("explosion");
+
                 c.Die();
             }
         }        
@@ -433,7 +510,7 @@ namespace KARC.MVP
             {
                 var playerCar = Objects[PlayerId] as Car;
                 playerCar.IsImmortal = true;
-                Timer immortalTimer = new Timer(600); //Пока в качестве времени выступают тики, что неправильно. Тут примерно 10 секунд
+                Timer immortalTimer = new Timer(4); 
                 var timerId = Guid.NewGuid().ToString();
                 Effects.Add(timerId, Factory.ObjectTypes.shield);
                 immortalTimer.TimeIsOver +=

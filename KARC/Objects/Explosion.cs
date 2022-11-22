@@ -17,7 +17,7 @@ public class Explosion : IObject, IAnimated
 
     public Explosion(Vector2 position)
     {
-        Layer = 0.4f;
+        Layer = 0.6f;
         Sprites = new List<(int ImageId, Vector2 ImagePos)>();
         Pos = position;
         Speed = Vector2.Zero;

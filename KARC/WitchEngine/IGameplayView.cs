@@ -29,7 +29,6 @@ namespace KARC.WitchEngine
     {
         public (int width, int height) Resolution { get; set; }         
     }
-
     public class ControlsEventArgs : EventArgs
     {
         public IGameplayModel.Direction Direction { get; set; }

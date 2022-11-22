@@ -8,8 +8,9 @@ public class Animator
     private int _currentFrameIndex;
     private bool _isCycled;    
     public bool IsActive { get; private set; }
+    public bool IsCentered { get; private set; }
     public AnimationFrame CurrentFrame { get; private set; }
-    public Animator (AnimationAtlas animationAtlas, int frameTime, bool isCycled)
+    public Animator (AnimationAtlas animationAtlas, int frameTime, bool isCycled, bool isCentered)
     {
         _animationAtlas = animationAtlas;
         _frameTime = frameTime;
@@ -17,10 +18,17 @@ public class Animator
         _deltaTime = 0;
         _currentFrameIndex = 0;
         IsActive = false;
+        IsCentered = isCentered;
+    }
+    public int GetPictureId()
+    {
+        return _animationAtlas.ImageId;
     }
     public void Activate()
     {
         IsActive = true;
+        _currentFrameIndex = 0;
+        CurrentFrame = _animationAtlas.AnimationFrames[_currentFrameIndex];
     }
     public void Deactivate()
     {
