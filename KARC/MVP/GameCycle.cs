@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using KARC.WitchEngine.Animations;
+using KARC.Models;
+using KARC.Maps;
 
 namespace KARC.MVP;
 
@@ -28,6 +30,8 @@ public class GameCycle : IGameplayModel
     private int _screenHeight = 1000;
     private int _tileSize = 100;
 
+    private MapBuilder _mapBuilder;
+    private Map _map;
 
     private Vector2 _playerShift;
     private int _score;        
@@ -55,6 +59,11 @@ public class GameCycle : IGameplayModel
         Triggers = new Dictionary<int, ITrigger>();
         Timers = new Dictionary<string, Timer>();
         Effects = new Dictionary<string, Factory.ObjectTypes>();
+
+        _mapBuilder = new TestLevelBuilder();
+        _mapBuilder.GenerateMap();
+        _map = _mapBuilder.GetMap();
+
         _playerShift = Vector2.Zero;
         _score = 0;
 
@@ -62,52 +71,52 @@ public class GameCycle : IGameplayModel
         _isGameOver = false;
         _currentId = 1;
         bool isPlacedPlayer = false;
-        GenerateMap(11, 5000);
-        GenerateEnemies(0.025f);          
+        
+        
 
-        for (int y = 0; y < _map.GetLength(1); y++)
-            for (int x = 0; x < _map.GetLength(0); x++)
+        for (int y = 0; y < _map.Height; y++)
+            for (int x = 0; x < _map.Width; x++)
             {
-                if (_map[x, y] != '\0')
+                if (_map.GameField[x, y] != '\0')
                 {
                     IObject generatedObject = null;
-                    if (int.TryParse(_map[x, y].ToString(), out int corner1))
+                    if (int.TryParse(_map.GameField[x, y].ToString(), out int corner1))
                     {
-                        _map[x, y] = '\0';
-                        for (int yCorner = 0; yCorner < _map.GetLength(1); yCorner++)
-                            for (int xCorner = 0; xCorner < _map.GetLength(0); xCorner++)
+                        _map.GameField[x, y] = '\0';
+                        for (int yCorner = 0; yCorner < _map.Height; yCorner++)
+                            for (int xCorner = 0; xCorner < _map.Width; xCorner++)
                             {
-                                if (int.TryParse(_map[xCorner, yCorner].ToString(), out int corner2))
+                                if (int.TryParse(_map.GameField[xCorner, yCorner].ToString(), out int corner2))
                                 {
                                     if (corner1==corner2)
                                     {
                                         generatedObject = GenerateObject('W', x, y, xCorner, yCorner);                                           
-                                        _map[xCorner, yCorner] = '\0';
+                                        _map.GameField[xCorner, yCorner] = '\0';
                                     }
                                 }
                             }
                     }
-                    else if (_map[x,y] == 'F')
+                    else if (_map.GameField[x,y] == 'F')
                     {
-                        _map[x, y] = '\0';
-                        for (int yCorner = 0; yCorner < _map.GetLength(1); yCorner++)
-                            for (int xCorner = 0; xCorner < _map.GetLength(0); xCorner++)
+                        _map.GameField[x, y] = '\0';
+                        for (int yCorner = 0; yCorner < _map.Height; yCorner++)
+                            for (int xCorner = 0; xCorner < _map.Width; xCorner++)
                             {
-                                if (_map[xCorner, yCorner] == 'F')
+                                if (_map.GameField[xCorner, yCorner] == 'F')
                                 {
                                     generatedObject = GenerateObject('F', x, y, xCorner, yCorner);
                                     var trigger = (ITrigger)generatedObject;
                                     trigger.Triggered += CalculateWin;
-                                    _map[xCorner, yCorner] = '\0';                                        
+                                    _map.GameField[xCorner, yCorner] = '\0';                                        
                                 }
                             }
                     }
                     else
                     {
-                        generatedObject = GenerateObject(_map[x, y], x, y);
+                        generatedObject = GenerateObject(_map.GameField[x, y], x, y);
                     }                       
 
-                    if (_map[x, y] == 'P' && !isPlacedPlayer)
+                    if (_map.GameField[x, y] == 'P' && !isPlacedPlayer)
                     {
                         PlayerId = _currentId;
                         isPlacedPlayer = true;                            
