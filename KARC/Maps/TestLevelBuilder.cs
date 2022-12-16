@@ -16,7 +16,7 @@ public class TestLevelBuilder : MapBuilder
         _enemiesFraction = 0.025f;
 
         // Размещение игрока
-        G.PlaceTileObject((byte)MapObjects.player, _map.Width / 2, _map.Height - 1, _map);
+        G.PlaceTileObject(MapObjects.player, _map.Width / 2, _map.Height - 1, _map);
 
         // Левая граница
         G.PlaceLongObject(
@@ -53,12 +53,12 @@ public class TestLevelBuilder : MapBuilder
 
                 if (_map.GameField[x, y] == '\0' && isClearBorders && _random.NextDouble() <= _obstaclesFraction)
                 {
-                    G.PlaceTileObject((byte)MapObjects.wall, x, y, _map);
+                    G.PlaceTileObject(MapObjects.wall, x, y, _map);
                 }
 
                 if (_map.GameField[x, y] == '\0' && isClearBorders && _random.NextDouble() <= _shieldsFraction)
                 {
-                    G.PlaceTileObject((byte)MapObjects.shield, x, y, _map);
+                    G.PlaceTileObject(MapObjects.shield, x, y, _map);
                 }
             }
 
@@ -70,7 +70,7 @@ public class TestLevelBuilder : MapBuilder
 
                 if (_map.GameField[x, y] == '\0' && isClearBorders && _random.NextDouble() <= _enemiesFraction)
                 {
-                    G.PlaceTileObject((byte)MapObjects.car, x, y, _map);
+                    G.PlaceTileObject(MapObjects.car, x, y, _map);
                 }
             }
     }
