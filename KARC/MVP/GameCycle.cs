@@ -3,7 +3,6 @@ using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using KARC.WitchEngine.Animations;
 using KARC.Models;
@@ -45,20 +44,16 @@ public class GameCycle : IGameplayModel
 
     public (int width, int height) Resolution;
     public int PlayerId { get; set; }
+
     public Dictionary<int, IObject> Objects { get; set; }
-    public Dictionary<int, ISolid> SolidObjects { get; set; }
-    public Dictionary<int, ITrigger> Triggers { get; set; }        
-    public Dictionary<string, Timer> Timers { get; set; }
-    public Dictionary<string, Factory.ObjectTypes> Effects { get; set; }
-    
+
+    public ObjectsStorage ObjectsStorage { get; set; }
+
     public void Initialize((int width, int height) resolution)
     {
         Resolution = resolution;
         Objects = new Dictionary<int, IObject>();
-        SolidObjects = new Dictionary<int, ISolid>();
-        Triggers = new Dictionary<int, ITrigger>();
-        Timers = new Dictionary<string, Timer>();
-        Effects = new Dictionary<string, Factory.ObjectTypes>();
+        ObjectsStorage = new ObjectsStorage();       
 
         _mapBuilder = new TestLevelBuilder();
         _mapBuilder.GenerateMap();
@@ -78,7 +73,7 @@ public class GameCycle : IGameplayModel
             for (int x = 0; x < _map.Width; x++)
             {
                 if (_map.GameField[x, y] != '\0')
-                {
+                {                    
                     IObject generatedObject = null;
                     if (int.TryParse(_map.GameField[x, y].ToString(), out int corner1))
                     {
@@ -124,10 +119,10 @@ public class GameCycle : IGameplayModel
                   
                     Objects.Add(_currentId, generatedObject);
                     if (generatedObject is ISolid s)
-                        SolidObjects.Add(_currentId, s);
+                        ObjectsStorage.SolidObjects.Add(_currentId, s);
 
                     if (generatedObject is ITrigger t)
-                        Triggers.Add(_currentId, t);
+                        ObjectsStorage.Triggers.Add(_currentId, t);
                     _currentId++;
                 }
             }
@@ -218,9 +213,9 @@ public class GameCycle : IGameplayModel
                 if (Objects[i] is IAnimated)
                     (Objects[i] as IAnimated).UpdateAnimation(GameTime);
             //Запись тех объектов, для которых нужно обсчитывать столкновение
-                if (SolidObjects.ContainsKey(i))
+                if (ObjectsStorage.SolidObjects.ContainsKey(i))
                 {                        
-                    if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(SolidObjects[i]))
+                    if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsStorage.SolidObjects[i]))
                     {
                         collisionObjects.Add(i, initPos);
                         Objects[i].Update();
@@ -248,20 +243,20 @@ public class GameCycle : IGameplayModel
                     }
                     processedObjects.Add((i, j));
                 }
-                foreach (var t in Triggers)
+                foreach (var t in ObjectsStorage.Triggers)
                 {
                     CalculateTrigger(i, t.Value);
                     if (!t.Value.IsActive)
                     {
                         Objects.Remove(t.Key);
-                        Triggers.Remove(t.Key);
+                        ObjectsStorage.Triggers.Remove(t.Key);
                     }
                 }
             }
             _deltaTime += GameTime.ElapsedGameTime.TotalMilliseconds;
             if (_deltaTime > 1000)
             {
-                foreach (var timer in Timers.Values)
+                foreach (var timer in ObjectsStorage.Timers.Values)
                 {
                     timer.Update();
                 }
@@ -308,9 +303,9 @@ public class GameCycle : IGameplayModel
             _framesPassed++;
 
             var effectsOut = new List<(byte, int timeLeft)>();
-            foreach (var e in Effects)
+            foreach (var e in ObjectsStorage.Effects)
             {
-                effectsOut.Add(((byte)e.Value, Timers[e.Key].Time));
+                effectsOut.Add(((byte)e.Value, ObjectsStorage.Timers[e.Key].Time));
             }
 
             
@@ -359,7 +354,7 @@ public class GameCycle : IGameplayModel
         Vector2 oppositeDirection;
         bool isCollided = false;
         byte tries = 100;
-        while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Colliders, SolidObjects[obj2.Id].Colliders)&&tries>0)
+        while (RectangleCollider.IsCollided(ObjectsStorage.SolidObjects[obj1.Id].Colliders, ObjectsStorage.SolidObjects[obj2.Id].Colliders)&&tries>0)
         {
             if(tries > 1)
             {
@@ -448,7 +443,7 @@ public class GameCycle : IGameplayModel
     }        
     private void CalculateTrigger (int i, ITrigger t)
     {
-        if (RectangleCollider.IsCollided(SolidObjects[i].Colliders, t.Collider))
+        if (RectangleCollider.IsCollided(ObjectsStorage.SolidObjects[i].Colliders, t.Collider))
         {
             t.OnTrigger(Objects[i], i);
         }
@@ -467,15 +462,15 @@ public class GameCycle : IGameplayModel
             playerCar.IsImmortal = true;
             Timer immortalTimer = new Timer(4); 
             var timerId = Guid.NewGuid().ToString();
-            Effects.Add(timerId, Factory.ObjectTypes.shield);
+            ObjectsStorage.Effects.Add(timerId, Factory.ObjectTypes.shield);
             immortalTimer.TimeIsOver +=
             (s, a) =>
             {                    
                 playerCar.IsImmortal = false;
-                Effects.Remove(timerId);
+                ObjectsStorage.Effects.Remove(timerId);
             };
-           
-            Timers.Add(timerId, immortalTimer);
+
+            ObjectsStorage.Timers.Add(timerId, immortalTimer);
             _score += 5000;
             (sender as Trigger2D).IsActive = false;
         }                
