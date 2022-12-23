@@ -7,6 +7,7 @@ using System.Linq;
 using KARC.WitchEngine.Animations;
 using KARC.Models;
 using KARC.Maps;
+using KARC.Prefabs;
 
 namespace KARC.MVP;
 
@@ -45,15 +46,15 @@ public class GameCycle : IGameplayModel
     public (int width, int height) Resolution;
     public int PlayerId { get; set; }
 
-    public Dictionary<int, IObject> Objects { get; set; }
+    //public Dictionary<int, IObject> Objects { get; set; }
 
-    public ObjectsStorage ObjectsStorage { get; set; }
+    public ObjectsController ObjectsController { get; set; }
 
     public void Initialize((int width, int height) resolution)
     {
         Resolution = resolution;
-        Objects = new Dictionary<int, IObject>();
-        ObjectsStorage = new ObjectsStorage();       
+        //Objects = new Dictionary<int, IObject>();
+        ObjectsController = new ObjectsController();      
 
         _mapBuilder = new TestLevelBuilder();
         _mapBuilder.GenerateMap();
@@ -116,30 +117,31 @@ public class GameCycle : IGameplayModel
                         PlayerId = _currentId;
                         isPlacedPlayer = true;                            
                     }
-                  
-                    Objects.Add(_currentId, generatedObject);
+
+                    ObjectsController.Storage.Objects.Add(_currentId, generatedObject);
+
                     if (generatedObject is ISolid s)
-                        ObjectsStorage.SolidObjects.Add(_currentId, s);
+                        ObjectsController.Storage.SolidObjects.Add(_currentId, s);
 
                     if (generatedObject is ITrigger t)
-                        ObjectsStorage.Triggers.Add(_currentId, t);
+                        ObjectsController.Storage.Triggers.Add(_currentId, t);
                     _currentId++;
                 }
             }
 
-        _distance = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y);
+        _distance = Math.Abs(_finishPos - ObjectsController.Storage.Objects[PlayerId].Pos.Y);
 
         _playerShift = new Vector2(
-                -Resolution.width / 2 + Objects[PlayerId].Pos.X,
-                -Resolution.height * 0.8f + Objects[PlayerId].Pos.Y
+                -Resolution.width / 2 + ObjectsController.Storage.Objects[PlayerId].Pos.X,
+                -Resolution.height * 0.8f + ObjectsController.Storage.Objects[PlayerId].Pos.Y
             );
 
         Updated.Invoke(this, new GameplayEventArgs()
         {
-            Objects = Objects,
+            Objects = ObjectsController.Storage.Objects,
             POVShift = _playerShift,
             Score = _score,
-            Speed = (int)Objects[PlayerId].Speed.Y,
+            Speed = (int)ObjectsController.Storage.Objects[PlayerId].Speed.Y,
             Effects = new List<(byte, int timeLeft)>(),
             DistanceToFinish = 1
         });
@@ -150,9 +152,12 @@ public class GameCycle : IGameplayModel
         float y = yTile * _tileSize;
         IObject generatedObject = null;
         if (sign == 'C')
-        {                
-            generatedObject = Factory.CreateComplexCar(
-                x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-8, -4)));
+        {
+            //generatedObject = Factory.CreateComplexCar(
+            //    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-8, -4)));
+            ObjectsController.CarGenerator.CreateObject((int)(x + _tileSize / 2), (int)(y + _tileSize / 2));
+            generatedObject = ObjectsController.CarGenerator.GetObject();
+            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-8, -4));
         }
         else if (sign == 'P')
         {
@@ -200,31 +205,31 @@ public class GameCycle : IGameplayModel
         if (!_isPaused)            
         {
             
-            (int screenX, int screenY) playerScreen = GetScreenNumber(Objects[PlayerId].Pos);               
-            Vector2 playerInitPos = Objects[PlayerId].Pos;
+            (int screenX, int screenY) playerScreen = GetScreenNumber(ObjectsController.Storage.Objects[PlayerId].Pos);               
+            Vector2 playerInitPos = ObjectsController.Storage.Objects[PlayerId].Pos;
 
             Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
             //Обновление состояния объектов
-            foreach (var i in Objects.Keys)
+            foreach (var i in ObjectsController.Storage.Objects.Keys)
             {
-                Vector2 initPos = Objects[i].Pos;
+                Vector2 initPos = ObjectsController.Storage.Objects[i].Pos;
                 var objectScreen = GetScreenNumber (initPos);
-                Objects[i].Update();
-                if (Objects[i] is IAnimated)
-                    (Objects[i] as IAnimated).UpdateAnimation(GameTime);
+                ObjectsController.Storage.Objects[i].Update();
+                if (ObjectsController.Storage.Objects[i] is IAnimated)
+                    (ObjectsController.Storage.Objects[i] as IAnimated).UpdateAnimation(GameTime);
             //Запись тех объектов, для которых нужно обсчитывать столкновение
-                if (ObjectsStorage.SolidObjects.ContainsKey(i))
+                if (ObjectsController.Storage.SolidObjects.ContainsKey(i))
                 {                        
-                    if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsStorage.SolidObjects[i]))
+                    if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsController.Storage.SolidObjects[i]))
                     {
                         collisionObjects.Add(i, initPos);
-                        Objects[i].Update();
+                        ObjectsController.Storage.Objects[i].Update();
                     }
                     else if (_framesPassed >= _framesPerCollisionUpdate)
                     {
                         _framesPassed = 0;
                         collisionObjects.Add(i, initPos);
-                        Objects[i].Update();
+                        ObjectsController.Storage.Objects[i].Update();
                     }
                 }  
             }
@@ -235,7 +240,7 @@ public class GameCycle : IGameplayModel
             {
                 foreach (var j in collisionObjects.Keys)
                 {
-                    if (i == j || processedObjects.Contains((j, i)) || collisionObjects[i] == Objects[i].Pos)
+                    if (i == j || processedObjects.Contains((j, i)) || collisionObjects[i] == ObjectsController.Storage.Objects[i].Pos)
                         continue;
                     if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
                     {
@@ -243,20 +248,20 @@ public class GameCycle : IGameplayModel
                     }
                     processedObjects.Add((i, j));
                 }
-                foreach (var t in ObjectsStorage.Triggers)
+                foreach (var t in ObjectsController.Storage.Triggers)
                 {
                     CalculateTrigger(i, t.Value);
                     if (!t.Value.IsActive)
                     {
-                        Objects.Remove(t.Key);
-                        ObjectsStorage.Triggers.Remove(t.Key);
+                        ObjectsController.Storage.Objects.Remove(t.Key);
+                        ObjectsController.Storage.Triggers.Remove(t.Key);
                     }
                 }
             }
             _deltaTime += GameTime.ElapsedGameTime.TotalMilliseconds;
             if (_deltaTime > 1000)
             {
-                foreach (var timer in ObjectsStorage.Timers.Values)
+                foreach (var timer in ObjectsController.Storage.Timers.Values)
                 {
                     timer.Update();
                 }
@@ -264,7 +269,7 @@ public class GameCycle : IGameplayModel
             }
                                
 
-            Car player = (Car)Objects[PlayerId];
+            Car player = (Car)ObjectsController.Storage.Objects[PlayerId];
             //if (!player.IsLive && !_isGameOver)
             //{
             //    AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
@@ -292,20 +297,20 @@ public class GameCycle : IGameplayModel
                 ProcessGameOver(isWin : false);  
             
            //Сдвиг игрока для смещения камеры
-           _playerShift.Y += Objects[PlayerId].Pos.Y - playerInitPos.Y;
+           _playerShift.Y += ObjectsController.Storage.Objects[PlayerId].Pos.Y - playerInitPos.Y;
 
             //Сортировка объектов по слоям для отрисовки
-            var s = Objects.OrderBy(pair => pair.Value.Layer);
+            var s = ObjectsController.Storage.Objects.OrderBy(pair => pair.Value.Layer);
             Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
 
-            if((int)Objects[PlayerId].Speed.Y<0) _score++;
+            if((int)ObjectsController.Storage.Objects[PlayerId].Speed.Y<0) _score++;
 
             _framesPassed++;
 
             var effectsOut = new List<(byte, int timeLeft)>();
-            foreach (var e in ObjectsStorage.Effects)
+            foreach (var e in ObjectsController.Storage.Effects)
             {
-                effectsOut.Add(((byte)e.Value, ObjectsStorage.Timers[e.Key].Time));
+                effectsOut.Add(((byte)e.Value, ObjectsController.Storage.Timers[e.Key].Time));
             }
 
             
@@ -315,9 +320,9 @@ public class GameCycle : IGameplayModel
                 Objects = sortedObjects,
                 POVShift = _playerShift,
                 Score = _score,                    
-                Speed = (int)Objects[PlayerId].Speed.Y,
+                Speed = (int)ObjectsController.Storage.Objects[PlayerId].Speed.Y,
                 Effects = effectsOut,
-                DistanceToFinish = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y) / _distance
+                DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Storage.Objects[PlayerId].Pos.Y) / _distance
             });                
         }            
     }
@@ -354,31 +359,33 @@ public class GameCycle : IGameplayModel
         Vector2 oppositeDirection;
         bool isCollided = false;
         byte tries = 100;
-        while (RectangleCollider.IsCollided(ObjectsStorage.SolidObjects[obj1.Id].Colliders, ObjectsStorage.SolidObjects[obj2.Id].Colliders)&&tries>0)
+        while (RectangleCollider.IsCollided(
+            ObjectsController.Storage.SolidObjects[obj1.Id].Colliders, 
+            ObjectsController.Storage.SolidObjects[obj2.Id].Colliders)&&tries>0)
         {
             if(tries > 1)
             {
-                if (obj1.initPos != Objects[obj1.Id].Pos)
+                if (obj1.initPos != ObjectsController.Storage.Objects[obj1.Id].Pos)
                 {
-                    oppositeDirection = Objects[obj1.Id].Pos - obj1.initPos;
+                    oppositeDirection = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
                     oppositeDirection.Normalize();
-                    Objects[obj1.Id].Move(Objects[obj1.Id].Pos - oppositeDirection);
+                    ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - oppositeDirection);
                 }
-                if (obj2.initPos != Objects[obj2.Id].Pos)
+                if (obj2.initPos != ObjectsController.Storage.Objects[obj2.Id].Pos)
                 {
-                    oppositeDirection = Objects[obj2.Id].Pos - obj2.initPos;
+                    oppositeDirection = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
                     oppositeDirection.Normalize();
-                    Objects[obj2.Id].Move(Objects[obj2.Id].Pos - oppositeDirection);
+                    ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - oppositeDirection);
                 }
                 isCollided = true;
                 tries--;
             }
             else
             {
-                var oppositeDirection1 = Objects[obj1.Id].Pos - obj1.initPos;
-                var oppositeDirection2 = Objects[obj2.Id].Pos - obj2.initPos;
-                Objects[obj1.Id].Move(Objects[obj1.Id].Pos - 10 * oppositeDirection1);
-                Objects[obj2.Id].Move(Objects[obj2.Id].Pos - 10 * oppositeDirection2);
+                var oppositeDirection1 = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
+                var oppositeDirection2 = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
+                ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - 10 * oppositeDirection1);
+                ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - 10 * oppositeDirection2);
                 tries--;
             }                
         }
@@ -386,11 +393,11 @@ public class GameCycle : IGameplayModel
     }
     private void CalculateCrushing (int Id1, int Id2)
     {
-        Objects[Id1].Speed = new Vector2(0, 0);
-        Objects[Id2].Speed = new Vector2(0, 0);
-        if (Objects[Id1] is Car)
+        ObjectsController.Storage.Objects[Id1].Speed = new Vector2(0, 0);
+        ObjectsController.Storage.Objects[Id2].Speed = new Vector2(0, 0);
+        if (ObjectsController.Storage.Objects[Id1] is Car)
         {
-            Car c = (Car)Objects[Id1];
+            Car c = (Car)ObjectsController.Storage.Objects[Id1];
 
             AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
             AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
@@ -406,17 +413,17 @@ public class GameCycle : IGameplayModel
 
             Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
 
-            IAnimated playerCrushExplosion = new Explosion(Objects[Id1].Pos);
-            Objects.Add(_currentId, playerCrushExplosion as IObject);
+            IAnimated playerCrushExplosion = new Explosion(ObjectsController.Storage.Objects[Id1].Pos);
+            ObjectsController.Storage.Objects.Add(_currentId, playerCrushExplosion as IObject);
             _currentId++;
             playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
             playerCrushExplosion.PlayAnimation("explosion");
 
             c.Die();
         }
-        if (Objects[Id2] is Car)
+        if (ObjectsController.Storage.Objects[Id2] is Car)
         {
-            Car c = (Car)Objects[Id2];
+            Car c = (Car)ObjectsController.Storage.Objects[Id2];
 
             AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
             AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
@@ -432,8 +439,8 @@ public class GameCycle : IGameplayModel
 
             Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
 
-            IAnimated playerCrushExplosion = new Explosion(Objects[Id2].Pos);
-            Objects.Add(_currentId, playerCrushExplosion as IObject);
+            IAnimated playerCrushExplosion = new Explosion(ObjectsController.Storage.Objects[Id2].Pos);
+            ObjectsController.Storage.Objects.Add(_currentId, playerCrushExplosion as IObject);
             _currentId++;
             playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
             playerCrushExplosion.PlayAnimation("explosion");
@@ -443,9 +450,9 @@ public class GameCycle : IGameplayModel
     }        
     private void CalculateTrigger (int i, ITrigger t)
     {
-        if (RectangleCollider.IsCollided(ObjectsStorage.SolidObjects[i].Colliders, t.Collider))
+        if (RectangleCollider.IsCollided(ObjectsController.Storage.SolidObjects[i].Colliders, t.Collider))
         {
-            t.OnTrigger(Objects[i], i);
+            t.OnTrigger(ObjectsController.Storage.Objects[i], i);
         }
     }       
     private void CalculateWin(object sender, TriggerEventArgs e)
@@ -458,19 +465,19 @@ public class GameCycle : IGameplayModel
     {            
         if (e.ActivatorId == PlayerId)
         {
-            var playerCar = Objects[PlayerId] as Car;
+            var playerCar = ObjectsController.Storage.Objects[PlayerId] as Car;
             playerCar.IsImmortal = true;
             Timer immortalTimer = new Timer(4); 
             var timerId = Guid.NewGuid().ToString();
-            ObjectsStorage.Effects.Add(timerId, Factory.ObjectTypes.shield);
+            ObjectsController.Storage.Effects.Add(timerId, Factory.ObjectTypes.shield);
             immortalTimer.TimeIsOver +=
             (s, a) =>
             {                    
                 playerCar.IsImmortal = false;
-                ObjectsStorage.Effects.Remove(timerId);
+                ObjectsController.Storage.Effects.Remove(timerId);
             };
 
-            ObjectsStorage.Timers.Add(timerId, immortalTimer);
+            ObjectsController.Storage.Timers.Add(timerId, immortalTimer);
             _score += 5000;
             (sender as Trigger2D).IsActive = false;
         }                
@@ -490,7 +497,7 @@ public class GameCycle : IGameplayModel
     {           
         if (!_isPaused&&!_isGameOver)
         {
-            Car p = (Car)Objects[PlayerId];
+            Car p = (Car)ObjectsController.Storage.Objects[PlayerId];
             switch (dir)
             {
                 case IGameplayModel.Direction.forward:

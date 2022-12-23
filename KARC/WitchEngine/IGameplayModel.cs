@@ -1,4 +1,5 @@
-﻿using KARC.Objects;
+﻿using KARC.Models;
+using KARC.Objects;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,8 @@ namespace KARC.WitchEngine
     {
         int PlayerId { get; set; }
         GameTime GameTime { get; set; }
-        Dictionary<int, IObject> Objects { get; set; }
+        // Dictionary<int, IObject> Objects { get; set; }
+        ObjectsController ObjectsController { get; set; }
         event EventHandler<GameplayEventArgs> Updated; 
         event EventHandler<GameOverEventArgs> GameFinished;
        
