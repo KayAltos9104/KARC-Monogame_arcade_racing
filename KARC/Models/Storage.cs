@@ -6,7 +6,7 @@ namespace KARC.Models;
 
 public class Storage
 {
-    public int _currentId;
+    public int CurrentId { get; private set; }
     public Dictionary<int, IObject> Objects { get; set; }
     public Dictionary<int, ISolid> SolidObjects { get; set; }
     public Dictionary<int, ITrigger> Triggers { get; set; }
@@ -21,5 +21,9 @@ public class Storage
         Timers = new Dictionary<string, Timer>();
         Effects = new Dictionary<string, Factory.ObjectTypes>();
     }
-   
+    
+    public void IncrementId()
+    {
+        CurrentId++;
+    }
 }

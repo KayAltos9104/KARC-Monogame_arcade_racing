@@ -24,7 +24,7 @@ public class GameCycle : IGameplayModel
 
     private bool _isGameOver;
 
-    private int _currentId;
+
 
     private int _screenWidth = 1000;
     private int _screenHeight = 1000;
@@ -44,7 +44,8 @@ public class GameCycle : IGameplayModel
     private int _framesPassed;
 
     public (int width, int height) Resolution;
-    public int PlayerId { get; set; }
+
+    int _currentId;
 
     //public Dictionary<int, IObject> Objects { get; set; }
 
@@ -110,18 +111,17 @@ public class GameCycle : IGameplayModel
                     else
                     {
                         generatedObject = GenerateObject(_map.GameField[x, y], x, y);
-                    }                       
-
-                    if (_map.GameField[x, y] == 'P' && !isPlacedPlayer)
-                    {
-                        PlayerId = _currentId;
-                        isPlacedPlayer = true;                            
                     }
 
-                    ObjectsController.Storage.Objects.Add(_currentId, generatedObject);
+                    //if (_map.GameField[x, y] == 'P')
+                    //{
+                    //    ObjectsController.PlayerGenerator
+                    //}
 
-                    if (generatedObject is ISolid s)
-                        ObjectsController.Storage.SolidObjects.Add(_currentId, s);
+                    //ObjectsController.Storage.Objects.Add(_currentId, generatedObject);
+
+                    //if (generatedObject is ISolid s)
+                    //    ObjectsController.Storage.SolidObjects.Add(_currentId, s);
 
                     if (generatedObject is ITrigger t)
                         ObjectsController.Storage.Triggers.Add(_currentId, t);
@@ -129,11 +129,11 @@ public class GameCycle : IGameplayModel
                 }
             }
 
-        _distance = Math.Abs(_finishPos - ObjectsController.Storage.Objects[PlayerId].Pos.Y);
+        _distance = Math.Abs(_finishPos - ObjectsController.Player.Pos.Y);
 
         _playerShift = new Vector2(
-                -Resolution.width / 2 + ObjectsController.Storage.Objects[PlayerId].Pos.X,
-                -Resolution.height * 0.8f + ObjectsController.Storage.Objects[PlayerId].Pos.Y
+                -Resolution.width / 2 + ObjectsController.Player.Pos.X,
+                -Resolution.height * 0.8f + ObjectsController.Player.Pos.Y
             );
 
         Updated.Invoke(this, new GameplayEventArgs()
@@ -141,7 +141,7 @@ public class GameCycle : IGameplayModel
             Objects = ObjectsController.Storage.Objects,
             POVShift = _playerShift,
             Score = _score,
-            Speed = (int)ObjectsController.Storage.Objects[PlayerId].Speed.Y,
+            Speed = (int)ObjectsController.Player.Speed.Y,
             Effects = new List<(byte, int timeLeft)>(),
             DistanceToFinish = 1
         });
@@ -161,8 +161,9 @@ public class GameCycle : IGameplayModel
         }
         else if (sign == 'P')
         {
-            generatedObject = Factory.CreateComplexCar(
-                x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(0, 0)));
+            //generatedObject = Factory.CreateComplexCar(
+            //    x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(0, 0)));
+            ObjectsController.PlayerGenerator.CreateObject((int)(x + _tileSize / 2), (int)(y + _tileSize / 2));
         }
         else if (sign == 'W')
         {
@@ -205,8 +206,8 @@ public class GameCycle : IGameplayModel
         if (!_isPaused)            
         {
             
-            (int screenX, int screenY) playerScreen = GetScreenNumber(ObjectsController.Storage.Objects[PlayerId].Pos);               
-            Vector2 playerInitPos = ObjectsController.Storage.Objects[PlayerId].Pos;
+            (int screenX, int screenY) playerScreen = GetScreenNumber(ObjectsController.Player.Pos);               
+            Vector2 playerInitPos = ObjectsController.Player.Pos;
 
             Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
             //Обновление состояния объектов
@@ -269,7 +270,7 @@ public class GameCycle : IGameplayModel
             }
                                
 
-            Car player = (Car)ObjectsController.Storage.Objects[PlayerId];
+            Car player = (Car)ObjectsController.Player;
             //if (!player.IsLive && !_isGameOver)
             //{
             //    AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
@@ -297,13 +298,13 @@ public class GameCycle : IGameplayModel
                 ProcessGameOver(isWin : false);  
             
            //Сдвиг игрока для смещения камеры
-           _playerShift.Y += ObjectsController.Storage.Objects[PlayerId].Pos.Y - playerInitPos.Y;
+           _playerShift.Y += ObjectsController.Player.Pos.Y - playerInitPos.Y;
 
             //Сортировка объектов по слоям для отрисовки
             var s = ObjectsController.Storage.Objects.OrderBy(pair => pair.Value.Layer);
             Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
 
-            if((int)ObjectsController.Storage.Objects[PlayerId].Speed.Y<0) _score++;
+            if((int)ObjectsController.Player.Speed.Y<0) _score++;
 
             _framesPassed++;
 
@@ -320,9 +321,9 @@ public class GameCycle : IGameplayModel
                 Objects = sortedObjects,
                 POVShift = _playerShift,
                 Score = _score,                    
-                Speed = (int)ObjectsController.Storage.Objects[PlayerId].Speed.Y,
+                Speed = (int)ObjectsController.Player.Speed.Y,
                 Effects = effectsOut,
-                DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Storage.Objects[PlayerId].Pos.Y) / _distance
+                DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Player.Pos.Y) / _distance
             });                
         }            
     }
@@ -457,15 +458,15 @@ public class GameCycle : IGameplayModel
     }       
     private void CalculateWin(object sender, TriggerEventArgs e)
     {
-        if (e.ActivatorId == PlayerId)                
+        if (e.ActivatorId == ObjectsController.PlayerId)                
             ProcessGameOver(isWin : true);
     }
 
     private void GiveShield(object sender, TriggerEventArgs e)
     {            
-        if (e.ActivatorId == PlayerId)
+        if (e.ActivatorId == ObjectsController.PlayerId)
         {
-            var playerCar = ObjectsController.Storage.Objects[PlayerId] as Car;
+            var playerCar = ObjectsController.Player as Car;
             playerCar.IsImmortal = true;
             Timer immortalTimer = new Timer(4); 
             var timerId = Guid.NewGuid().ToString();
@@ -497,7 +498,7 @@ public class GameCycle : IGameplayModel
     {           
         if (!_isPaused&&!_isGameOver)
         {
-            Car p = (Car)ObjectsController.Storage.Objects[PlayerId];
+            Car p = (Car)ObjectsController.Player;
             switch (dir)
             {
                 case IGameplayModel.Direction.forward:

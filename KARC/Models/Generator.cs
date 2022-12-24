@@ -11,7 +11,7 @@ public abstract class Generator
     protected int _width;
     protected int _height;
     protected IObject _createdObj;
-    public Action OnCreated;
+    public event EventHandler OnCreated;
     public Generator(int width, int height)
     {
         _width = width;
@@ -20,7 +20,7 @@ public abstract class Generator
 
     public virtual void CreateObject (int xTile, int yTile)
     {
-        OnCreated?.Invoke();
+        OnCreated?.Invoke(this, EventArgs.Empty);
     }
 
     public IObject GetObject()

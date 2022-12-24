@@ -8,7 +8,7 @@ namespace KARC.WitchEngine
 {
     public interface IGameplayModel
     {
-        int PlayerId { get; set; }
+       
         GameTime GameTime { get; set; }
         // Dictionary<int, IObject> Objects { get; set; }
         ObjectsController ObjectsController { get; set; }
