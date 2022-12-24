@@ -1,4 +1,5 @@
 ﻿using KARC.Objects;
+using KARC.Settings;
 using KARC.WitchEngine;
 using KARC.WitchEngine.Animations;
 using KARC.WitchEngine.UI;
@@ -82,13 +83,20 @@ namespace KARC.MVP
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _textures.Add((byte)Factory.ObjectTypes.car, Content.Load<Texture2D>("Base_car"));
-            _textures.Add((byte)Factory.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
-            _textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
-            _textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
-            _textures.Add((byte)Factory.ObjectTypes.finishCounterField, Content.Load<Texture2D>("FinishCounterField"));
-            _textures.Add((byte)Factory.ObjectTypes.shield, Content.Load<Texture2D>("Immortality"));
-            _textures.Add((byte)Factory.ObjectTypes.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
+            _textures.Add((byte)Sprite.car, Content.Load<Texture2D>("Base_car"));
+            //_textures.Add((byte)Factory.ObjectTypes.car, Content.Load<Texture2D>("Base_car"));
+            _textures.Add((byte)Sprite.wall, Content.Load<Texture2D>("Wall"));
+            //_textures.Add((byte)Factory.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
+            _textures.Add((byte)Sprite.window, Content.Load<Texture2D>("Message_Window"));
+            //_textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
+            _textures.Add((byte)Sprite.finishTape, Content.Load<Texture2D>("FinishSprite"));
+            //_textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
+            _textures.Add((byte)Sprite.finishCounterWindow, Content.Load<Texture2D>("FinishCounterField"));
+            //_textures.Add((byte)Factory.ObjectTypes.finishCounterField, Content.Load<Texture2D>("FinishCounterField"));
+            _textures.Add((byte)Sprite.shield, Content.Load<Texture2D>("Immortality"));
+            //_textures.Add((byte)Factory.ObjectTypes.shield, Content.Load<Texture2D>("Immortality"));
+            _textures.Add((byte)Sprite.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
+            //_textures.Add((byte)Factory.ObjectTypes.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 

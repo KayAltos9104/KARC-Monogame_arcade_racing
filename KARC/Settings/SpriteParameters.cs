@@ -8,6 +8,7 @@ public static class SpriteParameters
     {
         {Sprite.car, (77, 100) },
         {Sprite.wall, (24, 24) },
+        {Sprite.finishCounterWindow, (1000, 28)},
         {Sprite.finishTape, (20, 20) },
         {Sprite.shield, (48, 48) },           
     };    
@@ -16,6 +17,9 @@ public enum Sprite : byte
 {
     car,
     wall,
+    window,
     finishTape,
-    shield
+    finishCounterWindow,
+    shield, 
+    explosion
 }
