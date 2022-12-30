@@ -71,8 +71,7 @@ public class GameCycle : IGameplayModel
             for (int x = 0; x < _map.Width; x++)
             {
                 if (_map.GameField[x, y] != '\0')
-                {                    
-                    IObject generatedObject = null;
+                {  
                     if (int.TryParse(_map.GameField[x, y].ToString(), out int corner1))
                     {
                         _map.GameField[x, y] = '\0';
@@ -83,7 +82,7 @@ public class GameCycle : IGameplayModel
                                 {
                                     if (corner1==corner2)
                                     {
-                                        generatedObject = GenerateObject('W', x, y, xCorner, yCorner);                                           
+                                        GenerateObject('W', x, y, xCorner, yCorner);                                           
                                         _map.GameField[xCorner, yCorner] = '\0';
                                     }
                                 }
@@ -97,14 +96,14 @@ public class GameCycle : IGameplayModel
                             {
                                 if (_map.GameField[xCorner, yCorner] == 'F')
                                 {
-                                    generatedObject = GenerateObject('F', x, y, xCorner, yCorner);                                    
+                                    GenerateObject('F', x, y, xCorner, yCorner);                                    
                                     _map.GameField[xCorner, yCorner] = '\0';                                        
                                 }
                             }
                     }
                     else
                     {
-                        generatedObject = GenerateObject(_map.GameField[x, y], x, y);
+                        GenerateObject(_map.GameField[x, y], x, y);
                     }
                    
                 }
@@ -127,7 +126,7 @@ public class GameCycle : IGameplayModel
             DistanceToFinish = 1
         });
     }
-    private IObject GenerateObject(char sign, int xTile, int yTile)
+    private void GenerateObject(char sign, int xTile, int yTile)
     {
         int x = xTile * _tileSize;
         int y = yTile * _tileSize;
@@ -147,21 +146,18 @@ public class GameCycle : IGameplayModel
             ObjectsController.ObstacleGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);           
         }
         else if (sign == 'S')
-        {
-            //generatedObject = Factory.CreateShield(x + _tileSize / 2, y + _tileSize / 2);
+        {            
             ObjectsController.ShieldGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);
             var trigger = ObjectsController.Storage.Triggers.Last().Value;
             trigger.Triggered += GiveShield;
-        }
-        return generatedObject;
+        }        
     }
-    private IObject GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
+    private void GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
     {
         int xInit = xInitTile * _tileSize;
         int yInit = yInitTile * _tileSize;
         int xEnd = xEndTile * _tileSize;
-        int yEnd = yEndTile * _tileSize;
-        IObject generatedObject = null;
+        int yEnd = yEndTile * _tileSize;        
         if (sign == 'W')
         {
             ObjectsController.WallGenerator.Width = xEnd - xInit + _tileSize;
@@ -176,11 +172,7 @@ public class GameCycle : IGameplayModel
             var trigger = (ITrigger)ObjectsController.Finish.Object;
             trigger.Triggered += CalculateWin;
             _finishPos = (int)ObjectsController.Finish.Object.Pos.Y;            
-        }
-        
-
-
-        return generatedObject;            
+        }        
     }       
 
     public void Update()
