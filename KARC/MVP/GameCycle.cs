@@ -28,7 +28,7 @@ public class GameCycle : IGameplayModel
 
     private int _screenWidth = 1000;
     private int _screenHeight = 1000;
-    private int _tileSize = 100;
+    
 
     private MapBuilder _mapBuilder;
     private Map _map;
@@ -67,48 +67,7 @@ public class GameCycle : IGameplayModel
         _isPaused = false;
         _isGameOver = false;       
 
-        for (int y = 0; y < _map.Height; y++)
-            for (int x = 0; x < _map.Width; x++)
-            {
-                if (_map.GameField[x, y] != '\0')
-                {                    
-                    IObject generatedObject = null;
-                    if (int.TryParse(_map.GameField[x, y].ToString(), out int corner1))
-                    {
-                        _map.GameField[x, y] = '\0';
-                        for (int yCorner = 0; yCorner < _map.Height; yCorner++)
-                            for (int xCorner = 0; xCorner < _map.Width; xCorner++)
-                            {
-                                if (int.TryParse(_map.GameField[xCorner, yCorner].ToString(), out int corner2))
-                                {
-                                    if (corner1==corner2)
-                                    {
-                                        generatedObject = GenerateObject('W', x, y, xCorner, yCorner);                                           
-                                        _map.GameField[xCorner, yCorner] = '\0';
-                                    }
-                                }
-                            }
-                    }
-                    else if (_map.GameField[x,y] == 'F')
-                    {
-                        _map.GameField[x, y] = '\0';
-                        for (int yCorner = 0; yCorner < _map.Height; yCorner++)
-                            for (int xCorner = 0; xCorner < _map.Width; xCorner++)
-                            {
-                                if (_map.GameField[xCorner, yCorner] == 'F')
-                                {
-                                    generatedObject = GenerateObject('F', x, y, xCorner, yCorner);                                    
-                                    _map.GameField[xCorner, yCorner] = '\0';                                        
-                                }
-                            }
-                    }
-                    else
-                    {
-                        generatedObject = GenerateObject(_map.GameField[x, y], x, y);
-                    }
-                   
-                }
-            }
+        
 
         _distance = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y);
 
@@ -127,61 +86,7 @@ public class GameCycle : IGameplayModel
             DistanceToFinish = 1
         });
     }
-    private IObject GenerateObject(char sign, int xTile, int yTile)
-    {
-        int x = xTile * _tileSize;
-        int y = yTile * _tileSize;
-        IObject generatedObject = null;
-        if (sign == 'C')
-        {            
-            ObjectsController.CarGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);
-            generatedObject = ObjectsController.CarGenerator.GetObject();
-            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-8, -4));
-        }
-        else if (sign == 'P')
-        {            
-            ObjectsController.PlayerGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);
-        }
-        else if (sign == 'W')
-        {
-            ObjectsController.ObstacleGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);           
-        }
-        else if (sign == 'S')
-        {
-            //generatedObject = Factory.CreateShield(x + _tileSize / 2, y + _tileSize / 2);
-            ObjectsController.ShieldGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);
-            var trigger = ObjectsController.Storage.Triggers.Last().Value;
-            trigger.Triggered += GiveShield;
-        }
-        return generatedObject;
-    }
-    private IObject GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
-    {
-        int xInit = xInitTile * _tileSize;
-        int yInit = yInitTile * _tileSize;
-        int xEnd = xEndTile * _tileSize;
-        int yEnd = yEndTile * _tileSize;
-        IObject generatedObject = null;
-        if (sign == 'W')
-        {
-            ObjectsController.WallGenerator.Width = xEnd - xInit + _tileSize;
-            ObjectsController.WallGenerator.Height = yEnd - yInit + _tileSize;
-            ObjectsController.WallGenerator.CreateObject(xInit, yInit);                        
-        }
-        if (sign == 'F')
-        {
-            ObjectsController.FinishGenerator.Width = xEnd - xInit + _tileSize;
-            ObjectsController.FinishGenerator.Height = yEnd - yInit + _tileSize;
-            ObjectsController.FinishGenerator.CreateObject(xInit, yInit);
-            var trigger = (ITrigger)ObjectsController.Finish.Object;
-            trigger.Triggered += CalculateWin;
-            _finishPos = (int)ObjectsController.Finish.Object.Pos.Y;            
-        }
-        
-
-
-        return generatedObject;            
-    }       
+         
 
     public void Update()
     {
@@ -418,28 +323,7 @@ public class GameCycle : IGameplayModel
             ProcessGameOver(isWin : true);
     }
 
-    private void GiveShield(object sender, TriggerEventArgs e)
-    {            
-        if (e.ActivatorId == ObjectsController.Player.Id)
-        {
-            var playerCar = ObjectsController.Player.Object as Car;
-            playerCar.IsImmortal = true;
-            Timer immortalTimer = new Timer(4); 
-            var timerId = Guid.NewGuid().ToString();
-            ObjectsController.Storage.Effects.Add(timerId, Factory.ObjectTypes.shield);
-            immortalTimer.TimeIsOver +=
-            (s, a) =>
-            {                    
-                playerCar.IsImmortal = false;
-                ObjectsController.Storage.Effects.Remove(timerId);
-            };
-
-            ObjectsController.Storage.Timers.Add(timerId, immortalTimer);
-            _score += 5000;
-            (sender as Trigger2D).IsActive = false;
-        }                
-          
-    }
+    
 
     private void ProcessGameOver (bool isWin)
     {

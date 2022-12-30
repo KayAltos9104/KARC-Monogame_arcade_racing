@@ -1,4 +1,5 @@
 ﻿using KARC.Objects;
+using KARC.Prefabs;
 using KARC.Settings;
 using KARC.WitchEngine;
 using KARC.WitchEngine.Animations;
@@ -31,6 +32,7 @@ namespace KARC.MVP
         private List<Keys> _pressedPrevFrame = new List<Keys>();
 
         private SpriteFont _textBlock;
+        
 
         private int _frameCounter = 0;
         private int _timeRange = 1; //Время между измерениями в миллисекундах
@@ -66,7 +68,7 @@ namespace KARC.MVP
                 0, 200),
                 "FPS: "
                 );
-
+            
             FinishCounter finishCounter = Factory.CreateFinishCounter(0, 0);           
             finishCounter.Move(new Vector2((_graphics.PreferredBackBufferWidth - finishCounter.Width) / 2, 0));
 

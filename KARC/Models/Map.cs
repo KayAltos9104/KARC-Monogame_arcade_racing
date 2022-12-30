@@ -8,14 +8,16 @@ public class Map
     public int Height { get; }
     public char[,] GameField;
 
-    public Map (int width, int height)
+    public int TileSize { get; }
+    public Map (int width, int height, int tileSize)
     {
         if (width < 0 || height < 0)
             throw new ArgumentOutOfRangeException("Width or height is negative");
 
         Width = width;
         Height = height;
-        GameField = new char[Width, Height]; 
+        GameField = new char[Width, Height];
+        TileSize = tileSize;
     }
 
     public bool IsClearNeighborTiles(int x, int y)
