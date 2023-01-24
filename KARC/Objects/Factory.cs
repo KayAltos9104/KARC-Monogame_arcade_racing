@@ -101,16 +101,11 @@ namespace KARC.Objects
 
         public static FinishCounter CreateFinishCounter (float x, float y)
         {
-            var f = new FinishCounter( pos: new Vector2(x, y), text: String.Empty, 
-                carSign: (_objects["wall"].type, 
-                new Vector2(0, (1+_objects["finishCounterField"].height - _objects["wall"].height) / 2.0f)),
-                finishSign: ((int)ObjectTypes.finish, 
-                new Vector2(0, (1+_objects["finishCounterField"].height - _objects["finishTape"].height) / 2.0f)),
-                _objects["finishCounterField"].width);
+            var f = new FinishCounter( pos: new Vector2(x, y), text: String.Empty );
 
-            f.CarSignShift = _objects["wall"].width * 1.3f;
-            f.FinishSignShift = -_objects["finishTape"].width * 1.3f;
-            f.Sprites.Insert(0,(_objects["finishCounterField"].type, Vector2.Zero));
+            //f.CarSignShift = _objects["wall"].width * 1.3f;
+            //f.FinishSignShift = -_objects["finishTape"].width * 1.3f;
+            //f.Sprites.Insert(0,(_objects["finishCounterField"].type, Vector2.Zero));
 
             return f;
         }

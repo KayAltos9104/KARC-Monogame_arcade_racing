@@ -16,8 +16,7 @@ public class ShieldGenerator : Generator
         Trigger2D t = new Trigger2D(new Vector2(xTile, yTile), Width, Height);
         _createdObj = t;
         t.Sprites.Add(((byte)Sprite.shield, Vector2.Zero));
-        //MultipleSprites(Sprite.shield);
-
+        //MultipleSprites(Sprite.shield);       
         base.CreateObject(xTile, yTile);
     }
 }

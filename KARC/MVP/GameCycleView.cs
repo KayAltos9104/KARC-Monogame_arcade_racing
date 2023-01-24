@@ -1,4 +1,5 @@
 ﻿using KARC.Objects;
+using KARC.Prefabs;
 using KARC.Settings;
 using KARC.WitchEngine;
 using KARC.WitchEngine.Animations;
@@ -8,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
+
 
 namespace KARC.MVP
 {
@@ -35,6 +36,8 @@ namespace KARC.MVP
         private int _frameCounter = 0;
         private int _timeRange = 1; //Время между измерениями в миллисекундах
         private int _elapsedFPSTime = 0;
+
+        private FinishCounterUIGenerator finishCounterUIGenerator = new FinishCounterUIGenerator();
 
         public GameCycleView()
         {
@@ -67,8 +70,11 @@ namespace KARC.MVP
                 "FPS: "
                 );
 
-            FinishCounter finishCounter = Factory.CreateFinishCounter(0, 0);           
-            finishCounter.Move(new Vector2((_graphics.PreferredBackBufferWidth - finishCounter.Width) / 2, 0));
+            finishCounterUIGenerator.CreateObject(
+                (_graphics.PreferredBackBufferWidth - SpriteParameters.Sprites[Sprite.finishCounterWindow].width) / 2, 0
+                );
+            FinishCounter finishCounter = (FinishCounter)finishCounterUIGenerator.GetObject();
+            
 
             _components.Add("MbxScore", MbxScore);
             _components.Add("MbxSpeed", MbxSpeed);
@@ -78,6 +84,11 @@ namespace KARC.MVP
             GameLaunched.Invoke(this, new InitializeEventArgs() { 
                 Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) 
             });
+        }
+
+        private void AddFinishCounter ()
+        {
+
         }
 
         protected override void LoadContent()

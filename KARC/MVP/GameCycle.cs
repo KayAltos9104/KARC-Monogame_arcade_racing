@@ -429,8 +429,7 @@ public class GameCycle : IGameplayModel
             ObjectsController.Storage.Timers.Add(timerId, immortalTimer);
             _score += 5000;
             (sender as Trigger2D).IsActive = false;
-        }                
-          
+        }  
     }
 
     private void ProcessGameOver (bool isWin)
