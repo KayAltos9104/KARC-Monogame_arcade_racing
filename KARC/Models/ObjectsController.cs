@@ -1,16 +1,21 @@
-﻿using KARC.Prefabs;
+﻿using KARC.Objects;
+using KARC.Prefabs;
 using KARC.Settings;
 using KARC.WitchEngine;
 using System;
 using System.Linq;
 
+
 namespace KARC.Models;
 
 public class ObjectsController
 {
+    public event EventHandler<int> ScoreIncreased;
     public (int Id, IObject Object) Player { get; private set; }
     public (int Id, IObject Object) Finish { get; private set; }
     public Storage Storage { get; }
+
+    public GameParameters GameParameters { get; }
     public Generator CarGenerator { get; }
     public Generator PlayerGenerator { get; }
     public Generator ObstacleGenerator { get; }
@@ -56,7 +61,7 @@ public class ObjectsController
 
         ShieldGenerator = new ShieldGenerator();
         ShieldGenerator.OnCreated += AddNewObject;
-        ShieldGenerator.OnCreated += AddNewTrigger;
+        ShieldGenerator.OnCreated += AddNewShield;
 
     }
 
@@ -75,7 +80,13 @@ public class ObjectsController
         var lastElement = Storage.Objects.Last();
         Storage.Triggers.Add(lastElement.Key, (ITrigger)lastElement.Value);
     }
+    public void AddNewShield (object sender, EventArgs e)
+    {
+        var lastElement = Storage.Objects.Last();
+        Storage.Triggers.Add(lastElement.Key, (ITrigger)lastElement.Value);
+        (lastElement.Value as ITrigger).Triggered += GiveShield;
 
+    }
     public void AddFinish (object sender, EventArgs e)
     {
         if (Finish.Object is not null)
@@ -88,5 +99,29 @@ public class ObjectsController
             throw new Exception("Player is already exists");
 
         Player = (Storage.Objects.Last().Key, Storage.Objects.Last().Value);        
+    }
+
+    public void GiveShield(object sender, TriggerEventArgs e)
+    {
+        if (e.ActivatorId == Player.Id)
+        {
+            var playerCar = Player.Object as Car;
+            playerCar.IsImmortal = true;
+            Timer immortalTimer = new Timer(4);
+            var timerId = Guid.NewGuid().ToString();
+            Storage.Effects.Add(timerId, Factory.ObjectTypes.shield);
+
+            immortalTimer.TimeIsOver +=
+            (s, a) =>
+            {
+                playerCar.IsImmortal = false;
+                Storage.Effects.Remove(timerId);
+            };
+
+            Storage.Timers.Add(timerId, immortalTimer);
+            
+            (sender as Trigger2D).IsActive = false;
+            ScoreIncreased?.Invoke(this, 5000);
+        }
     }
 }

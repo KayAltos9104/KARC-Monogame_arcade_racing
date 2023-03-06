@@ -18,43 +18,33 @@ public class GameCycle : IGameplayModel
 
     public GameTime GameTime { get; set; }
 
+    private Random _random = new Random();
+
     private double _deltaTime = 0;
 
     private bool _isPaused;
 
     private bool _isGameOver;
 
-
-
-    private int _screenWidth = 1000;
-    private int _screenHeight = 1000;
-    private int _tileSize = 100;
-
     private MapBuilder _mapBuilder;
     private Map _map;
 
     private Vector2 _playerShift;
-    private int _score;        
-
-    private Random _random = new Random();
-
     private int _finishPos;
     private float _distance;
-    private int _framesPerCollisionUpdate = 1;
+
     private int _framesPassed;
-
-    public (int width, int height) Resolution;
-
     public ObjectsController ObjectsController { get; set; }
-
+    public GameParameters GameParameters { get; set; }
     public void Initialize((int width, int height) resolution)
     {
-        Resolution = resolution;
-        //Objects = new Dictionary<int, IObject>();
+        GameParameters = new GameParameters();
+        GameParameters.Resolution = resolution;        
         ObjectsController = new ObjectsController();
-        ObjectsController.ObstacleGenerator.Width = _tileSize / 2;
-        ObjectsController.ObstacleGenerator.Height = _tileSize / 2;
+        ObjectsController.ObstacleGenerator.Width = GameParameters.TileSize / 2;
+        ObjectsController.ObstacleGenerator.Height = GameParameters.TileSize / 2;
 
+        ObjectsController.ScoreIncreased += GameParameters.IncreaseScore;
 
         _mapBuilder = new FirstLevelBuilder();
         //_mapBuilder = new TestLevelBuilder();
@@ -62,7 +52,7 @@ public class GameCycle : IGameplayModel
         _map = _mapBuilder.GetMap();
 
         _playerShift = Vector2.Zero;
-        _score = 0;
+        GameParameters.Score = 0;
 
         _isPaused = false;
         _isGameOver = false;       
@@ -112,62 +102,63 @@ public class GameCycle : IGameplayModel
         _distance = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y);
 
         _playerShift = new Vector2(
-                -Resolution.width / 2 + ObjectsController.Player.Object.Pos.X,
-                -Resolution.height * 0.8f + ObjectsController.Player.Object.Pos.Y
+                -GameParameters.Resolution.width / 2 + ObjectsController.Player.Object.Pos.X,
+                -GameParameters.Resolution.height * 0.8f + ObjectsController.Player.Object.Pos.Y
             );
 
         Updated.Invoke(this, new GameplayEventArgs()
         {
             Objects = ObjectsController.Storage.Objects,
             POVShift = _playerShift,
-            Score = _score,
+            Score = GameParameters.Score,
             Speed = (int)ObjectsController.Player.Object.Speed.Y,
             Effects = new List<(byte, int timeLeft)>(),
             DistanceToFinish = 1
         });
     }
+
+    
+
     private void GenerateObject(char sign, int xTile, int yTile)
     {
-        int x = xTile * _tileSize;
-        int y = yTile * _tileSize;
-        IObject generatedObject = null;
+        int x = xTile * GameParameters.TileSize;
+        int y = yTile * GameParameters.TileSize;
+        IObject generatedObject;
         if (sign == 'C')
         {            
-            ObjectsController.CarGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);
+            ObjectsController.CarGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
             generatedObject = ObjectsController.CarGenerator.GetObject();
             (generatedObject as Car).Speed = new Vector2(0, _random.Next(-8, -4));
         }
         else if (sign == 'P')
         {            
-            ObjectsController.PlayerGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);
+            ObjectsController.PlayerGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
         }
         else if (sign == 'W')
         {
-            ObjectsController.ObstacleGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);           
+            ObjectsController.ObstacleGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);           
         }
         else if (sign == 'S')
         {            
-            ObjectsController.ShieldGenerator.CreateObject(x + _tileSize / 2, y + _tileSize / 2);
-            var trigger = ObjectsController.Storage.Triggers.Last().Value;
-            trigger.Triggered += GiveShield;
+            ObjectsController.ShieldGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);            
         }        
     }
     private void GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
     {
-        int xInit = xInitTile * _tileSize;
-        int yInit = yInitTile * _tileSize;
-        int xEnd = xEndTile * _tileSize;
-        int yEnd = yEndTile * _tileSize;        
+        int xInit = xInitTile * GameParameters.TileSize;
+        int yInit = yInitTile * GameParameters.TileSize;
+        int xEnd = xEndTile * GameParameters.TileSize;
+        int yEnd = yEndTile * GameParameters.TileSize;
         if (sign == 'W')
         {
-            ObjectsController.WallGenerator.Width = xEnd - xInit + _tileSize;
-            ObjectsController.WallGenerator.Height = yEnd - yInit + _tileSize;
+            ObjectsController.WallGenerator.Width = xEnd - xInit + GameParameters.TileSize;
+            ObjectsController.WallGenerator.Height = yEnd - yInit + GameParameters.TileSize;
             ObjectsController.WallGenerator.CreateObject(xInit, yInit);                        
         }
         if (sign == 'F')
         {
-            ObjectsController.FinishGenerator.Width = xEnd - xInit + _tileSize;
-            ObjectsController.FinishGenerator.Height = yEnd - yInit + _tileSize;
+            ObjectsController.FinishGenerator.Width = xEnd - xInit + GameParameters.TileSize;
+            ObjectsController.FinishGenerator.Height = yEnd - yInit + GameParameters.TileSize;
             ObjectsController.FinishGenerator.CreateObject(xInit, yInit);
             var trigger = (ITrigger)ObjectsController.Finish.Object;
             trigger.Triggered += CalculateWin;
@@ -200,7 +191,7 @@ public class GameCycle : IGameplayModel
                         collisionObjects.Add(i, initPos);
                         ObjectsController.Storage.Objects[i].Update();
                     }
-                    else if (_framesPassed >= _framesPerCollisionUpdate)
+                    else if (_framesPassed >= GameParameters.FramesPerCollisionUpdate)
                     {
                         _framesPassed = 0;
                         collisionObjects.Add(i, initPos);
@@ -256,7 +247,7 @@ public class GameCycle : IGameplayModel
             var s = ObjectsController.Storage.Objects.OrderBy(pair => pair.Value.Layer);
             Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
 
-            if((int)ObjectsController.Player.Object.Speed.Y<0) _score++;
+            if((int)ObjectsController.Player.Object.Speed.Y<0) GameParameters.Score++;
 
             _framesPassed++;
 
@@ -270,7 +261,7 @@ public class GameCycle : IGameplayModel
             {
                 Objects = sortedObjects,
                 POVShift = _playerShift,
-                Score = _score,                    
+                Score = GameParameters.Score,                    
                 Speed = (int)ObjectsController.Player.Object.Speed.Y,
                 Effects = effectsOut,
                 DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y) / _distance
@@ -280,7 +271,7 @@ public class GameCycle : IGameplayModel
 
     private (int X, int Y) GetScreenNumber (Vector2 pos)
     {
-        return ((int)pos.X / _screenWidth, (int)pos.Y / _screenHeight);
+        return ((int)pos.X / GameParameters.ScreenWidth, (int)pos.Y / GameParameters.ScreenWidth);
     } 
     private bool IsOnNeighborScreen((int X, int Y) screen1, (int X, int Y) screen2)
     {
@@ -300,8 +291,8 @@ public class GameCycle : IGameplayModel
     }
     private bool IsLongSolid(ISolid o)
     {
-        return o.Colliders[0].Collider.Boundary.Width > _screenWidth ||
-                       o.Colliders[0].Collider.Boundary.Height > _screenHeight;
+        return o.Colliders[0].Collider.Boundary.Width > GameParameters.ScreenWidth ||
+                       o.Colliders[0].Collider.Boundary.Height > GameParameters.ScreenHeight;
     }
     private bool CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
     {
@@ -312,7 +303,7 @@ public class GameCycle : IGameplayModel
             ObjectsController.Storage.SolidObjects[obj1.Id].Colliders, 
             ObjectsController.Storage.SolidObjects[obj2.Id].Colliders)&&tries>0)
         {
-            if(tries > 1)
+            if (tries > 1)
             {
                 if (obj1.initPos != ObjectsController.Storage.Objects[obj1.Id].Pos)
                 {
@@ -411,25 +402,25 @@ public class GameCycle : IGameplayModel
     }
 
     private void GiveShield(object sender, TriggerEventArgs e)
-    {            
+    {
         if (e.ActivatorId == ObjectsController.Player.Id)
         {
             var playerCar = ObjectsController.Player.Object as Car;
             playerCar.IsImmortal = true;
-            Timer immortalTimer = new Timer(4); 
+            Timer immortalTimer = new Timer(4);
             var timerId = Guid.NewGuid().ToString();
             ObjectsController.Storage.Effects.Add(timerId, Factory.ObjectTypes.shield);
             immortalTimer.TimeIsOver +=
             (s, a) =>
-            {                    
+            {
                 playerCar.IsImmortal = false;
                 ObjectsController.Storage.Effects.Remove(timerId);
             };
 
             ObjectsController.Storage.Timers.Add(timerId, immortalTimer);
-            _score += 5000;
+            GameParameters.Score += 5000;
             (sender as Trigger2D).IsActive = false;
-        }  
+        }
     }
 
     private void ProcessGameOver (bool isWin)
