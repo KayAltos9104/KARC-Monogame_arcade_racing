@@ -7,7 +7,6 @@ using System.Linq;
 using KARC.WitchEngine.Animations;
 using KARC.Models;
 using KARC.Maps;
-using KARC.Prefabs;
 
 namespace KARC.MVP;
 
@@ -116,9 +115,6 @@ public class GameCycle : IGameplayModel
             DistanceToFinish = 1
         });
     }
-
-    
-
     private void GenerateObject(char sign, int xTile, int yTile)
     {
         int x = xTile * GameParameters.TileSize;
@@ -165,7 +161,6 @@ public class GameCycle : IGameplayModel
             _finishPos = (int)ObjectsController.Finish.Object.Pos.Y;            
         }        
     }       
-
     public void Update()
     {
         if (!_isPaused)            
@@ -268,7 +263,6 @@ public class GameCycle : IGameplayModel
             });                
         }            
     }
-
     private (int X, int Y) GetScreenNumber (Vector2 pos)
     {
         return ((int)pos.X / GameParameters.ScreenWidth, (int)pos.Y / GameParameters.ScreenWidth);
@@ -399,30 +393,7 @@ public class GameCycle : IGameplayModel
     {
         if (e.ActivatorId == ObjectsController.Player.Id)                
             ProcessGameOver(isWin : true);
-    }
-
-    private void GiveShield(object sender, TriggerEventArgs e)
-    {
-        if (e.ActivatorId == ObjectsController.Player.Id)
-        {
-            var playerCar = ObjectsController.Player.Object as Car;
-            playerCar.IsImmortal = true;
-            Timer immortalTimer = new Timer(4);
-            var timerId = Guid.NewGuid().ToString();
-            ObjectsController.Storage.Effects.Add(timerId, Factory.ObjectTypes.shield);
-            immortalTimer.TimeIsOver +=
-            (s, a) =>
-            {
-                playerCar.IsImmortal = false;
-                ObjectsController.Storage.Effects.Remove(timerId);
-            };
-
-            ObjectsController.Storage.Timers.Add(timerId, immortalTimer);
-            GameParameters.Score += 5000;
-            (sender as Trigger2D).IsActive = false;
-        }
-    }
-
+    }  
     private void ProcessGameOver (bool isWin)
     {
         if (!_isGameOver)
@@ -431,7 +402,6 @@ public class GameCycle : IGameplayModel
             GameFinished.Invoke(this, new GameOverEventArgs { IsWin = isWin });
         }            
     }
-
     public void ChangePlayerSpeed(IGameplayModel.Direction dir)
     {           
         if (!_isPaused&&!_isGameOver)
@@ -471,5 +441,3 @@ public class GameCycle : IGameplayModel
     }
 
 }
-
-
