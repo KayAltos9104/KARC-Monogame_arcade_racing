@@ -109,7 +109,7 @@ public class ObjectsController
             playerCar.IsImmortal = true;
             Timer immortalTimer = new Timer(4);
             var timerId = Guid.NewGuid().ToString();
-            Storage.Effects.Add(timerId, Factory.ObjectTypes.shield);
+            Storage.Effects.Add(timerId, Sprite.shield);
 
             immortalTimer.TimeIsOver +=
             (s, a) =>

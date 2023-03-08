@@ -1,4 +1,5 @@
 ﻿using KARC.Objects;
+using KARC.Settings;
 using KARC.WitchEngine;
 using System.Collections.Generic;
 
@@ -11,7 +12,7 @@ public class Storage
     public Dictionary<int, ISolid> SolidObjects { get; set; }
     public Dictionary<int, ITrigger> Triggers { get; set; }
     public Dictionary<string, Timer> Timers { get; set; }
-    public Dictionary<string, Factory.ObjectTypes> Effects { get; set; }
+    public Dictionary<string, Sprite> Effects { get; set; }
 
     public Storage()
     {
@@ -19,7 +20,7 @@ public class Storage
         SolidObjects = new Dictionary<int, ISolid>();
         Triggers = new Dictionary<int, ITrigger>();
         Timers = new Dictionary<string, Timer>();
-        Effects = new Dictionary<string, Factory.ObjectTypes>();
+        Effects = new Dictionary<string, Sprite>();
     }
     
     public void IncrementId()

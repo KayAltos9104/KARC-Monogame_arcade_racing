@@ -7,6 +7,7 @@ using System.Linq;
 using KARC.WitchEngine.Animations;
 using KARC.Models;
 using KARC.Maps;
+using KARC.Settings;
 
 namespace KARC.MVP;
 
@@ -333,7 +334,7 @@ public class GameCycle : IGameplayModel
         {
             Car c = (Car)ObjectsController.Storage.Objects[Id1];
 
-            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
+            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
             AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
             AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
             AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
@@ -359,7 +360,7 @@ public class GameCycle : IGameplayModel
         {
             Car c = (Car)ObjectsController.Storage.Objects[Id2];
 
-            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
+            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
             AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
             AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
             AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
