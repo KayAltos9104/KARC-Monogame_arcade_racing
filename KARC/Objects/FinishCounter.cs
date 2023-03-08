@@ -1,4 +1,5 @@
-﻿using KARC.WitchEngine;
+﻿using KARC.Settings;
+using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -27,18 +28,33 @@ namespace KARC.Objects
         private (int id, Vector2 pos) _finishSign;
         private bool _isFinished;
 
-        public FinishCounter(Vector2 pos, string text, (int id, Vector2 pos) carSign, (int id, Vector2 pos) finishSign, int width)
+        public FinishCounter(Vector2 pos, string text)
         {
             Pos = pos;
             Text = text;
             Name = "";
-            Sprites = new List<(int ImageId, Vector2 ImagePos)>();
-            Sprites.Add(finishSign);
-            Sprites.Add(carSign);
-            _carSign = Sprites.Single(s => s.ImageId == carSign.id);
-            _finishSign = Sprites.Single(s => s.ImageId == finishSign.id);
+            _carSign = (
+                (int)Sprite.wall,
+                new Vector2(0, (
+                SpriteParameters.Sprites[Sprite.finishCounterWindow].height
+                - SpriteParameters.Sprites[Sprite.wall].height) / 2.0f)
+                );
+            _finishSign = (
+                (int)Sprite.finishTape,
+                 new Vector2(0,(
+                 SpriteParameters.Sprites[Sprite.finishCounterWindow].height
+                - SpriteParameters.Sprites[Sprite.finishTape].height) / 2.0f)
+                );
+            Sprites = new List<(int ImageId, Vector2 ImagePos)>() {
+                ((int)Sprite.finishCounterWindow, Vector2.Zero),
+                _carSign,
+                _finishSign,
+                
+            };                        
             IsSpriteScaled = false;
-            Width = width;
+            Width = SpriteParameters.Sprites[Sprite.finishCounterWindow].width;
+            FinishSignShift = -1.5f * SpriteParameters.Sprites[Sprite.finishTape].width;
+            CarSignShift = 0.5f * SpriteParameters.Sprites[Sprite.wall].width;
             Layer = 1.0f; 
             _isFinished = false;
             FinishDistance = 1;
@@ -53,7 +69,7 @@ namespace KARC.Objects
         {
             if (!_isFinished)
             {
-                _carSign.pos = new Vector2((1 - FinishDistance) * Width, _carSign.pos.Y);
+                _carSign.pos = new Vector2((1 - FinishDistance) * Width + CarSignShift, _carSign.pos.Y);
                 _finishSign.pos = new Vector2(Width + FinishSignShift, _finishSign.pos.Y);
                 Sprites[Sprites.FindIndex(s => s.ImageId == _carSign.id)] = _carSign;
                 Sprites[Sprites.FindIndex(s => s.ImageId == _finishSign.id)] = _finishSign;

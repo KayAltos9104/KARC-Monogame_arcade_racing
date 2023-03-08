@@ -1,4 +1,5 @@
 ﻿using KARC.Objects;
+using KARC.Settings;
 using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System;
@@ -31,7 +32,7 @@ namespace KARC.WitchEngine.UI
             Name = "";
             TextPos = Vector2.Zero;
             Sprites = new List<(int ImageId, Vector2 ImagePos)>();
-            Sprites.Add(((byte)Factory.ObjectTypes.window, Vector2.Zero));
+            Sprites.Add(((int)Sprite.window, Vector2.Zero));
             IsSpriteScaled = true;
             Layer = 1.0f;            
         }

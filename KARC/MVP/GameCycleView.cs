@@ -1,4 +1,6 @@
 ﻿using KARC.Objects;
+using KARC.Prefabs;
+using KARC.Settings;
 using KARC.WitchEngine;
 using KARC.WitchEngine.Animations;
 using KARC.WitchEngine.UI;
@@ -7,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
+
 
 namespace KARC.MVP
 {
@@ -34,6 +36,8 @@ namespace KARC.MVP
         private int _frameCounter = 0;
         private int _timeRange = 1; //Время между измерениями в миллисекундах
         private int _elapsedFPSTime = 0;
+
+        private FinishCounterUIGenerator finishCounterUIGenerator = new FinishCounterUIGenerator();
 
         public GameCycleView()
         {
@@ -66,8 +70,11 @@ namespace KARC.MVP
                 "FPS: "
                 );
 
-            FinishCounter finishCounter = Factory.CreateFinishCounter(0, 0);           
-            finishCounter.Move(new Vector2((_graphics.PreferredBackBufferWidth - finishCounter.Width) / 2, 0));
+            finishCounterUIGenerator.CreateObject(
+                (_graphics.PreferredBackBufferWidth - SpriteParameters.Sprites[Sprite.finishCounterWindow].width) / 2, 0
+                );
+            FinishCounter finishCounter = (FinishCounter)finishCounterUIGenerator.GetObject();
+            
 
             _components.Add("MbxScore", MbxScore);
             _components.Add("MbxSpeed", MbxSpeed);
@@ -79,16 +86,28 @@ namespace KARC.MVP
             });
         }
 
+        private void AddFinishCounter ()
+        {
+
+        }
+
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _textures.Add((byte)Factory.ObjectTypes.car, Content.Load<Texture2D>("Base_car"));
-            _textures.Add((byte)Factory.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
-            _textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
-            _textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
-            _textures.Add((byte)Factory.ObjectTypes.finishCounterField, Content.Load<Texture2D>("FinishCounterField"));
-            _textures.Add((byte)Factory.ObjectTypes.shield, Content.Load<Texture2D>("Immortality"));
-            _textures.Add((byte)Factory.ObjectTypes.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
+            _textures.Add((byte)Sprite.car, Content.Load<Texture2D>("Base_car"));
+            //_textures.Add((byte)Factory.ObjectTypes.car, Content.Load<Texture2D>("Base_car"));
+            _textures.Add((byte)Sprite.wall, Content.Load<Texture2D>("Wall"));
+            //_textures.Add((byte)Factory.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
+            _textures.Add((byte)Sprite.window, Content.Load<Texture2D>("Message_Window"));
+            //_textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
+            _textures.Add((byte)Sprite.finishTape, Content.Load<Texture2D>("FinishSprite"));
+            //_textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
+            _textures.Add((byte)Sprite.finishCounterWindow, Content.Load<Texture2D>("FinishCounterField"));
+            //_textures.Add((byte)Factory.ObjectTypes.finishCounterField, Content.Load<Texture2D>("FinishCounterField"));
+            _textures.Add((byte)Sprite.shield, Content.Load<Texture2D>("Immortality"));
+            //_textures.Add((byte)Factory.ObjectTypes.shield, Content.Load<Texture2D>("Immortality"));
+            _textures.Add((byte)Sprite.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
+            //_textures.Add((byte)Factory.ObjectTypes.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 

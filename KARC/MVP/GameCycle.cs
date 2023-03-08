@@ -3,11 +3,11 @@ using KARC.WitchEngine;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using KARC.WitchEngine.Animations;
 using KARC.Models;
 using KARC.Maps;
+using KARC.Settings;
 
 namespace KARC.MVP;
 
@@ -18,68 +18,50 @@ public class GameCycle : IGameplayModel
 
     public GameTime GameTime { get; set; }
 
+    private Random _random = new Random();
+
     private double _deltaTime = 0;
 
     private bool _isPaused;
 
     private bool _isGameOver;
 
-    private int _currentId;
-
-    private int _screenWidth = 1000;
-    private int _screenHeight = 1000;
-    private int _tileSize = 100;
-
     private MapBuilder _mapBuilder;
     private Map _map;
 
     private Vector2 _playerShift;
-    private int _score;        
-
-    private Random _random = new Random();
-
     private int _finishPos;
     private float _distance;
-    private int _framesPerCollisionUpdate = 1;
-    private int _framesPassed;
 
-    public (int width, int height) Resolution;
-    public int PlayerId { get; set; }
-    public Dictionary<int, IObject> Objects { get; set; }
-    public Dictionary<int, ISolid> SolidObjects { get; set; }
-    public Dictionary<int, ITrigger> Triggers { get; set; }        
-    public Dictionary<string, Timer> Timers { get; set; }
-    public Dictionary<string, Factory.ObjectTypes> Effects { get; set; }
-    
+    private int _framesPassed;
+    public ObjectsController ObjectsController { get; set; }
+    public GameParameters GameParameters { get; set; }
     public void Initialize((int width, int height) resolution)
     {
-        Resolution = resolution;
-        Objects = new Dictionary<int, IObject>();
-        SolidObjects = new Dictionary<int, ISolid>();
-        Triggers = new Dictionary<int, ITrigger>();
-        Timers = new Dictionary<string, Timer>();
-        Effects = new Dictionary<string, Factory.ObjectTypes>();
+        GameParameters = new GameParameters();
+        GameParameters.Resolution = resolution;        
+        ObjectsController = new ObjectsController();
+        ObjectsController.ObstacleGenerator.Width = GameParameters.TileSize / 2;
+        ObjectsController.ObstacleGenerator.Height = GameParameters.TileSize / 2;
 
-        _mapBuilder = new TestLevelBuilder();
+        ObjectsController.ScoreIncreased += GameParameters.IncreaseScore;
+
+        _mapBuilder = new FirstLevelBuilder();
+        //_mapBuilder = new TestLevelBuilder();
         _mapBuilder.GenerateMap();
         _map = _mapBuilder.GetMap();
 
         _playerShift = Vector2.Zero;
-        _score = 0;
+        GameParameters.Score = 0;
 
         _isPaused = false;
-        _isGameOver = false;
-        _currentId = 1;
-        bool isPlacedPlayer = false;
-        
-        
+        _isGameOver = false;       
 
         for (int y = 0; y < _map.Height; y++)
             for (int x = 0; x < _map.Width; x++)
             {
                 if (_map.GameField[x, y] != '\0')
-                {
-                    IObject generatedObject = null;
+                {  
                     if (int.TryParse(_map.GameField[x, y].ToString(), out int corner1))
                     {
                         _map.GameField[x, y] = '\0';
@@ -90,7 +72,7 @@ public class GameCycle : IGameplayModel
                                 {
                                     if (corner1==corner2)
                                     {
-                                        generatedObject = GenerateObject('W', x, y, xCorner, yCorner);                                           
+                                        GenerateObject('W', x, y, xCorner, yCorner);                                           
                                         _map.GameField[xCorner, yCorner] = '\0';
                                     }
                                 }
@@ -104,132 +86,112 @@ public class GameCycle : IGameplayModel
                             {
                                 if (_map.GameField[xCorner, yCorner] == 'F')
                                 {
-                                    generatedObject = GenerateObject('F', x, y, xCorner, yCorner);
-                                    var trigger = (ITrigger)generatedObject;
-                                    trigger.Triggered += CalculateWin;
+                                    GenerateObject('F', x, y, xCorner, yCorner);                                    
                                     _map.GameField[xCorner, yCorner] = '\0';                                        
                                 }
                             }
                     }
                     else
                     {
-                        generatedObject = GenerateObject(_map.GameField[x, y], x, y);
-                    }                       
-
-                    if (_map.GameField[x, y] == 'P' && !isPlacedPlayer)
-                    {
-                        PlayerId = _currentId;
-                        isPlacedPlayer = true;                            
+                        GenerateObject(_map.GameField[x, y], x, y);
                     }
-                  
-                    Objects.Add(_currentId, generatedObject);
-                    if (generatedObject is ISolid s)
-                        SolidObjects.Add(_currentId, s);
-
-                    if (generatedObject is ITrigger t)
-                        Triggers.Add(_currentId, t);
-                    _currentId++;
+                   
                 }
             }
 
-        _distance = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y);
+        _distance = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y);
 
         _playerShift = new Vector2(
-                -Resolution.width / 2 + Objects[PlayerId].Pos.X,
-                -Resolution.height * 0.8f + Objects[PlayerId].Pos.Y
+                -GameParameters.Resolution.width / 2 + ObjectsController.Player.Object.Pos.X,
+                -GameParameters.Resolution.height * 0.8f + ObjectsController.Player.Object.Pos.Y
             );
 
         Updated.Invoke(this, new GameplayEventArgs()
         {
-            Objects = Objects,
+            Objects = ObjectsController.Storage.Objects,
             POVShift = _playerShift,
-            Score = _score,
-            Speed = (int)Objects[PlayerId].Speed.Y,
+            Score = GameParameters.Score,
+            Speed = (int)ObjectsController.Player.Object.Speed.Y,
             Effects = new List<(byte, int timeLeft)>(),
             DistanceToFinish = 1
         });
     }
-    private IObject GenerateObject(char sign, int xTile, int yTile)
+    private void GenerateObject(char sign, int xTile, int yTile)
     {
-        float x = xTile * _tileSize;
-        float y = yTile * _tileSize;
-        IObject generatedObject = null;
+        int x = xTile * GameParameters.TileSize;
+        int y = yTile * GameParameters.TileSize;
+        IObject generatedObject;
         if (sign == 'C')
-        {                
-            generatedObject = Factory.CreateComplexCar(
-                x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(-8, -4)));
+        {            
+            ObjectsController.CarGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
+            generatedObject = ObjectsController.CarGenerator.GetObject();
+            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-8, -4));
         }
         else if (sign == 'P')
-        {
-            generatedObject = Factory.CreateComplexCar(
-                x + _tileSize / 2, y + _tileSize / 2, speed: new Vector2(0, _random.Next(0, 0)));
+        {            
+            ObjectsController.PlayerGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
         }
         else if (sign == 'W')
         {
-            generatedObject = Factory.CreateWall(x + _tileSize / 2, y + _tileSize / 2, _tileSize / 2);
+            ObjectsController.ObstacleGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);           
         }
         else if (sign == 'S')
-        {
-            generatedObject = Factory.CreateShield(x + _tileSize / 2, y + _tileSize / 2);
-            var trigger = (ITrigger)generatedObject;
-            trigger.Triggered += GiveShield;
-        }
-        return generatedObject;
+        {            
+            ObjectsController.ShieldGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);            
+        }        
     }
-    private IObject GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
+    private void GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
     {
-        float xInit = xInitTile * _tileSize;
-        float yInit = yInitTile * _tileSize;
-        float xEnd = xEndTile * _tileSize;
-        float yEnd = yEndTile * _tileSize;
-        IObject generatedObject = null;
+        int xInit = xInitTile * GameParameters.TileSize;
+        int yInit = yInitTile * GameParameters.TileSize;
+        int xEnd = xEndTile * GameParameters.TileSize;
+        int yEnd = yEndTile * GameParameters.TileSize;
         if (sign == 'W')
         {
-            generatedObject = Factory.CreateWall(xInit, yInit, 
-                xEnd+_tileSize, yEnd + _tileSize, tileSize: _tileSize);               
+            ObjectsController.WallGenerator.Width = xEnd - xInit + GameParameters.TileSize;
+            ObjectsController.WallGenerator.Height = yEnd - yInit + GameParameters.TileSize;
+            ObjectsController.WallGenerator.CreateObject(xInit, yInit);                        
         }
         if (sign == 'F')
         {
-            generatedObject = Factory.CreateTrigger(xInit, yInit,
-                xEnd + _tileSize, yEnd + _tileSize, spriteId: (byte)Factory.ObjectTypes.finish, tileSize:_tileSize);
-            _finishPos = (int)yInit;
-        }
-        
-
-
-        return generatedObject;            
+            ObjectsController.FinishGenerator.Width = xEnd - xInit + GameParameters.TileSize;
+            ObjectsController.FinishGenerator.Height = yEnd - yInit + GameParameters.TileSize;
+            ObjectsController.FinishGenerator.CreateObject(xInit, yInit);
+            var trigger = (ITrigger)ObjectsController.Finish.Object;
+            trigger.Triggered += CalculateWin;
+            _finishPos = (int)ObjectsController.Finish.Object.Pos.Y;            
+        }        
     }       
-
     public void Update()
     {
         if (!_isPaused)            
         {
             
-            (int screenX, int screenY) playerScreen = GetScreenNumber(Objects[PlayerId].Pos);               
-            Vector2 playerInitPos = Objects[PlayerId].Pos;
+            (int screenX, int screenY) playerScreen = GetScreenNumber(ObjectsController.Player.Object.Pos);               
+            Vector2 playerInitPos = ObjectsController.Player.Object.Pos;
 
             Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
             //Обновление состояния объектов
-            foreach (var i in Objects.Keys)
+            foreach (var i in ObjectsController.Storage.Objects.Keys)
             {
-                Vector2 initPos = Objects[i].Pos;
+                Vector2 initPos = ObjectsController.Storage.Objects[i].Pos;
                 var objectScreen = GetScreenNumber (initPos);
-                Objects[i].Update();
-                if (Objects[i] is IAnimated)
-                    (Objects[i] as IAnimated).UpdateAnimation(GameTime);
+                ObjectsController.Storage.Objects[i].Update();
+                if (ObjectsController.Storage.Objects[i] is IAnimated)
+                    (ObjectsController.Storage.Objects[i] as IAnimated).UpdateAnimation(GameTime);
             //Запись тех объектов, для которых нужно обсчитывать столкновение
-                if (SolidObjects.ContainsKey(i))
+                if (ObjectsController.Storage.SolidObjects.ContainsKey(i))
                 {                        
-                    if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(SolidObjects[i]))
+                    if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsController.Storage.SolidObjects[i]))
                     {
                         collisionObjects.Add(i, initPos);
-                        Objects[i].Update();
+                        ObjectsController.Storage.Objects[i].Update();
                     }
-                    else if (_framesPassed >= _framesPerCollisionUpdate)
+                    else if (_framesPassed >= GameParameters.FramesPerCollisionUpdate)
                     {
                         _framesPassed = 0;
                         collisionObjects.Add(i, initPos);
-                        Objects[i].Update();
+                        ObjectsController.Storage.Objects[i].Update();
                     }
                 }  
             }
@@ -240,7 +202,7 @@ public class GameCycle : IGameplayModel
             {
                 foreach (var j in collisionObjects.Keys)
                 {
-                    if (i == j || processedObjects.Contains((j, i)) || collisionObjects[i] == Objects[i].Pos)
+                    if (i == j || processedObjects.Contains((j, i)) || collisionObjects[i] == ObjectsController.Storage.Objects[i].Pos)
                         continue;
                     if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
                     {
@@ -248,20 +210,20 @@ public class GameCycle : IGameplayModel
                     }
                     processedObjects.Add((i, j));
                 }
-                foreach (var t in Triggers)
+                foreach (var t in ObjectsController.Storage.Triggers)
                 {
                     CalculateTrigger(i, t.Value);
                     if (!t.Value.IsActive)
                     {
-                        Objects.Remove(t.Key);
-                        Triggers.Remove(t.Key);
+                        ObjectsController.Storage.Objects.Remove(t.Key);
+                        ObjectsController.Storage.Triggers.Remove(t.Key);
                     }
                 }
             }
             _deltaTime += GameTime.ElapsedGameTime.TotalMilliseconds;
             if (_deltaTime > 1000)
             {
-                foreach (var timer in Timers.Values)
+                foreach (var timer in ObjectsController.Storage.Timers.Values)
                 {
                     timer.Update();
                 }
@@ -269,70 +231,43 @@ public class GameCycle : IGameplayModel
             }
                                
 
-            Car player = (Car)Objects[PlayerId];
-            //if (!player.IsLive && !_isGameOver)
-            //{
-            //    AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
-            //    AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
-            //    AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
-            //    AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
-            //    AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
-            //    AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
-            //    explosionAtlas.AddFrame(frame1);
-            //    explosionAtlas.AddFrame(frame2);
-            //    explosionAtlas.AddFrame(frame3);
-            //    explosionAtlas.AddFrame(frame4);
-            //    explosionAtlas.AddFrame(frame5);
-
-            //    Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
-
-            //    IAnimated playerCrushExplosion = new Explosion(Objects[PlayerId].Pos);
-            //    Objects.Add(_currentId, playerCrushExplosion as IObject);
-            //    _currentId++;
-            //    playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
-            //    playerCrushExplosion.PlayAnimation("explosion");
-            //}
+            Car player = (Car)ObjectsController.Player.Object;           
 
             if (!player.IsLive)                   
                 ProcessGameOver(isWin : false);  
             
            //Сдвиг игрока для смещения камеры
-           _playerShift.Y += Objects[PlayerId].Pos.Y - playerInitPos.Y;
+           _playerShift.Y += ObjectsController.Player.Object.Pos.Y - playerInitPos.Y;
 
             //Сортировка объектов по слоям для отрисовки
-            var s = Objects.OrderBy(pair => pair.Value.Layer);
+            var s = ObjectsController.Storage.Objects.OrderBy(pair => pair.Value.Layer);
             Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
 
-            if((int)Objects[PlayerId].Speed.Y<0) _score++;
+            if((int)ObjectsController.Player.Object.Speed.Y<0) GameParameters.Score++;
 
             _framesPassed++;
 
             var effectsOut = new List<(byte, int timeLeft)>();
-            foreach (var e in Effects)
+            foreach (var e in ObjectsController.Storage.Effects)
             {
-                effectsOut.Add(((byte)e.Value, Timers[e.Key].Time));
-            }
-
-            
+                effectsOut.Add(((byte)e.Value, ObjectsController.Storage.Timers[e.Key].Time));
+            }            
 
             Updated.Invoke(this, new GameplayEventArgs
             {
                 Objects = sortedObjects,
                 POVShift = _playerShift,
-                Score = _score,                    
-                Speed = (int)Objects[PlayerId].Speed.Y,
+                Score = GameParameters.Score,                    
+                Speed = (int)ObjectsController.Player.Object.Speed.Y,
                 Effects = effectsOut,
-                DistanceToFinish = Math.Abs(_finishPos - Objects[PlayerId].Pos.Y) / _distance
+                DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y) / _distance
             });                
         }            
     }
-
     private (int X, int Y) GetScreenNumber (Vector2 pos)
     {
-        return ((int)pos.X / _screenWidth, (int)pos.Y / _screenHeight);
-    }
-    
-
+        return ((int)pos.X / GameParameters.ScreenWidth, (int)pos.Y / GameParameters.ScreenWidth);
+    } 
     private bool IsOnNeighborScreen((int X, int Y) screen1, (int X, int Y) screen2)
     {
         for (int y = screen1.Y - 1; y <= screen1.Y + 1; y++)
@@ -351,39 +286,41 @@ public class GameCycle : IGameplayModel
     }
     private bool IsLongSolid(ISolid o)
     {
-        return o.Colliders[0].Collider.Boundary.Width > _screenWidth ||
-                       o.Colliders[0].Collider.Boundary.Height > _screenHeight;
+        return o.Colliders[0].Collider.Boundary.Width > GameParameters.ScreenWidth ||
+                       o.Colliders[0].Collider.Boundary.Height > GameParameters.ScreenHeight;
     }
     private bool CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
     {
         Vector2 oppositeDirection;
         bool isCollided = false;
         byte tries = 100;
-        while (RectangleCollider.IsCollided(SolidObjects[obj1.Id].Colliders, SolidObjects[obj2.Id].Colliders)&&tries>0)
+        while (RectangleCollider.IsCollided(
+            ObjectsController.Storage.SolidObjects[obj1.Id].Colliders, 
+            ObjectsController.Storage.SolidObjects[obj2.Id].Colliders)&&tries>0)
         {
-            if(tries > 1)
+            if (tries > 1)
             {
-                if (obj1.initPos != Objects[obj1.Id].Pos)
+                if (obj1.initPos != ObjectsController.Storage.Objects[obj1.Id].Pos)
                 {
-                    oppositeDirection = Objects[obj1.Id].Pos - obj1.initPos;
+                    oppositeDirection = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
                     oppositeDirection.Normalize();
-                    Objects[obj1.Id].Move(Objects[obj1.Id].Pos - oppositeDirection);
+                    ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - oppositeDirection);
                 }
-                if (obj2.initPos != Objects[obj2.Id].Pos)
+                if (obj2.initPos != ObjectsController.Storage.Objects[obj2.Id].Pos)
                 {
-                    oppositeDirection = Objects[obj2.Id].Pos - obj2.initPos;
+                    oppositeDirection = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
                     oppositeDirection.Normalize();
-                    Objects[obj2.Id].Move(Objects[obj2.Id].Pos - oppositeDirection);
+                    ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - oppositeDirection);
                 }
                 isCollided = true;
                 tries--;
             }
             else
             {
-                var oppositeDirection1 = Objects[obj1.Id].Pos - obj1.initPos;
-                var oppositeDirection2 = Objects[obj2.Id].Pos - obj2.initPos;
-                Objects[obj1.Id].Move(Objects[obj1.Id].Pos - 10 * oppositeDirection1);
-                Objects[obj2.Id].Move(Objects[obj2.Id].Pos - 10 * oppositeDirection2);
+                var oppositeDirection1 = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
+                var oppositeDirection2 = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
+                ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - 10 * oppositeDirection1);
+                ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - 10 * oppositeDirection2);
                 tries--;
             }                
         }
@@ -391,13 +328,13 @@ public class GameCycle : IGameplayModel
     }
     private void CalculateCrushing (int Id1, int Id2)
     {
-        Objects[Id1].Speed = new Vector2(0, 0);
-        Objects[Id2].Speed = new Vector2(0, 0);
-        if (Objects[Id1] is Car)
+        ObjectsController.Storage.Objects[Id1].Speed = new Vector2(0, 0);
+        ObjectsController.Storage.Objects[Id2].Speed = new Vector2(0, 0);
+        if (ObjectsController.Storage.Objects[Id1] is Car)
         {
-            Car c = (Car)Objects[Id1];
+            Car c = (Car)ObjectsController.Storage.Objects[Id1];
 
-            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
+            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
             AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
             AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
             AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
@@ -411,19 +348,19 @@ public class GameCycle : IGameplayModel
 
             Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
 
-            IAnimated playerCrushExplosion = new Explosion(Objects[Id1].Pos);
-            Objects.Add(_currentId, playerCrushExplosion as IObject);
-            _currentId++;
+            IAnimated playerCrushExplosion = new Explosion(ObjectsController.Storage.Objects[Id1].Pos);
+            ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
+            ObjectsController.Storage.IncrementId();
             playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
             playerCrushExplosion.PlayAnimation("explosion");
 
             c.Die();
         }
-        if (Objects[Id2] is Car)
+        if (ObjectsController.Storage.Objects[Id2] is Car)
         {
-            Car c = (Car)Objects[Id2];
+            Car c = (Car)ObjectsController.Storage.Objects[Id2];
 
-            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Factory.ObjectTypes.explosion, 5);
+            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
             AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
             AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
             AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
@@ -437,9 +374,9 @@ public class GameCycle : IGameplayModel
 
             Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
 
-            IAnimated playerCrushExplosion = new Explosion(Objects[Id2].Pos);
-            Objects.Add(_currentId, playerCrushExplosion as IObject);
-            _currentId++;
+            IAnimated playerCrushExplosion = new Explosion(ObjectsController.Storage.Objects[Id2].Pos);
+            ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
+            ObjectsController.Storage.IncrementId();
             playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
             playerCrushExplosion.PlayAnimation("explosion");
 
@@ -448,40 +385,16 @@ public class GameCycle : IGameplayModel
     }        
     private void CalculateTrigger (int i, ITrigger t)
     {
-        if (RectangleCollider.IsCollided(SolidObjects[i].Colliders, t.Collider))
+        if (RectangleCollider.IsCollided(ObjectsController.Storage.SolidObjects[i].Colliders, t.Collider))
         {
-            t.OnTrigger(Objects[i], i);
+            t.OnTrigger(ObjectsController.Storage.Objects[i], i);
         }
     }       
     private void CalculateWin(object sender, TriggerEventArgs e)
     {
-        if (e.ActivatorId == PlayerId)                
+        if (e.ActivatorId == ObjectsController.Player.Id)                
             ProcessGameOver(isWin : true);
-    }
-
-    private void GiveShield(object sender, TriggerEventArgs e)
-    {            
-        if (e.ActivatorId == PlayerId)
-        {
-            var playerCar = Objects[PlayerId] as Car;
-            playerCar.IsImmortal = true;
-            Timer immortalTimer = new Timer(4); 
-            var timerId = Guid.NewGuid().ToString();
-            Effects.Add(timerId, Factory.ObjectTypes.shield);
-            immortalTimer.TimeIsOver +=
-            (s, a) =>
-            {                    
-                playerCar.IsImmortal = false;
-                Effects.Remove(timerId);
-            };
-           
-            Timers.Add(timerId, immortalTimer);
-            _score += 5000;
-            (sender as Trigger2D).IsActive = false;
-        }                
-          
-    }
-
+    }  
     private void ProcessGameOver (bool isWin)
     {
         if (!_isGameOver)
@@ -490,12 +403,11 @@ public class GameCycle : IGameplayModel
             GameFinished.Invoke(this, new GameOverEventArgs { IsWin = isWin });
         }            
     }
-
     public void ChangePlayerSpeed(IGameplayModel.Direction dir)
     {           
         if (!_isPaused&&!_isGameOver)
         {
-            Car p = (Car)Objects[PlayerId];
+            Car p = (Car)ObjectsController.Player.Object;
             switch (dir)
             {
                 case IGameplayModel.Direction.forward:
@@ -530,5 +442,3 @@ public class GameCycle : IGameplayModel
     }
 
 }
-
-
