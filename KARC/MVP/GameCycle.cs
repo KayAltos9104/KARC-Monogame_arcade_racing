@@ -164,105 +164,111 @@ public class GameCycle : IGameplayModel
     }       
     public void Update()
     {
-        if (!_isPaused)            
+        // Если пауза, то ничего не обновляем
+        if (_isPaused) return;            
+        // На каком экране находится игрок
+        (int screenX, int screenY) playerScreen = GetScreenNumber(ObjectsController.Player.Object.Pos);
+        // Сохраняет позицию игрока на начало цикла
+        Vector2 playerInitPos = ObjectsController.Player.Object.Pos;
+
+        // Объекты, для которых будем обсчитывать столкновения
+        Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
+
+        //Обновление состояния объектов
+        foreach (var i in ObjectsController.Storage.Objects.Keys)
         {
-            
-            (int screenX, int screenY) playerScreen = GetScreenNumber(ObjectsController.Player.Object.Pos);               
-            Vector2 playerInitPos = ObjectsController.Player.Object.Pos;
+            Vector2 initPos = ObjectsController.Storage.Objects[i].Pos;
+            (int screenX, int screenY) objectScreen = GetScreenNumber(initPos);
+            ObjectsController.Storage.Objects[i].Update();
 
-            Dictionary<int, Vector2> collisionObjects = new Dictionary<int, Vector2>();
-            //Обновление состояния объектов
-            foreach (var i in ObjectsController.Storage.Objects.Keys)
-            {
-                Vector2 initPos = ObjectsController.Storage.Objects[i].Pos;
-                var objectScreen = GetScreenNumber (initPos);
-                ObjectsController.Storage.Objects[i].Update();
-                if (ObjectsController.Storage.Objects[i] is IAnimated)
-                    (ObjectsController.Storage.Objects[i] as IAnimated).UpdateAnimation(GameTime);
+            if (ObjectsController.Storage.Objects[i] is IAnimated)
+                (ObjectsController.Storage.Objects[i] as IAnimated).UpdateAnimation(GameTime);
+
             //Запись тех объектов, для которых нужно обсчитывать столкновение
-                if (ObjectsController.Storage.SolidObjects.ContainsKey(i))
-                {                        
-                    if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsController.Storage.SolidObjects[i]))
-                    {
-                        collisionObjects.Add(i, initPos);
-                        ObjectsController.Storage.Objects[i].Update();
-                    }
-                    else if (_framesPassed >= GameParameters.FramesPerCollisionUpdate)
-                    {
-                        _framesPassed = 0;
-                        collisionObjects.Add(i, initPos);
-                        ObjectsController.Storage.Objects[i].Update();
-                    }
-                }  
-            }
-
-            //Обработка столкновений
-            List<(int, int)> processedObjects = new List<(int, int)>();
-            foreach (var i in collisionObjects.Keys)
+            if (ObjectsController.Storage.SolidObjects.ContainsKey(i))
             {
-                foreach (var j in collisionObjects.Keys)
+                if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsController.Storage.SolidObjects[i]))
                 {
-                    if (i == j || processedObjects.Contains((j, i)) || collisionObjects[i] == ObjectsController.Storage.Objects[i].Pos)
-                        continue;
-                    if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
-                    {
-                        CalculateCrushing(i, j);
-                    }
-                    processedObjects.Add((i, j));
+                    collisionObjects.Add(i, initPos);
+                    ObjectsController.Storage.Objects[i].Update();
                 }
-                foreach (var t in ObjectsController.Storage.Triggers)
+                else if (_framesPassed >= GameParameters.FramesPerCollisionUpdate)
                 {
-                    CalculateTrigger(i, t.Value);
-                    if (!t.Value.IsActive)
-                    {
-                        ObjectsController.Storage.Objects.Remove(t.Key);
-                        ObjectsController.Storage.Triggers.Remove(t.Key);
-                    }
+                    _framesPassed = 0;
+                    collisionObjects.Add(i, initPos);
+                    ObjectsController.Storage.Objects[i].Update();
                 }
             }
-            _deltaTime += GameTime.ElapsedGameTime.TotalMilliseconds;
-            if (_deltaTime > 1000)
+        }
+
+        //Обработка столкновений
+        List<(int, int)> processedObjects = new List<(int, int)>();
+        foreach (var i in collisionObjects.Keys)
+        {
+            foreach (var j in collisionObjects.Keys)
             {
-                foreach (var timer in ObjectsController.Storage.Timers.Values)
+                if (i == j || processedObjects.Contains((j, i)) || collisionObjects[i] == ObjectsController.Storage.Objects[i].Pos)
+                    continue;
+                if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
                 {
-                    timer.Update();
+                    CalculateCrushing(i, j);
                 }
-                _deltaTime = 0;
+                processedObjects.Add((i, j));
             }
-                               
-
-            Car player = (Car)ObjectsController.Player.Object;           
-
-            if (!player.IsLive)                   
-                ProcessGameOver(isWin : false);  
-            
-           //Сдвиг игрока для смещения камеры
-           _playerShift.Y += ObjectsController.Player.Object.Pos.Y - playerInitPos.Y;
-
-            //Сортировка объектов по слоям для отрисовки
-            var s = ObjectsController.Storage.Objects.OrderBy(pair => pair.Value.Layer);
-            Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
-
-            if((int)ObjectsController.Player.Object.Speed.Y<0) GameParameters.Score++;
-
-            _framesPassed++;
-
-            var effectsOut = new List<(byte, int timeLeft)>();
-            foreach (var e in ObjectsController.Storage.Effects)
+            foreach (var t in ObjectsController.Storage.Triggers)
             {
-                effectsOut.Add(((byte)e.Value, ObjectsController.Storage.Timers[e.Key].Time));
-            }            
+                CalculateTrigger(i, t.Value);
+                if (!t.Value.IsActive)
+                {
+                    ObjectsController.Storage.Objects.Remove(t.Key);
+                    ObjectsController.Storage.Triggers.Remove(t.Key);
+                }
+            }
+        }
 
-            Updated.Invoke(this, new GameplayEventArgs
+        _deltaTime += GameTime.ElapsedGameTime.TotalMilliseconds;
+
+        if (_deltaTime > 1000)
+        {
+            foreach (var timer in ObjectsController.Storage.Timers.Values)
             {
-                Objects = sortedObjects,
-                POVShift = _playerShift,
-                Score = GameParameters.Score,                    
-                Speed = (int)ObjectsController.Player.Object.Speed.Y,
-                Effects = effectsOut,
-                DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y) / _distance
-            });                
-        }            
+                timer.Update();
+            }
+            _deltaTime = 0;
+        }
+
+
+        Car player = (Car)ObjectsController.Player.Object;
+
+        if (!player.IsLive)
+            ProcessGameOver(isWin: false);
+
+        //Сдвиг игрока для смещения камеры
+        _playerShift.Y += ObjectsController.Player.Object.Pos.Y - playerInitPos.Y;
+
+        //Сортировка объектов по слоям для отрисовки
+        var s = ObjectsController.Storage.Objects.OrderBy(pair => pair.Value.Layer);
+        Dictionary<int, IObject> sortedObjects = new Dictionary<int, IObject>(s);
+
+        if ((int)ObjectsController.Player.Object.Speed.Y < 0) GameParameters.Score++;
+
+        _framesPassed++;
+
+        var effectsOut = new List<(byte, int timeLeft)>();
+        foreach (var e in ObjectsController.Storage.Effects)
+        {
+            effectsOut.Add(((byte)e.Value, ObjectsController.Storage.Timers[e.Key].Time));
+        }
+
+        Updated.Invoke(this, new GameplayEventArgs
+        {
+            Objects = sortedObjects,
+            POVShift = _playerShift,
+            Score = GameParameters.Score,
+            Speed = (int)ObjectsController.Player.Object.Speed.Y,
+            Effects = effectsOut,
+            DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y) / _distance
+        });
     }
     private (int X, int Y) GetScreenNumber (Vector2 pos)
     {
