@@ -45,7 +45,7 @@ namespace KARC.Objects
         {            
             Colliders.Add((Vector2.Zero, new RectangleCollider((int)Pos.X, (int)Pos.Y, width, height)));
         }
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             if (IsLive)
             {

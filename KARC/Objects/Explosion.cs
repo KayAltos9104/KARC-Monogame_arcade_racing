@@ -29,7 +29,7 @@ public class Explosion : IObject, IAnimated
     {
         Pos = pos;
     }
-    public void Update()
+    public void Update(GameTime gameTime)
     {
         
     }

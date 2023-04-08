@@ -179,7 +179,7 @@ public class GameCycle : IGameplayModel
         {
             Vector2 initPos = ObjectsController.Storage.Objects[i].Pos;
             (int screenX, int screenY) objectScreen = GetScreenNumber(initPos);
-            ObjectsController.Storage.Objects[i].Update();
+            ObjectsController.Storage.Objects[i].Update(GameTime);
 
             if (ObjectsController.Storage.Objects[i] is IAnimated)
                 (ObjectsController.Storage.Objects[i] as IAnimated).UpdateAnimation(GameTime);
@@ -190,13 +190,13 @@ public class GameCycle : IGameplayModel
                 if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsController.Storage.SolidObjects[i]))
                 {
                     collisionObjects.Add(i, initPos);
-                    ObjectsController.Storage.Objects[i].Update();
+                    ObjectsController.Storage.Objects[i].Update(GameTime);
                 }
                 else if (_framesPassed >= GameParameters.FramesPerCollisionUpdate)
                 {
                     _framesPassed = 0;
                     collisionObjects.Add(i, initPos);
-                    ObjectsController.Storage.Objects[i].Update();
+                    ObjectsController.Storage.Objects[i].Update(GameTime);
                 }
             }
         }
@@ -212,17 +212,26 @@ public class GameCycle : IGameplayModel
                 if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
                 {
                     CalculateCrushing(i, j);
+                    if (ObjectsController.Storage.Objects[i] is Car)
+                    {
+                        //CreateExplosionAnimation()
+                    }
                 }
                 processedObjects.Add((i, j));
             }
+            var inactiveTriggers = new List<int>();
             foreach (var t in ObjectsController.Storage.Triggers)
             {
                 CalculateTrigger(i, t.Value);
                 if (!t.Value.IsActive)
                 {
                     ObjectsController.Storage.Objects.Remove(t.Key);
-                    ObjectsController.Storage.Triggers.Remove(t.Key);
+                    inactiveTriggers.Add(t.Key);                    
                 }
+            }
+            foreach (var t in inactiveTriggers)
+            {
+                ObjectsController.Storage.Triggers.Remove(t);
             }
         }
 
@@ -338,28 +347,7 @@ public class GameCycle : IGameplayModel
         ObjectsController.Storage.Objects[Id2].Speed = new Vector2(0, 0);
         if (ObjectsController.Storage.Objects[Id1] is Car)
         {
-            Car c = (Car)ObjectsController.Storage.Objects[Id1];
-
-            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
-            AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
-            AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
-            AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
-            AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
-            AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
-            explosionAtlas.AddFrame(frame1);
-            explosionAtlas.AddFrame(frame2);
-            explosionAtlas.AddFrame(frame3);
-            explosionAtlas.AddFrame(frame4);
-            explosionAtlas.AddFrame(frame5);
-
-            Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
-
-            IAnimated playerCrushExplosion = new Explosion(ObjectsController.Storage.Objects[Id1].Pos);
-            ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
-            ObjectsController.Storage.IncrementId();
-            playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
-            playerCrushExplosion.PlayAnimation("explosion");
-
+            Car c = (Car)ObjectsController.Storage.Objects[Id1];    
             c.Die();
         }
         if (ObjectsController.Storage.Objects[Id2] is Car)
@@ -388,7 +376,31 @@ public class GameCycle : IGameplayModel
 
             c.Die();
         }
-    }        
+    }
+    
+    private void CreateExplosionAnimation (Vector2 pos)
+    {
+        AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
+        AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
+        AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
+        AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
+        AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
+        AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
+        explosionAtlas.AddFrame(frame1);
+        explosionAtlas.AddFrame(frame2);
+        explosionAtlas.AddFrame(frame3);
+        explosionAtlas.AddFrame(frame4);
+        explosionAtlas.AddFrame(frame5);
+
+        Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
+
+        IAnimated playerCrushExplosion = new Explosion(pos);
+        ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
+        ObjectsController.Storage.IncrementId();
+        playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
+        playerCrushExplosion.PlayAnimation("explosion");
+    }
+
     private void CalculateTrigger (int i, ITrigger t)
     {
         if (RectangleCollider.IsCollided(ObjectsController.Storage.SolidObjects[i].Colliders, t.Collider))

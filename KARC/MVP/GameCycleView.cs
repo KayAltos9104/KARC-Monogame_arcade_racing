@@ -145,7 +145,7 @@ namespace KARC.MVP
             
             var f = (FinishCounter)_components["FinishCounter"];
             f.FinishDistance = distToFinish;
-            f.Update();            
+            f.Update(new GameTime());            
         }
 
 
