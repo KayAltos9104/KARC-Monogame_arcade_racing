@@ -125,7 +125,7 @@ public class GameCycle : IGameplayModel
         {            
             ObjectsController.CarGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
             generatedObject = ObjectsController.CarGenerator.GetObject();
-            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-8, -4));
+            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-16, -8));
         }
         else if (sign == 'P')
         {            
@@ -189,14 +189,12 @@ public class GameCycle : IGameplayModel
             {
                 if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsController.Storage.SolidObjects[i]))
                 {
-                    collisionObjects.Add(i, initPos);
-                    ObjectsController.Storage.Objects[i].Update(GameTime);
+                    collisionObjects.Add(i, initPos);                    
                 }
                 else if (_framesPassed >= GameParameters.FramesPerCollisionUpdate)
                 {
                     _framesPassed = 0;
-                    collisionObjects.Add(i, initPos);
-                    ObjectsController.Storage.Objects[i].Update(GameTime);
+                    collisionObjects.Add(i, initPos);                    
                 }
             }
         }
@@ -311,14 +309,13 @@ public class GameCycle : IGameplayModel
     private bool CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
     {
         Vector2 oppositeDirection;
-        bool isCollided = false;
-        byte tries = 100;
+        bool isCollided = false;       
         while (RectangleCollider.IsCollided(
             ObjectsController.Storage.SolidObjects[obj1.Id].Colliders, 
-            ObjectsController.Storage.SolidObjects[obj2.Id].Colliders)&&tries>0)
+            ObjectsController.Storage.SolidObjects[obj2.Id].Colliders))
         {
-            if (tries > 1)
-            {
+           
+            
                 if (obj1.initPos != ObjectsController.Storage.Objects[obj1.Id].Pos)
                 {
                     oppositeDirection = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
@@ -332,16 +329,6 @@ public class GameCycle : IGameplayModel
                     ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - oppositeDirection);
                 }
                 isCollided = true;
-                tries--;
-            }
-            else
-            {
-                var oppositeDirection1 = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
-                var oppositeDirection2 = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
-                ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - 10 * oppositeDirection1);
-                ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - 10 * oppositeDirection2);
-                tries--;
-            }                
         }
         return isCollided;
     }

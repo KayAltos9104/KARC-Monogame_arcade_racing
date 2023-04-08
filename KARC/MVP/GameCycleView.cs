@@ -122,7 +122,7 @@ namespace KARC.MVP
             _objects = Objects;
             _visualShift = POVShift;
             _components["MbxScore"].Text = "Очки: " + score;
-            _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(4*speed * (3600.0 / 1000.0)) + " км/ч";            
+            _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(2*speed * (3600.0 / 1000.0)) + " км/ч";            
                 
             foreach (var e in effects)
             {
