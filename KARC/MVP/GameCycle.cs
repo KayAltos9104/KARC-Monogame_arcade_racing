@@ -36,6 +36,9 @@ public class GameCycle : IGameplayModel
     private int _framesPassed;
     public ObjectsController ObjectsController { get; set; }
     public GameParameters GameParameters { get; set; }
+    public int PlayerId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public Dictionary<int, IObject> Objects { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
     public void Initialize((int width, int height) resolution)
     {
         GameParameters = new GameParameters();
@@ -309,27 +312,44 @@ public class GameCycle : IGameplayModel
     private bool CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
     {
         Vector2 oppositeDirection;
-        bool isCollided = false;       
-        while (RectangleCollider.IsCollided(
-            ObjectsController.Storage.SolidObjects[obj1.Id].Colliders, 
-            ObjectsController.Storage.SolidObjects[obj2.Id].Colliders))
+        bool isCollided = false;
+        var rects1 = ObjectsController.Storage.SolidObjects[obj1.Id].Colliders;
+        var rects2 = ObjectsController.Storage.SolidObjects[obj2.Id].Colliders;
+        Vector2 shiftDistance = Vector2.Zero;
+        if (ObjectsController.Storage.Objects[obj1.Id].Speed.Length() >= 
+            ObjectsController.Storage.Objects[obj2.Id].Speed.Length())
         {
-           
-            
-                if (obj1.initPos != ObjectsController.Storage.Objects[obj1.Id].Pos)
-                {
-                    oppositeDirection = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
-                    oppositeDirection.Normalize();
-                    ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - oppositeDirection);
-                }
-                if (obj2.initPos != ObjectsController.Storage.Objects[obj2.Id].Pos)
-                {
-                    oppositeDirection = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
-                    oppositeDirection.Normalize();
-                    ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - oppositeDirection);
-                }
-                isCollided = true;
+            shiftDistance = RectangleCollider.CalculateShift(rects1, rects2, out isCollided);
+            ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - shiftDistance);
+        }            
+        else
+        {
+            shiftDistance = RectangleCollider.CalculateShift(rects2, rects1, out isCollided);
+            ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - shiftDistance);
         }
+            
+
+
+        //while (RectangleCollider.IsCollided(
+        //    ObjectsController.Storage.SolidObjects[obj1.Id].Colliders,
+        //    ObjectsController.Storage.SolidObjects[obj2.Id].Colliders))
+        //{
+
+
+        //    if (obj1.initPos != ObjectsController.Storage.Objects[obj1.Id].Pos)
+        //    {
+        //        oppositeDirection = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
+        //        oppositeDirection.Normalize();
+        //        ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - oppositeDirection);
+        //    }
+        //    if (obj2.initPos != ObjectsController.Storage.Objects[obj2.Id].Pos)
+        //    {
+        //        oppositeDirection = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
+        //        oppositeDirection.Normalize();
+        //        ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - oppositeDirection);
+        //    }
+        //    isCollided = true;
+        //}
         return isCollided;
     }
     private void CalculateCrushing (int Id1, int Id2)
