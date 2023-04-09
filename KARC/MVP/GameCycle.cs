@@ -36,7 +36,6 @@ public class GameCycle : IGameplayModel
     private int _framesPassed;
     public ObjectsController ObjectsController { get; set; }
     public GameParameters GameParameters { get; set; }
-    public int PlayerId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
     public Dictionary<int, IObject> Objects { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public void Initialize((int width, int height) resolution)
@@ -284,6 +283,8 @@ public class GameCycle : IGameplayModel
             DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y) / _distance
         });
     }
+
+    //-----------------------------Физика. Begin---------------------------------------------
     private (int X, int Y) GetScreenNumber (Vector2 pos)
     {
         return ((int)pos.X / GameParameters.ScreenWidth, (int)pos.Y / GameParameters.ScreenWidth);
@@ -354,31 +355,10 @@ public class GameCycle : IGameplayModel
         if (ObjectsController.Storage.Objects[Id2] is Car)
         {
             Car c = (Car)ObjectsController.Storage.Objects[Id2];
-
-            //AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
-            //AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
-            //AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
-            //AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
-            //AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
-            //AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
-            //explosionAtlas.AddFrame(frame1);
-            //explosionAtlas.AddFrame(frame2);
-            //explosionAtlas.AddFrame(frame3);
-            //explosionAtlas.AddFrame(frame4);
-            //explosionAtlas.AddFrame(frame5);
-
-            //Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
-
-            //IAnimated playerCrushExplosion = new Explosion(ObjectsController.Storage.Objects[Id2].Pos);
-            //ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
-            //ObjectsController.Storage.IncrementId();
-            //playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
-            //playerCrushExplosion.PlayAnimation("explosion");
-
             c.Die();
         }
     }
-    
+    //-----------------------------Физика. End---------------------------------------------
     private void CreateExplosionAnimation (Vector2 pos)
     {
         AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
