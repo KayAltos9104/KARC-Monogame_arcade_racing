@@ -37,6 +37,6 @@ namespace KARC.WitchEngine
             Triggered.Invoke(this, new TriggerEventArgs() { Activator = activator, ActivatorId = id });
         }
 
-        public void Update() { }        
+        public void Update(GameTime gameTime) { }        
     }
 }

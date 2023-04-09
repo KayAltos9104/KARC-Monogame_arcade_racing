@@ -32,7 +32,7 @@ namespace KARC.Objects
             MoveCollider(Pos);            
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             
         }

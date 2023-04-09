@@ -21,10 +21,10 @@ namespace KARC.Objects
             set
             {
                 _speed = value;
-                if (_speed.Y > 10)
-                    _speed.Y = 10;
-                else if (_speed.Y < -10)
-                    _speed.Y = -10;
+                if (_speed.Y > 20)
+                    _speed.Y = 20;
+                else if (_speed.Y < -20)
+                    _speed.Y = -20;
 
             }
         }        
@@ -45,7 +45,7 @@ namespace KARC.Objects
         {            
             Colliders.Add((Vector2.Zero, new RectangleCollider((int)Pos.X, (int)Pos.Y, width, height)));
         }
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             if (IsLive)
             {

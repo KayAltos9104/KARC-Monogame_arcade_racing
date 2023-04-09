@@ -58,6 +58,7 @@ namespace KARC.Objects
             Layer = 1.0f; 
             _isFinished = false;
             FinishDistance = 1;
+            _finishSign.pos = new Vector2(Width + FinishSignShift, _finishSign.pos.Y);
         }       
 
         public void Move(Vector2 pos)
@@ -65,12 +66,11 @@ namespace KARC.Objects
             Pos = pos;
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             if (!_isFinished)
             {
-                _carSign.pos = new Vector2((1 - FinishDistance) * Width + CarSignShift, _carSign.pos.Y);
-                _finishSign.pos = new Vector2(Width + FinishSignShift, _finishSign.pos.Y);
+                _carSign.pos = new Vector2((1 - FinishDistance) * Width + CarSignShift, _carSign.pos.Y);                
                 Sprites[Sprites.FindIndex(s => s.ImageId == _carSign.id)] = _carSign;
                 Sprites[Sprites.FindIndex(s => s.ImageId == _finishSign.id)] = _finishSign;
             }

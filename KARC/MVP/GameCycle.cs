@@ -36,6 +36,8 @@ public class GameCycle : IGameplayModel
     private int _framesPassed;
     public ObjectsController ObjectsController { get; set; }
     public GameParameters GameParameters { get; set; }
+    public Dictionary<int, IObject> Objects { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
     public void Initialize((int width, int height) resolution)
     {
         GameParameters = new GameParameters();
@@ -125,7 +127,7 @@ public class GameCycle : IGameplayModel
         {            
             ObjectsController.CarGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
             generatedObject = ObjectsController.CarGenerator.GetObject();
-            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-8, -4));
+            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-16, -8));
         }
         else if (sign == 'P')
         {            
@@ -179,7 +181,7 @@ public class GameCycle : IGameplayModel
         {
             Vector2 initPos = ObjectsController.Storage.Objects[i].Pos;
             (int screenX, int screenY) objectScreen = GetScreenNumber(initPos);
-            ObjectsController.Storage.Objects[i].Update();
+            ObjectsController.Storage.Objects[i].Update(GameTime);
 
             if (ObjectsController.Storage.Objects[i] is IAnimated)
                 (ObjectsController.Storage.Objects[i] as IAnimated).UpdateAnimation(GameTime);
@@ -189,14 +191,12 @@ public class GameCycle : IGameplayModel
             {
                 if (IsOnNeighborScreen(playerScreen, objectScreen) || IsLongSolid(ObjectsController.Storage.SolidObjects[i]))
                 {
-                    collisionObjects.Add(i, initPos);
-                    ObjectsController.Storage.Objects[i].Update();
+                    collisionObjects.Add(i, initPos);                    
                 }
                 else if (_framesPassed >= GameParameters.FramesPerCollisionUpdate)
                 {
                     _framesPassed = 0;
-                    collisionObjects.Add(i, initPos);
-                    ObjectsController.Storage.Objects[i].Update();
+                    collisionObjects.Add(i, initPos);                    
                 }
             }
         }
@@ -212,17 +212,30 @@ public class GameCycle : IGameplayModel
                 if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
                 {
                     CalculateCrushing(i, j);
+                    if (ObjectsController.Storage.Objects[i] is Car)
+                    {
+                        CreateExplosionAnimation(ObjectsController.Storage.Objects[i].Pos);
+                    }
+                    if (ObjectsController.Storage.Objects[j] is Car)
+                    {
+                        CreateExplosionAnimation(ObjectsController.Storage.Objects[j].Pos);
+                    }
                 }
                 processedObjects.Add((i, j));
             }
+            var inactiveTriggers = new List<int>();
             foreach (var t in ObjectsController.Storage.Triggers)
             {
                 CalculateTrigger(i, t.Value);
                 if (!t.Value.IsActive)
                 {
                     ObjectsController.Storage.Objects.Remove(t.Key);
-                    ObjectsController.Storage.Triggers.Remove(t.Key);
+                    inactiveTriggers.Add(t.Key);                    
                 }
+            }
+            foreach (var t in inactiveTriggers)
+            {
+                ObjectsController.Storage.Triggers.Remove(t);
             }
         }
 
@@ -270,6 +283,8 @@ public class GameCycle : IGameplayModel
             DistanceToFinish = Math.Abs(_finishPos - ObjectsController.Player.Object.Pos.Y) / _distance
         });
     }
+
+    //-----------------------------Физика. Begin---------------------------------------------
     private (int X, int Y) GetScreenNumber (Vector2 pos)
     {
         return ((int)pos.X / GameParameters.ScreenWidth, (int)pos.Y / GameParameters.ScreenWidth);
@@ -296,39 +311,35 @@ public class GameCycle : IGameplayModel
                        o.Colliders[0].Collider.Boundary.Height > GameParameters.ScreenHeight;
     }
     private bool CalculateObstacleCollision((Vector2 initPos, int Id) obj1, (Vector2 initPos, int Id) obj2)
-    {
-        Vector2 oppositeDirection;
+    {        
         bool isCollided = false;
-        byte tries = 100;
-        while (RectangleCollider.IsCollided(
-            ObjectsController.Storage.SolidObjects[obj1.Id].Colliders, 
-            ObjectsController.Storage.SolidObjects[obj2.Id].Colliders)&&tries>0)
+        var rects1 = ObjectsController.Storage.SolidObjects[obj1.Id].Colliders;
+        var rects2 = ObjectsController.Storage.SolidObjects[obj2.Id].Colliders;
+      
+        Vector2 oppositeDirection1 = Vector2.Zero;
+        Vector2 oppositeDirection2 = Vector2.Zero;
+        int tries = 100;
+        if (RectangleCollider.IsCollided(
+            rects1,
+            rects2))
         {
-            if (tries > 1)
-            {
-                if (obj1.initPos != ObjectsController.Storage.Objects[obj1.Id].Pos)
-                {
-                    oppositeDirection = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
-                    oppositeDirection.Normalize();
-                    ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - oppositeDirection);
-                }
-                if (obj2.initPos != ObjectsController.Storage.Objects[obj2.Id].Pos)
-                {
-                    oppositeDirection = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
-                    oppositeDirection.Normalize();
-                    ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - oppositeDirection);
-                }
-                isCollided = true;
-                tries--;
-            }
-            else
-            {
-                var oppositeDirection1 = ObjectsController.Storage.Objects[obj1.Id].Pos - obj1.initPos;
-                var oppositeDirection2 = ObjectsController.Storage.Objects[obj2.Id].Pos - obj2.initPos;
-                ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos - 10 * oppositeDirection1);
-                ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos - 10 * oppositeDirection2);
-                tries--;
-            }                
+            oppositeDirection1 = ObjectsController.Storage.Objects[obj1.Id].Pos != obj1.initPos ?
+                  obj1.initPos - ObjectsController.Storage.Objects[obj1.Id].Pos : Vector2.Zero;
+            oppositeDirection2 = ObjectsController.Storage.Objects[obj2.Id].Pos != obj2.initPos  ?
+                 obj2.initPos - ObjectsController.Storage.Objects[obj2.Id].Pos : Vector2.Zero;
+            if (oppositeDirection1 != Vector2.Zero)
+                oppositeDirection1.Normalize();
+            if (oppositeDirection2 != Vector2.Zero)
+                oppositeDirection2.Normalize();            
+            isCollided = true;
+        }
+        while (RectangleCollider.IsCollided(
+            rects1,
+            rects2) && tries > 0)
+        {
+            ObjectsController.Storage.Objects[obj1.Id].Move(ObjectsController.Storage.Objects[obj1.Id].Pos + oppositeDirection1);
+            ObjectsController.Storage.Objects[obj2.Id].Move(ObjectsController.Storage.Objects[obj2.Id].Pos + oppositeDirection2); 
+            tries--;
         }
         return isCollided;
     }
@@ -338,57 +349,39 @@ public class GameCycle : IGameplayModel
         ObjectsController.Storage.Objects[Id2].Speed = new Vector2(0, 0);
         if (ObjectsController.Storage.Objects[Id1] is Car)
         {
-            Car c = (Car)ObjectsController.Storage.Objects[Id1];
-
-            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
-            AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
-            AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
-            AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
-            AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
-            AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
-            explosionAtlas.AddFrame(frame1);
-            explosionAtlas.AddFrame(frame2);
-            explosionAtlas.AddFrame(frame3);
-            explosionAtlas.AddFrame(frame4);
-            explosionAtlas.AddFrame(frame5);
-
-            Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
-
-            IAnimated playerCrushExplosion = new Explosion(ObjectsController.Storage.Objects[Id1].Pos);
-            ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
-            ObjectsController.Storage.IncrementId();
-            playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
-            playerCrushExplosion.PlayAnimation("explosion");
-
+            Car c = (Car)ObjectsController.Storage.Objects[Id1];    
             c.Die();
         }
         if (ObjectsController.Storage.Objects[Id2] is Car)
         {
             Car c = (Car)ObjectsController.Storage.Objects[Id2];
-
-            AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
-            AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
-            AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
-            AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
-            AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
-            AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
-            explosionAtlas.AddFrame(frame1);
-            explosionAtlas.AddFrame(frame2);
-            explosionAtlas.AddFrame(frame3);
-            explosionAtlas.AddFrame(frame4);
-            explosionAtlas.AddFrame(frame5);
-
-            Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
-
-            IAnimated playerCrushExplosion = new Explosion(ObjectsController.Storage.Objects[Id2].Pos);
-            ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
-            ObjectsController.Storage.IncrementId();
-            playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
-            playerCrushExplosion.PlayAnimation("explosion");
-
             c.Die();
         }
-    }        
+    }
+    //-----------------------------Физика. End---------------------------------------------
+    private void CreateExplosionAnimation (Vector2 pos)
+    {
+        AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
+        AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
+        AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
+        AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
+        AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
+        AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
+        explosionAtlas.AddFrame(frame1);
+        explosionAtlas.AddFrame(frame2);
+        explosionAtlas.AddFrame(frame3);
+        explosionAtlas.AddFrame(frame4);
+        explosionAtlas.AddFrame(frame5);
+
+        Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
+
+        IAnimated playerCrushExplosion = new Explosion(pos);
+        ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
+        ObjectsController.Storage.IncrementId();
+        playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
+        playerCrushExplosion.PlayAnimation("explosion");
+    }
+
     private void CalculateTrigger (int i, ITrigger t)
     {
         if (RectangleCollider.IsCollided(ObjectsController.Storage.SolidObjects[i].Colliders, t.Collider))

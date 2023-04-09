@@ -49,7 +49,7 @@ namespace KARC.WitchEngine.UI
             Pos = pos;
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
 
         }
