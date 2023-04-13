@@ -7,7 +7,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <ApplicationIcon>BrickIco.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="WitchEngine\WPhys\**" />
@@ -15,12 +15,13 @@
     <None Remove="WitchEngine\WPhys\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Icon.ico" />
-    <None Remove="Icon.bmp" />
+    <None Remove="BrickIco.ico" />    
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Icon.ico" />
-    <EmbeddedResource Include="Icon.bmp" />
+    <Content Include="BrickIco.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BrickIco.ico" />   
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

@@ -8,6 +8,7 @@ using KARC.WitchEngine.Animations;
 using KARC.Models;
 using KARC.Maps;
 using KARC.Settings;
+using KARC.Animations;
 
 namespace KARC.MVP;
 
@@ -36,8 +37,6 @@ public class GameCycle : IGameplayModel
     private int _framesPassed;
     public ObjectsController ObjectsController { get; set; }
     public GameParameters GameParameters { get; set; }
-    public Dictionary<int, IObject> Objects { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
     public void Initialize((int width, int height) resolution)
     {
         GameParameters = new GameParameters();
@@ -182,10 +181,7 @@ public class GameCycle : IGameplayModel
             Vector2 initPos = ObjectsController.Storage.Objects[i].Pos;
             (int screenX, int screenY) objectScreen = GetScreenNumber(initPos);
             ObjectsController.Storage.Objects[i].Update(GameTime);
-
-            if (ObjectsController.Storage.Objects[i] is IAnimated)
-                (ObjectsController.Storage.Objects[i] as IAnimated).UpdateAnimation(GameTime);
-
+           
             //Запись тех объектов, для которых нужно обсчитывать столкновение
             if (ObjectsController.Storage.SolidObjects.ContainsKey(i))
             {
@@ -212,14 +208,6 @@ public class GameCycle : IGameplayModel
                 if (CalculateObstacleCollision((collisionObjects[i], i), (collisionObjects[j], j)))
                 {
                     CalculateCrushing(i, j);
-                    if (ObjectsController.Storage.Objects[i] is Car)
-                    {
-                        CreateExplosionAnimation(ObjectsController.Storage.Objects[i].Pos);
-                    }
-                    if (ObjectsController.Storage.Objects[j] is Car)
-                    {
-                        CreateExplosionAnimation(ObjectsController.Storage.Objects[j].Pos);
-                    }
                 }
                 processedObjects.Add((i, j));
             }
@@ -249,7 +237,6 @@ public class GameCycle : IGameplayModel
             }
             _deltaTime = 0;
         }
-
 
         Car player = (Car)ObjectsController.Player.Object;
 
@@ -359,29 +346,7 @@ public class GameCycle : IGameplayModel
         }
     }
     //-----------------------------Физика. End---------------------------------------------
-    private void CreateExplosionAnimation (Vector2 pos)
-    {
-        AnimationAtlas explosionAtlas = new AnimationAtlas((int)Sprite.explosion, 5);
-        AnimationFrame frame1 = new AnimationFrame(20, 151, 70, 70);
-        AnimationFrame frame2 = new AnimationFrame(138, 131, 112, 96);
-        AnimationFrame frame3 = new AnimationFrame(265, 104, 160, 152);
-        AnimationFrame frame4 = new AnimationFrame(448, 33, 251, 259);
-        AnimationFrame frame5 = new AnimationFrame(733, 0, 368, 323);
-        explosionAtlas.AddFrame(frame1);
-        explosionAtlas.AddFrame(frame2);
-        explosionAtlas.AddFrame(frame3);
-        explosionAtlas.AddFrame(frame4);
-        explosionAtlas.AddFrame(frame5);
-
-        Animator explosionAnimation = new Animator(explosionAtlas, 100, true, true);
-
-        IAnimated playerCrushExplosion = new Explosion(pos);
-        ObjectsController.Storage.Objects.Add(ObjectsController.Storage.CurrentId, playerCrushExplosion as IObject);
-        ObjectsController.Storage.IncrementId();
-        playerCrushExplosion.AddAnimation("explosion", explosionAnimation);
-        playerCrushExplosion.PlayAnimation("explosion");
-    }
-
+    
     private void CalculateTrigger (int i, ITrigger t)
     {
         if (RectangleCollider.IsCollided(ObjectsController.Storage.SolidObjects[i].Colliders, t.Collider))

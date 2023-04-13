@@ -21,7 +21,6 @@
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Base_car.png
 
@@ -33,7 +32,6 @@
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Wall.png
 
@@ -45,14 +43,12 @@
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:White_Placeholder.png
 
 #begin DescriptionFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:DescriptionFont.spritefont
 
@@ -64,7 +60,6 @@
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Message_Window.png
 
@@ -76,7 +71,6 @@
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:FinishSprite.png
 
@@ -88,7 +82,6 @@
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:finishCounterField.png
 
@@ -100,7 +93,6 @@
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Immortality.png
 
@@ -112,7 +104,17 @@
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Explosion_Atlas.png
+
+#begin BrickIco.ico
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:TextureFormat=Color
+/build:BrickIco.ico
 
