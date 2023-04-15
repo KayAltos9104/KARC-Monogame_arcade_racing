@@ -8,9 +8,18 @@ public static class Graphics2D
     public static SpriteBatch SpriteBatch;
     public static void DrawLine(Vector2 point1, Vector2 point2, Color color)
     {
-        Texture2D pixel = new Texture2D(SpriteBatch.GraphicsDevice, 1, 1);
-        pixel.SetData(new[] { Color.White });
+        DrawLine(point1, point2, color, 1);
+    }
 
+    public static void DrawLine(Vector2 point1, Vector2 point2, Color color, int width)
+    {
+        Texture2D pixel = new Texture2D(SpriteBatch.GraphicsDevice, 1, width);
+        var colorArray = new Color[width];
+        for (int i = 0; i < width; i++)
+        {
+            colorArray[i] = Color.White;
+        }
+        pixel.SetData(colorArray);
         float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
         float length = Vector2.Distance(point1, point2);
 
@@ -19,14 +28,19 @@ public static class Graphics2D
 
     public static void DrawRectangle (int x, int y, int width, int height, Color color)
     {
-        Vector2 leftTop = new Vector2 (x, y);
+        DrawRectangle(x, y,width, height, color, 1);
+    }
+
+    public static void DrawRectangle(int x, int y, int width, int height, Color color, int contourWidth)
+    {
+        Vector2 leftTop = new Vector2(x, y);
         Vector2 rightTop = new Vector2(x + width, y);
         Vector2 leftBottom = new Vector2(x, y + height);
         Vector2 rightBottom = new Vector2(x + width, y + height);
-        DrawLine(leftTop, rightTop, color);
-        DrawLine(leftTop, leftBottom, color);
-        DrawLine(rightTop, rightBottom, color);
-        DrawLine(leftBottom, rightBottom, color);
+        DrawLine(leftTop, rightTop, color, contourWidth);
+        DrawLine(rightTop, rightBottom, color, contourWidth);
+        DrawLine(rightBottom, leftBottom, color, contourWidth);
+        DrawLine(leftBottom, leftTop, color, contourWidth);
     }
 
     public static void FillRectangle (int x, int y, int width, int height, Color color)
