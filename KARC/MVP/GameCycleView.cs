@@ -63,22 +63,22 @@ namespace KARC.MVP
             _graphics.ApplyChanges();
 
             MessageBox MbxScore = new MessageBox(new Vector2(
-                0, 0),
+                10, 10),
                 "Очки: 0"
                 );
 
             MessageBox MbxSpeed = new MessageBox(new Vector2(
-                0, 100),
+                10, 110),
                 "Скорость: 0 км/ч"
                 );
 
             MessageBox MbxFps = new MessageBox(new Vector2(
-                0, 200),
+                10, 210),
                 "FPS: "
                 );
 
             MessageBox MbxInstructions = new MessageBox(new Vector2(
-                0, 600),
+                10, 600),
                 "Управление:\n" +
                 "W - Вперед\n" +
                 "A, D - Влево, вправо\n" +
@@ -146,7 +146,7 @@ namespace KARC.MVP
                 {
                     _components.Add(e.effectSprite.ToString(), 
                         new Parameter(
-                        new Vector2(0, 100 + 50 * _components.Count - 4), 
+                        new Vector2(10, 100 + 50 * _components.Count - 4), 
                         e.timeLeft.ToString(), 
                         e.effectSprite)
                         );
@@ -313,25 +313,37 @@ namespace KARC.MVP
                         continue;
 
                     var s = _textBlock.MeasureString(c.Text) != Vector2.Zero ? 
-                        _textBlock.MeasureString(c.Text) * 1.2f : 
+                        _textBlock.MeasureString(c.Text) * 1.1f : 
                         new Vector2 (_textures[sprite.ImageId].Width, _textures[sprite.ImageId].Height) ;
                     Vector2 textPos = new Vector2(
                         o.Pos.X + (s.X - _textBlock.MeasureString(c.Text).X) / 2 - (c.IsCentered ? s.X / 2 : 0),
                         o.Pos.Y + (s.Y - _textBlock.MeasureString(c.Text).Y) / 2 - (c.IsCentered ? s.Y / 2 : 0)
                         );
 
-                    _spriteBatch.Draw(
+                    if (c is MessageBox)
+                    {
+                        int x = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).X;
+                        int y = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).Y;
+                        Graphics2D.FillRectangle(x, y, (int)s.X, (int)s.Y, Color.DarkSeaGreen);
+                        Graphics2D.DrawRectangle(x, y, (int)s.X, (int)s.Y, Color.Black);
+                    }
+                    else
+                    {
+                        _spriteBatch.Draw(
                         texture: _textures[sprite.ImageId],
                         position: o.Pos + sprite.ImagePos - (c.IsCentered ? s / 2 : Vector2.Zero),
                         sourceRectangle: null,
                         Color.White,
                         rotation: 0,
                         origin: Vector2.Zero,
-                        scale: s==Vector2.Zero||!c.IsSpriteScaled ? Vector2.One : new Vector2(
+                        scale: s == Vector2.Zero || !c.IsSpriteScaled ? Vector2.One : new Vector2(
                             s.X / _textures[sprite.ImageId].Width,
                             s.Y / _textures[sprite.ImageId].Height),
                         SpriteEffects.None,
                         layerDepth: o.Layer);
+                    }
+
+                    
 
                     _spriteBatch.DrawString(
                         _textBlock,
