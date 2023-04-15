@@ -40,18 +40,20 @@ namespace KARC.MVP
 
         private FinishCounterUIGenerator finishCounterUIGenerator = new FinishCounterUIGenerator();
 
+        private bool _isCollidersShown = false;
+
         public GameCycleView()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            Graphics2D.SpriteBatch = _spriteBatch;
+           
         }
 
         protected override void Initialize()
         {
             base.Initialize();
-
+            Graphics2D.SpriteBatch = _spriteBatch;
             this.Window.Title = "KARC";
            
 
@@ -75,6 +77,16 @@ namespace KARC.MVP
                 "FPS: "
                 );
 
+            MessageBox MbxInstructions = new MessageBox(new Vector2(
+                0, 600),
+                "Управление:\n" +
+                "W - Вперед\n" +
+                "A, D - Влево, вправо\n" +
+                "R - Начать заново\n" +
+                "P - Пауза\n" +
+                "C - Коллайдеры"
+                );
+
             finishCounterUIGenerator.CreateObject(
                 (_graphics.PreferredBackBufferWidth - SpriteParameters.Sprites[Sprite.finishCounterWindow].width) / 2, 0
                 );
@@ -85,6 +97,7 @@ namespace KARC.MVP
             _components.Add("MbxSpeed", MbxSpeed);
             _components.Add("FPS", MbxFps);
             _components.Add("FinishCounter", finishCounter);
+            _components.Add("Instructions", MbxInstructions);
 
             GameLaunched.Invoke(this, new InitializeEventArgs() { 
                 Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) 
@@ -194,6 +207,14 @@ namespace KARC.MVP
                 });
             }
                 
+            if (IsSinglePressed(Keys.C))
+            {
+                if(_isCollidersShown)                
+                    _isCollidersShown = false;                
+                else               
+                    _isCollidersShown = true;
+                
+            }
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -215,6 +236,24 @@ namespace KARC.MVP
            
             foreach (var o in _objects.Values)
             {
+                // Отрисовка коллайдеров
+                if (_isCollidersShown && (o is Car))
+                {
+                    Vector2 v = o.Pos - _visualShift;
+                    if (v.X < -100 || v.X > _graphics.PreferredBackBufferWidth + 100 || v.Y < -100 || v.Y > _graphics.PreferredBackBufferHeight + 100)
+                        continue;
+
+                    foreach (var collider in (o as ISolid).Colliders)
+                    {
+                        Graphics2D.DrawRectangle(
+                            collider.Collider.Boundary.X + (int)-_visualShift.X,
+                            collider.Collider.Boundary.Y + (int)-_visualShift.Y,
+                            collider.Collider.Boundary.Width,
+                            collider.Collider.Boundary.Height,
+                            Color.White);
+                    }
+                }
+
                 foreach (var sprite in o.Sprites)
                 {
                     if (sprite.ImageId == -1)
