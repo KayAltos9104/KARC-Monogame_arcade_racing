@@ -3,6 +3,7 @@ using KARC.Prefabs;
 using KARC.Settings;
 using KARC.WitchEngine;
 using KARC.WitchEngine.Animations;
+using KARC.WitchEngine.Primitives;
 using KARC.WitchEngine.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -39,17 +40,21 @@ namespace KARC.MVP
 
         private FinishCounterUIGenerator finishCounterUIGenerator = new FinishCounterUIGenerator();
 
+        private bool _isCollidersShown = false;
+        private bool _isPaused = false;
+
         public GameCycleView()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+           
         }
 
         protected override void Initialize()
         {
             base.Initialize();
-
+            Graphics2D.SpriteBatch = _spriteBatch;
             this.Window.Title = "KARC";
            
 
@@ -59,18 +64,28 @@ namespace KARC.MVP
             _graphics.ApplyChanges();
 
             MessageBox MbxScore = new MessageBox(new Vector2(
-                0, 0),
+                10, 10),
                 "Очки: 0"
                 );
 
             MessageBox MbxSpeed = new MessageBox(new Vector2(
-                0, 100),
+                10, 110),
                 "Скорость: 0 км/ч"
                 );
 
             MessageBox MbxFps = new MessageBox(new Vector2(
-                0, 200),
+                10, 210),
                 "FPS: "
+                );
+
+            MessageBox MbxInstructions = new MessageBox(new Vector2(
+                10, 600),
+                "Управление:\n" +
+                "W - Вперед\n" +
+                "A, D - Влево, вправо\n" +
+                "R - Начать заново\n" +
+                "P - Пауза\n" +
+                "C - Коллайдеры"
                 );
 
             finishCounterUIGenerator.CreateObject(
@@ -83,6 +98,7 @@ namespace KARC.MVP
             _components.Add("MbxSpeed", MbxSpeed);
             _components.Add("FPS", MbxFps);
             _components.Add("FinishCounter", finishCounter);
+            _components.Add("Instructions", MbxInstructions);
 
             GameLaunched.Invoke(this, new InitializeEventArgs() { 
                 Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) 
@@ -91,20 +107,14 @@ namespace KARC.MVP
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _textures.Add((byte)Sprite.car, Content.Load<Texture2D>("Base_car"));
-            //_textures.Add((byte)Factory.ObjectTypes.car, Content.Load<Texture2D>("Base_car"));
-            _textures.Add((byte)Sprite.wall, Content.Load<Texture2D>("Wall"));
-            //_textures.Add((byte)Factory.ObjectTypes.wall, Content.Load<Texture2D>("Wall"));
-            _textures.Add((byte)Sprite.window, Content.Load<Texture2D>("Message_Window"));
-            //_textures.Add((byte)Factory.ObjectTypes.window, Content.Load<Texture2D>("Message_Window"));
-            _textures.Add((byte)Sprite.finishTape, Content.Load<Texture2D>("FinishSprite"));
-            //_textures.Add((byte)Factory.ObjectTypes.finish, Content.Load<Texture2D>("FinishSprite"));
-            _textures.Add((byte)Sprite.finishCounterWindow, Content.Load<Texture2D>("FinishCounterField"));
-            //_textures.Add((byte)Factory.ObjectTypes.finishCounterField, Content.Load<Texture2D>("FinishCounterField"));
-            _textures.Add((byte)Sprite.shield, Content.Load<Texture2D>("Immortality"));
-            //_textures.Add((byte)Factory.ObjectTypes.shield, Content.Load<Texture2D>("Immortality"));
-            _textures.Add((byte)Sprite.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
-            //_textures.Add((byte)Factory.ObjectTypes.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
+
+            _textures.Add((byte)Sprite.car, Content.Load<Texture2D>("Base_car"));            
+            _textures.Add((byte)Sprite.wall, Content.Load<Texture2D>("Wall"));            
+            _textures.Add((byte)Sprite.window, Content.Load<Texture2D>("Message_Window"));            
+            _textures.Add((byte)Sprite.finishTape, Content.Load<Texture2D>("FinishSprite"));            
+            _textures.Add((byte)Sprite.finishCounterWindow, Content.Load<Texture2D>("FinishCounterField"));            
+            _textures.Add((byte)Sprite.shield, Content.Load<Texture2D>("Immortality"));            
+            _textures.Add((byte)Sprite.explosion, Content.Load<Texture2D>("Explosion_Atlas"));            
             _textBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 
@@ -131,7 +141,7 @@ namespace KARC.MVP
                 {
                     _components.Add(e.effectSprite.ToString(), 
                         new Parameter(
-                        new Vector2(0, 100 + 50 * _components.Count - 4), 
+                        new Vector2(10, 100 + 50 * _components.Count - 4), 
                         e.timeLeft.ToString(), 
                         e.effectSprite)
                         );
@@ -180,7 +190,21 @@ namespace KARC.MVP
             }
 
             if (IsSinglePressed(Keys.P))
+            {
                 GamePaused.Invoke(this, new EventArgs());
+                if (_isPaused)
+                {
+                    _components.Remove("MbxPause");
+                    _isPaused = false;
+                }                    
+                else
+                {
+                    _isPaused = true;
+                    ShowPauseMessage();
+                }
+                    
+                
+            }
 
             if(IsSinglePressed(Keys.R))
             {
@@ -192,6 +216,14 @@ namespace KARC.MVP
                 });
             }
                 
+            if (IsSinglePressed(Keys.C))
+            {
+                if(_isCollidersShown)                
+                    _isCollidersShown = false;                
+                else               
+                    _isCollidersShown = true;
+                
+            }
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -208,9 +240,29 @@ namespace KARC.MVP
         protected override void Draw(GameTime gameTime)
         {            
             GraphicsDevice.Clear(Color.DarkSeaGreen);
-            _spriteBatch.Begin();           
+            _spriteBatch.Begin();
+           
+           
             foreach (var o in _objects.Values)
             {
+                // Отрисовка коллайдеров
+                if (_isCollidersShown && (o is Car))
+                {
+                    Vector2 v = o.Pos - _visualShift;
+                    if (v.X < -100 || v.X > _graphics.PreferredBackBufferWidth + 100 || v.Y < -100 || v.Y > _graphics.PreferredBackBufferHeight + 100)
+                        continue;
+
+                    foreach (var collider in (o as ISolid).Colliders)
+                    {
+                        Graphics2D.DrawRectangle(
+                            collider.Collider.Boundary.X + (int)-_visualShift.X,
+                            collider.Collider.Boundary.Y + (int)-_visualShift.Y,
+                            collider.Collider.Boundary.Width,
+                            collider.Collider.Boundary.Height,
+                            Color.White);
+                    }
+                }
+
                 foreach (var sprite in o.Sprites)
                 {
                     if (sprite.ImageId == -1)
@@ -261,6 +313,8 @@ namespace KARC.MVP
                         SpriteEffects.None, a.Animation.Layer);
                 }
             }
+
+            //Рисуем компоненты последними, чтобы были поверх
             foreach (var c in _components.Values)
             {
                 var o = (IObject)c;
@@ -269,26 +323,40 @@ namespace KARC.MVP
                     if (sprite.ImageId == -1)
                         continue;
 
+                    float marginText = 20;
+
                     var s = _textBlock.MeasureString(c.Text) != Vector2.Zero ? 
-                        _textBlock.MeasureString(c.Text) * 1.2f : 
+                        _textBlock.MeasureString(c.Text) + new Vector2(marginText, marginText) : 
                         new Vector2 (_textures[sprite.ImageId].Width, _textures[sprite.ImageId].Height) ;
                     Vector2 textPos = new Vector2(
                         o.Pos.X + (s.X - _textBlock.MeasureString(c.Text).X) / 2 - (c.IsCentered ? s.X / 2 : 0),
                         o.Pos.Y + (s.Y - _textBlock.MeasureString(c.Text).Y) / 2 - (c.IsCentered ? s.Y / 2 : 0)
                         );
 
-                    _spriteBatch.Draw(
+                    if (c is MessageBox)
+                    {
+                        int x = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).X;
+                        int y = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).Y;
+                        Graphics2D.FillRectangle(x, y, (int)s.X, (int)s.Y, Color.DarkSeaGreen);
+                        Graphics2D.DrawRectangle(x, y, (int)s.X, (int)s.Y, Color.Black, 3);
+                    }
+                    else
+                    {
+                        _spriteBatch.Draw(
                         texture: _textures[sprite.ImageId],
                         position: o.Pos + sprite.ImagePos - (c.IsCentered ? s / 2 : Vector2.Zero),
                         sourceRectangle: null,
                         Color.White,
                         rotation: 0,
                         origin: Vector2.Zero,
-                        scale: s==Vector2.Zero||!c.IsSpriteScaled ? Vector2.One : new Vector2(
+                        scale: s == Vector2.Zero || !c.IsSpriteScaled ? Vector2.One : new Vector2(
                             s.X / _textures[sprite.ImageId].Width,
                             s.Y / _textures[sprite.ImageId].Height),
                         SpriteEffects.None,
                         layerDepth: o.Layer);
+                    }
+
+                    
 
                     _spriteBatch.DrawString(
                         _textBlock,
@@ -327,6 +395,17 @@ namespace KARC.MVP
                 );
             gameOverMessage.IsCentered = true;
             _components.Add("MbxGameOver", gameOverMessage);            
+        }
+
+        public void ShowPauseMessage()
+        {
+            string message = "Пауза\nНажмите P, чтобы продолжить";
+            MessageBox MbxPause = new MessageBox(new Vector2(
+                _graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2),
+                message
+                );
+            MbxPause.IsCentered = true;
+            _components.Add("MbxPause", MbxPause);
         }
     }
 }

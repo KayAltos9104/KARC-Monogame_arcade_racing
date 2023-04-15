@@ -17,8 +17,6 @@ public class GameCycle : IGameplayModel
     public event EventHandler<GameplayEventArgs> Updated = delegate { };
     public event EventHandler<GameOverEventArgs> GameFinished = delegate { };
 
-    public GameTime GameTime { get; set; }
-
     private Random _random = new Random();
 
     private double _deltaTime = 0;
@@ -37,6 +35,7 @@ public class GameCycle : IGameplayModel
     private int _framesPassed;
     public ObjectsController ObjectsController { get; set; }
     public GameParameters GameParameters { get; set; }
+    public GameTime GameTime { get; set; }
     public void Initialize((int width, int height) resolution)
     {
         GameParameters = new GameParameters();
