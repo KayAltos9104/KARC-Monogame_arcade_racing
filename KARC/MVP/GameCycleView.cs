@@ -3,6 +3,7 @@ using KARC.Prefabs;
 using KARC.Settings;
 using KARC.WitchEngine;
 using KARC.WitchEngine.Animations;
+using KARC.WitchEngine.Primitives;
 using KARC.WitchEngine.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,6 +45,7 @@ namespace KARC.MVP
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            Graphics2D.SpriteBatch = _spriteBatch;
         }
 
         protected override void Initialize()
@@ -208,7 +210,9 @@ namespace KARC.MVP
         protected override void Draw(GameTime gameTime)
         {            
             GraphicsDevice.Clear(Color.DarkSeaGreen);
-            _spriteBatch.Begin();           
+            _spriteBatch.Begin();
+           
+           
             foreach (var o in _objects.Values)
             {
                 foreach (var sprite in o.Sprites)
