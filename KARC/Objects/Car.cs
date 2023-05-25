@@ -28,10 +28,10 @@ public class Car : IObject, ISolid, IAnimated
         set
         {
             _speed = value;
-            if (_speed.Y > 20)
-                _speed.Y = 20;
-            else if (_speed.Y < -20)
-                _speed.Y = -20;
+            if (_speed.Y > 1000)
+                _speed.Y = 1000;
+            else if (_speed.Y < -1000)
+                _speed.Y = -1000;
 
         }
     }        
@@ -60,7 +60,7 @@ public class Car : IObject, ISolid, IAnimated
     {        
         if (IsLive)
         {
-            Move(Pos + Speed);
+            Move(Pos + Speed*(gameTime.ElapsedGameTime.Milliseconds/1000.0f));
             Speed = new Vector2(0, Speed.Y);                
         }
         else

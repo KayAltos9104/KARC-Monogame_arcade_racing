@@ -19,6 +19,7 @@ public class GameCycle : IGameplayModel
 
     private Random _random = new Random();
 
+    private double _deltaSecondsCounter = 0;
     private double _deltaTime = 0;
 
     private bool _isPaused;
@@ -33,9 +34,11 @@ public class GameCycle : IGameplayModel
     private float _distance;
 
     private int _framesPassed;
+    
     public ObjectsController ObjectsController { get; set; }
     public GameParameters GameParameters { get; set; }
     public GameTime GameTime { get; set; }
+     
     public void Initialize((int width, int height) resolution)
     {
         GameParameters = new GameParameters();
@@ -125,7 +128,7 @@ public class GameCycle : IGameplayModel
         {            
             ObjectsController.CarGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
             generatedObject = ObjectsController.CarGenerator.GetObject();
-            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-16, -8));
+            (generatedObject as Car).Speed = new Vector2(0, _random.Next(-800, -400));
         }
         else if (sign == 'P')
         {            
@@ -226,15 +229,15 @@ public class GameCycle : IGameplayModel
             }
         }
 
-        _deltaTime += GameTime.ElapsedGameTime.TotalMilliseconds;
+        _deltaSecondsCounter += GameTime.ElapsedGameTime.TotalMilliseconds;
 
-        if (_deltaTime > 1000)
+        if (_deltaSecondsCounter > 1000)
         {
             foreach (var timer in ObjectsController.Storage.Timers.Values)
             {
                 timer.Update();
             }
-            _deltaTime = 0;
+            _deltaSecondsCounter = 0;
         }
 
         Car player = (Car)ObjectsController.Player.Object;
@@ -375,7 +378,7 @@ public class GameCycle : IGameplayModel
             {
                 case IGameplayModel.Direction.forward:
                     {
-                        p.Speed += new Vector2(0, -20);
+                        p.Speed += new Vector2(0, -1000);
                         break;
                     }
                 case IGameplayModel.Direction.backward:
@@ -385,12 +388,12 @@ public class GameCycle : IGameplayModel
                     }
                 case IGameplayModel.Direction.right:
                     {
-                        p.Speed += new Vector2(9, 0);
+                        p.Speed += new Vector2(500, 0);
                         break;
                     }
                 case IGameplayModel.Direction.left:
                     {
-                        p.Speed += new Vector2(-9, 0);
+                        p.Speed += new Vector2(-500, 0);
                         break;
                     }
             }
