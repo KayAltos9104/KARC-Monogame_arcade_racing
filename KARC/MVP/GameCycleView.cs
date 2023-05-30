@@ -348,7 +348,7 @@ namespace KARC.MVP
                         sourceRectangle: null,
                         Color.White,
                         rotation: 0,
-                        origin: Vector2.Zero,
+                        origin: new Vector2 (_textures[sprite.ImageId].Width/2, _textures[sprite.ImageId].Height / 2), //Vector2.Zero,
                         scale: s == Vector2.Zero || !c.IsSpriteScaled ? Vector2.One : new Vector2(
                             s.X / _textures[sprite.ImageId].Width,
                             s.Y / _textures[sprite.ImageId].Height),

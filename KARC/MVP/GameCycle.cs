@@ -126,22 +126,26 @@ public class GameCycle : IGameplayModel
         IObject generatedObject;
         if (sign == 'C')
         {            
-            ObjectsController.CarGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
+            //ObjectsController.CarGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
+            ObjectsController.CarGenerator.CreateObject(x, y);
             generatedObject = ObjectsController.CarGenerator.GetObject();
             (generatedObject as Car).Speed = new Vector2(0, _random.Next(-800, -400));
         }
         else if (sign == 'P')
-        {            
-            ObjectsController.PlayerGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
+        {
+            //ObjectsController.PlayerGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
+            ObjectsController.PlayerGenerator.CreateObject(x, y);
         }
         else if (sign == 'W')
         {
-            ObjectsController.ObstacleGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);           
+            //ObjectsController.ObstacleGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
+            ObjectsController.ObstacleGenerator.CreateObject(x, y); 
         }
         else if (sign == 'S')
-        {            
-            ObjectsController.ShieldGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);            
-        }        
+        {
+            //ObjectsController.ShieldGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
+            ObjectsController.ShieldGenerator.CreateObject(x, y);
+        }
     }
     private void GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
     {
