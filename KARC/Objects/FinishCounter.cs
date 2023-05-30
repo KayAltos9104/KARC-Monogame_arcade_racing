@@ -35,16 +35,10 @@ namespace KARC.Objects
             Name = "";
             _carSign = (
                 (int)Sprite.wall,
-                new Vector2(0, (
-                SpriteParameters.Sprites[Sprite.finishCounterWindow].height
-                - SpriteParameters.Sprites[Sprite.wall].height) / 2.0f)
-                );
+                new Vector2(0, 0));
             _finishSign = (
                 (int)Sprite.finishTape,
-                 new Vector2(0,(
-                 SpriteParameters.Sprites[Sprite.finishCounterWindow].height
-                - SpriteParameters.Sprites[Sprite.finishTape].height) / 2.0f)
-                );
+                 new Vector2(SpriteParameters.Sprites[Sprite.finishCounterWindow].width / 2- SpriteParameters.Sprites[Sprite.finishTape].width, 0));
             Sprites = new List<(int ImageId, Vector2 ImagePos)>() {
                 ((int)Sprite.finishCounterWindow, Vector2.Zero),
                 _carSign,
@@ -53,12 +47,12 @@ namespace KARC.Objects
             };                        
             IsSpriteScaled = false;
             Width = SpriteParameters.Sprites[Sprite.finishCounterWindow].width;
-            FinishSignShift = -1.5f * SpriteParameters.Sprites[Sprite.finishTape].width;
+            //FinishSignShift = -200;
             CarSignShift = 0.5f * SpriteParameters.Sprites[Sprite.wall].width;
             Layer = 1.0f; 
             _isFinished = false;
             FinishDistance = 1;
-            _finishSign.pos = new Vector2(Width + FinishSignShift, _finishSign.pos.Y);
+            //_finishSign.pos = new Vector2(Width + FinishSignShift, _finishSign.pos.Y);
         }       
 
         public void Move(Vector2 pos)
@@ -70,7 +64,7 @@ namespace KARC.Objects
         {
             if (!_isFinished)
             {
-                _carSign.pos = new Vector2((1 - FinishDistance) * Width + CarSignShift, _carSign.pos.Y);                
+                _carSign.pos = new Vector2((1 - FinishDistance) * Width + CarSignShift - SpriteParameters.Sprites[Sprite.finishCounterWindow].width/2, _carSign.pos.Y);                
                 Sprites[Sprites.FindIndex(s => s.ImageId == _carSign.id)] = _carSign;
                 Sprites[Sprites.FindIndex(s => s.ImageId == _finishSign.id)] = _finishSign;
             }

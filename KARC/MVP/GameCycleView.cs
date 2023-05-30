@@ -88,9 +88,10 @@ namespace KARC.MVP
                 "C - Коллайдеры"
                 );
 
-            finishCounterUIGenerator.CreateObject(
-                (_graphics.PreferredBackBufferWidth - SpriteParameters.Sprites[Sprite.finishCounterWindow].width) / 2, 0
-                );
+            //finishCounterUIGenerator.CreateObject(
+            //    (_graphics.PreferredBackBufferWidth - SpriteParameters.Sprites[Sprite.finishCounterWindow].width) / 2, 0
+            //    );
+            finishCounterUIGenerator.CreateObject(_graphics.PreferredBackBufferWidth / 2, SpriteParameters.Sprites[Sprite.finishCounterWindow].height / 2);
             FinishCounter finishCounter = (FinishCounter)finishCounterUIGenerator.GetObject();
             
 
