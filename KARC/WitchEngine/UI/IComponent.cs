@@ -1,16 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace KARC.WitchEngine
+using Microsoft.Xna.Framework.Graphics;
+namespace KARC.WitchEngine;
+public interface IComponent
 {
-    public interface IComponent
-    {
-       string  Name { get; set; }
-       Vector2 TextPos { get; set; }  
-       string  Text { get; set; }
-       bool IsCentered { get; set; }         
-       bool IsSpriteScaled { get; set; } 
-    }
+    Vector2 TextPos { get; set; }
+    string Text { get; set; }
+    bool IsCentered { get; set; }
+    float Layer { get; set; }
+    void Render(SpriteBatch spriteBatch);
 }

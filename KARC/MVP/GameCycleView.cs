@@ -26,7 +26,7 @@ namespace KARC.MVP
 
         private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();        
         private Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();        
-        private Dictionary<int, Texture2D> _textures = new Dictionary<int, Texture2D>();
+        
 
         private Vector2 _visualShift = new Vector2(0, 0);
 
@@ -38,7 +38,6 @@ namespace KARC.MVP
         private int _timeRange = 1; //Время между измерениями в миллисекундах
         private int _elapsedFPSTime = 0;
 
-        private FinishCounterUIGenerator finishCounterUIGenerator = new FinishCounterUIGenerator();
 
         private bool _isCollidersShown = false;
         private bool _isPaused = false;
@@ -88,11 +87,7 @@ namespace KARC.MVP
                 "C - Коллайдеры"
                 );
 
-            //finishCounterUIGenerator.CreateObject(
-            //    (_graphics.PreferredBackBufferWidth - SpriteParameters.Sprites[Sprite.finishCounterWindow].width) / 2, 0
-            //    );
-            finishCounterUIGenerator.CreateObject(_graphics.PreferredBackBufferWidth / 2, SpriteParameters.Sprites[Sprite.finishCounterWindow].height / 2);
-            FinishCounter finishCounter = (FinishCounter)finishCounterUIGenerator.GetObject();
+            FinishCounter finishCounter = new FinishCounter(pos: new Vector2(_graphics.PreferredBackBufferWidth / 2, SpriteParameters.Sprites[Sprite.finishCounterWindow].height / 2));
             
 
             _components.Add("MbxScore", MbxScore);
@@ -109,14 +104,16 @@ namespace KARC.MVP
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _textures.Add((byte)Sprite.car, Content.Load<Texture2D>("Base_car"));            
-            _textures.Add((byte)Sprite.wall, Content.Load<Texture2D>("Wall"));            
-            _textures.Add((byte)Sprite.window, Content.Load<Texture2D>("Message_Window"));            
-            _textures.Add((byte)Sprite.finishTape, Content.Load<Texture2D>("FinishSprite"));            
-            _textures.Add((byte)Sprite.finishCounterWindow, Content.Load<Texture2D>("FinishCounterField"));            
-            _textures.Add((byte)Sprite.shield, Content.Load<Texture2D>("Immortality"));            
-            _textures.Add((byte)Sprite.explosion, Content.Load<Texture2D>("Explosion_Atlas"));            
-            _textBlock = Content.Load<SpriteFont>("DescriptionFont");
+
+            LoadableObjects.Textures.Add((byte)Sprite.car, Content.Load<Texture2D>("Base_car"));
+            LoadableObjects.Textures.Add((byte)Sprite.wall, Content.Load<Texture2D>("Wall"));
+            LoadableObjects.Textures.Add((byte)Sprite.window, Content.Load<Texture2D>("Message_Window"));            
+            LoadableObjects.Textures.Add((byte)Sprite.finishTape, Content.Load<Texture2D>("FinishSprite"));            
+            LoadableObjects.Textures.Add((byte)Sprite.finishCounterWindow, Content.Load<Texture2D>("FinishCounterField"));            
+            LoadableObjects.Textures.Add((byte)Sprite.shield, Content.Load<Texture2D>("Immortality"));            
+            LoadableObjects.Textures.Add((byte)Sprite.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
+            //_textBlock = Content.Load<SpriteFont>("DescriptionFont");
+            LoadableObjects.TextBlock = Content.Load<SpriteFont>("DescriptionFont");
         }
 
         public void LoadGameCycleParameters(
@@ -274,7 +271,7 @@ namespace KARC.MVP
                         continue;
                     
                     _spriteBatch.Draw(
-                        texture: _textures[sprite.ImageId],
+                        texture: LoadableObjects.Textures[sprite.ImageId],
                         position: o.Pos - _visualShift + sprite.ImagePos,
                         sourceRectangle: null,
                         Color.White,
@@ -300,7 +297,7 @@ namespace KARC.MVP
                         continue;
 
                     _spriteBatch.Draw(
-                       _textures[a.Animation.ActiveAnimation.GetPictureId()],
+                       LoadableObjects.Textures[a.Animation.ActiveAnimation.GetPictureId()],
                         v,
                         new Rectangle(
                             a.Animation.ActiveAnimation.CurrentFrame.Point,
@@ -318,59 +315,60 @@ namespace KARC.MVP
             //Рисуем компоненты последними, чтобы были поверх
             foreach (var c in _components.Values)
             {
-                var o = (IObject)c;
-                foreach (var sprite in o.Sprites)
-                {
-                    if (sprite.ImageId == -1)
-                        continue;
+                //var o = (IObject)c;
 
-                    float marginText = 20;
+                c.Render(_spriteBatch);
 
-                    var s = _textBlock.MeasureString(c.Text) != Vector2.Zero ? 
-                        _textBlock.MeasureString(c.Text) + new Vector2(marginText, marginText) : 
-                        new Vector2 (_textures[sprite.ImageId].Width, _textures[sprite.ImageId].Height) ;
-                    Vector2 textPos = new Vector2(
-                        o.Pos.X + (s.X - _textBlock.MeasureString(c.Text).X) / 2 - (c.IsCentered ? s.X / 2 : 0),
-                        o.Pos.Y + (s.Y - _textBlock.MeasureString(c.Text).Y) / 2 - (c.IsCentered ? s.Y / 2 : 0)
-                        );
+                //foreach (var sprite in o.Sprites)
+                //{
+                //    if (sprite.ImageId == -1)
+                //        continue;
 
-                    if (c is MessageBox)
-                    {
-                        int x = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).X;
-                        int y = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).Y;
-                        Graphics2D.FillRectangle(x, y, (int)s.X, (int)s.Y, Color.DarkSeaGreen);
-                        Graphics2D.DrawRectangle(x, y, (int)s.X, (int)s.Y, Color.Black, 3);
-                    }
-                    else
-                    {
-                        _spriteBatch.Draw(
-                        texture: _textures[sprite.ImageId],
-                        position: o.Pos + sprite.ImagePos - (c.IsCentered ? s / 2 : Vector2.Zero),
-                        sourceRectangle: null,
-                        Color.White,
-                        rotation: 0,
-                        origin: new Vector2 (_textures[sprite.ImageId].Width/2, _textures[sprite.ImageId].Height / 2), //Vector2.Zero,
-                        scale: s == Vector2.Zero || !c.IsSpriteScaled ? Vector2.One : new Vector2(
-                            s.X / _textures[sprite.ImageId].Width,
-                            s.Y / _textures[sprite.ImageId].Height),
-                        SpriteEffects.None,
-                        layerDepth: o.Layer);
-                    }
+                //    float marginText = 20;
 
-                    
+                //    var s = _textBlock.MeasureString(c.Text) != Vector2.Zero ?
+                //        _textBlock.MeasureString(c.Text) + new Vector2(marginText, marginText) :
+                //        new Vector2(LoadableObjects.Textures[sprite.ImageId].Width, LoadableObjects.Textures[sprite.ImageId].Height);
+                //    Vector2 textPos = new Vector2(
+                //        o.Pos.X + (s.X - _textBlock.MeasureString(c.Text).X) / 2 - (c.IsCentered ? s.X / 2 : 0),
+                //        o.Pos.Y + (s.Y - _textBlock.MeasureString(c.Text).Y) / 2 - (c.IsCentered ? s.Y / 2 : 0)
+                //        );
 
-                    _spriteBatch.DrawString(
-                        _textBlock,
-                        c.Text,
-                        textPos+c.TextPos,
-                        Color.Black,
-                        rotation: 0,
-                        origin: Vector2.Zero,
-                        scale: 1,
-                        SpriteEffects.None,
-                        layerDepth: 0
-                        );
-                }
+                //    if (c is MessageBox)
+                //    {
+                //        int x = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).X;
+                //        int y = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).Y;
+                //        Graphics2D.FillRectangle(x, y, (int)s.X, (int)s.Y, Color.DarkSeaGreen);
+                //        Graphics2D.DrawRectangle(x, y, (int)s.X, (int)s.Y, Color.Black, 3);
+                //    }
+                //    else
+                //    {
+                //        _spriteBatch.Draw(
+                //        texture: LoadableObjects.Textures[sprite.ImageId],
+                //        position: o.Pos + sprite.ImagePos - (c.IsCentered ? s / 2 : Vector2.Zero),
+                //        sourceRectangle: null,
+                //        Color.White,
+                //        rotation: 0,
+                //        origin: new Vector2(LoadableObjects.Textures[sprite.ImageId].Width / 2, LoadableObjects.Textures[sprite.ImageId].Height / 2), //Vector2.Zero,
+                //        scale: Vector2.One,
+                //        SpriteEffects.None,
+                //        layerDepth: o.Layer);
+                //    }
+
+
+
+                //    _spriteBatch.DrawString(
+                //        _textBlock,
+                //        c.Text,
+                //        textPos + c.TextPos,
+                //        Color.Black,
+                //        rotation: 0,
+                //        origin: Vector2.Zero,
+                //        scale: 1,
+                //        SpriteEffects.None,
+                //        layerDepth: 0
+                //        );
+                //}
             }
             _frameCounter++;
             
