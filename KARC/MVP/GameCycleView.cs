@@ -314,61 +314,8 @@ namespace KARC.MVP
 
             //Рисуем компоненты последними, чтобы были поверх
             foreach (var c in _components.Values)
-            {
-                //var o = (IObject)c;
-
+            {                
                 c.Render(_spriteBatch);
-
-                //foreach (var sprite in o.Sprites)
-                //{
-                //    if (sprite.ImageId == -1)
-                //        continue;
-
-                //    float marginText = 20;
-
-                //    var s = _textBlock.MeasureString(c.Text) != Vector2.Zero ?
-                //        _textBlock.MeasureString(c.Text) + new Vector2(marginText, marginText) :
-                //        new Vector2(LoadableObjects.Textures[sprite.ImageId].Width, LoadableObjects.Textures[sprite.ImageId].Height);
-                //    Vector2 textPos = new Vector2(
-                //        o.Pos.X + (s.X - _textBlock.MeasureString(c.Text).X) / 2 - (c.IsCentered ? s.X / 2 : 0),
-                //        o.Pos.Y + (s.Y - _textBlock.MeasureString(c.Text).Y) / 2 - (c.IsCentered ? s.Y / 2 : 0)
-                //        );
-
-                //    if (c is MessageBox)
-                //    {
-                //        int x = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).X;
-                //        int y = (int)(o.Pos - (c.IsCentered ? s / 2 : Vector2.Zero)).Y;
-                //        Graphics2D.FillRectangle(x, y, (int)s.X, (int)s.Y, Color.DarkSeaGreen);
-                //        Graphics2D.DrawRectangle(x, y, (int)s.X, (int)s.Y, Color.Black, 3);
-                //    }
-                //    else
-                //    {
-                //        _spriteBatch.Draw(
-                //        texture: LoadableObjects.Textures[sprite.ImageId],
-                //        position: o.Pos + sprite.ImagePos - (c.IsCentered ? s / 2 : Vector2.Zero),
-                //        sourceRectangle: null,
-                //        Color.White,
-                //        rotation: 0,
-                //        origin: new Vector2(LoadableObjects.Textures[sprite.ImageId].Width / 2, LoadableObjects.Textures[sprite.ImageId].Height / 2), //Vector2.Zero,
-                //        scale: Vector2.One,
-                //        SpriteEffects.None,
-                //        layerDepth: o.Layer);
-                //    }
-
-
-
-                //    _spriteBatch.DrawString(
-                //        _textBlock,
-                //        c.Text,
-                //        textPos + c.TextPos,
-                //        Color.Black,
-                //        rotation: 0,
-                //        origin: Vector2.Zero,
-                //        scale: 1,
-                //        SpriteEffects.None,
-                //        layerDepth: 0
-                //        );
-                //}
             }
             _frameCounter++;
             
