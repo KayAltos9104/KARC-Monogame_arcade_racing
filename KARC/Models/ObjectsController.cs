@@ -59,7 +59,10 @@ public class ObjectsController
         FinishGenerator.OnCreated += AddNewTrigger;
         FinishGenerator.OnCreated += AddFinish;
 
-        ShieldGenerator = new ShieldGenerator();
+        ShieldGenerator = new ShieldGenerator(
+            SpriteParameters.Sprites[Sprite.shield].width,
+            SpriteParameters.Sprites[Sprite.shield].height
+            );
         ShieldGenerator.OnCreated += AddNewObject;
         ShieldGenerator.OnCreated += AddNewShield;
 

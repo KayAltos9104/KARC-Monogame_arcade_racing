@@ -250,7 +250,7 @@ namespace KARC.MVP
 
 
                 // Отрисовка коллайдеров
-                if (_isCollidersShown && (o is Car))
+                if (_isCollidersShown && (o is ISolid))
                 {
                     Vector2 v = o.Pos - Graphics2D.VisualShift;
                     if (!Graphics2D.IsInVisionArea(v))
@@ -279,7 +279,6 @@ namespace KARC.MVP
                         collider.Boundary.Width,
                         collider.Boundary.Height,
                         Color.White);
-
                 }
             }
 

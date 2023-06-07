@@ -7,7 +7,7 @@ namespace KARC.Prefabs;
 
 public class ShieldGenerator : Generator
 {
-    public ShieldGenerator() : base(1, 1)
+    public ShieldGenerator(int width, int height) : base(width, height)
     {
 
     }

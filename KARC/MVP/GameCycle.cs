@@ -49,8 +49,8 @@ public class GameCycle : IGameplayModel
 
         ObjectsController.ScoreIncreased += GameParameters.IncreaseScore;
 
-        //_mapBuilder = new FirstLevelBuilder();
-        _mapBuilder = new TestLevelBuilder();
+        _mapBuilder = new FirstLevelBuilder();
+        //_mapBuilder = new TestLevelBuilder();
         _mapBuilder.GenerateMap();
         _map = _mapBuilder.GetMap();
 
