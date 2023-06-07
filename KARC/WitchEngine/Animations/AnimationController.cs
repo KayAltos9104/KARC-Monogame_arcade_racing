@@ -7,15 +7,13 @@ namespace KARC.WitchEngine.Animations;
 public class AnimationController 
 {
     public float Layer { get; set; }
-    //public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
     public Vector2 Pos { get; private set; }
     public Dictionary<string, Animator> Animations { get; private set; }
     public Animator ActiveAnimation { get; set; }
 
     public AnimationController(Vector2 position)
     {
-        Layer = 0.6f;
-        //Sprites = new List<(int ImageId, Vector2 ImagePos)>();
+        Layer = 0.6f;        
         Pos = position;        
         Animations = new Dictionary<string, Animator>();
         ActiveAnimation = null;

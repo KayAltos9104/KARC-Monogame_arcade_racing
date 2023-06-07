@@ -1,4 +1,5 @@
-﻿using KARC.Objects;
+﻿using KARC.Models;
+using KARC.Objects;
 using KARC.Prefabs;
 using KARC.Settings;
 using KARC.WitchEngine;
@@ -24,15 +25,14 @@ namespace KARC.MVP
         public event EventHandler GamePaused = delegate { };
         public event EventHandler<InitializeEventArgs> GameLaunched = delegate { };
 
-        private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();        
-        private Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();        
+        private Dictionary<int, IObject> _objects = new Dictionary<int, IObject>();
+        private InterfaceController _interfaceController = new InterfaceController();        
         
 
         private Vector2 _visualShift = new Vector2(0, 0);
 
         private List<Keys> _pressedPrevFrame = new List<Keys>();
-
-        private SpriteFont _textBlock;
+        
 
         private int _frameCounter = 0;
         private int _timeRange = 1; //Время между измерениями в миллисекундах
@@ -88,13 +88,13 @@ namespace KARC.MVP
                 );
 
             FinishCounter finishCounter = new FinishCounter(pos: new Vector2(_graphics.PreferredBackBufferWidth / 2, SpriteParameters.Sprites[Sprite.finishCounterWindow].height / 2));
-            
 
-            _components.Add("MbxScore", MbxScore);
-            _components.Add("MbxSpeed", MbxSpeed);
-            _components.Add("FPS", MbxFps);
-            _components.Add("FinishCounter", finishCounter);
-            _components.Add("Instructions", MbxInstructions);
+            _interfaceController.AddComponent("MbxScore", MbxScore);
+            _interfaceController.AddComponent("MbxSpeed", MbxSpeed);
+            _interfaceController.AddComponent("FPS", MbxFps);
+            _interfaceController.AddComponent("FinishCounter", finishCounter);
+            _interfaceController.AddComponent("Instructions", MbxInstructions);
+            
 
             GameLaunched.Invoke(this, new InitializeEventArgs() { 
                 Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight) 
@@ -126,29 +126,29 @@ namespace KARC.MVP
         {
             _objects = Objects;
             _visualShift = POVShift;
-            _components["MbxScore"].Text = "Очки: " + score;
-            _components["MbxSpeed"].Text = "Скорость: " + Math.Abs(2*speed * (3600.0 / 1000.0)) + " км/ч";            
+            _interfaceController.Components["MbxScore"].Text = "Очки: " + score;
+            _interfaceController.Components["MbxSpeed"].Text = "Скорость: " + Math.Abs(2*speed * (3600.0 / 1000.0)) + " км/ч";            
                 
             foreach (var e in effects)
             {
-                if (_components.ContainsKey(e.effectSprite.ToString()))
+                if (_interfaceController.Components.ContainsKey(e.effectSprite.ToString()))
                 {
-                    _components[e.effectSprite.ToString()].Text = e.timeLeft.ToString();
+                    _interfaceController.Components[e.effectSprite.ToString()].Text = e.timeLeft.ToString();
                 }                    
                 else
                 {
-                    _components.Add(e.effectSprite.ToString(), 
+                    _interfaceController.Components.Add(e.effectSprite.ToString(), 
                         new Parameter(
-                        new Vector2(10, 100 + 50 * _components.Count - 4), 
+                        new Vector2(10, 100 + 50 * _interfaceController.Components.Count - 4), 
                         e.timeLeft.ToString(), 
                         e.effectSprite)
                         );
                 }
                 if (e.timeLeft <= 0)
-                    _components.Remove(e.effectSprite.ToString());
+                    _interfaceController.Components.Remove(e.effectSprite.ToString());
             }
             
-            var f = (FinishCounter)_components["FinishCounter"];
+            var f = (FinishCounter)_interfaceController.Components["FinishCounter"];
             f.FinishDistance = distToFinish;
             f.Update(new GameTime());            
         }
@@ -192,7 +192,7 @@ namespace KARC.MVP
                 GamePaused.Invoke(this, new EventArgs());
                 if (_isPaused)
                 {
-                    _components.Remove("MbxPause");
+                    _interfaceController.Components.Remove("MbxPause");
                     _isPaused = false;
                 }                    
                 else
@@ -206,7 +206,7 @@ namespace KARC.MVP
 
             if(IsSinglePressed(Keys.R))
             {
-                _components.Remove("MbxGameOver");
+                _interfaceController.Components.Remove("MbxGameOver");
                 
                 GameLaunched.Invoke(this, new InitializeEventArgs()
                 {
@@ -291,7 +291,7 @@ namespace KARC.MVP
                         new Vector2(a.Animation.ActiveAnimation.CurrentFrame.Width / 2,
                         a.Animation.ActiveAnimation.CurrentFrame.Height / 2) :
                         Vector2.Zero;
-                    Vector2 v = a.Animation.Pos - _visualShift - centerShift;
+                    Vector2 v = a.Animation.Pos - _visualShift;
 
                     if (v.X < -100 || v.X > _graphics.PreferredBackBufferWidth + 100 || v.Y < -100 || v.Y > _graphics.PreferredBackBufferHeight + 100)
                         continue;
@@ -306,23 +306,22 @@ namespace KARC.MVP
                             a.Animation.ActiveAnimation.CurrentFrame.Height)),
                         Color.White,
                         0,
-                        Vector2.Zero,
+                        centerShift,
                         1,
                         SpriteEffects.None, a.Animation.Layer);
                 }
+                
             }
 
             //Рисуем компоненты последними, чтобы были поверх
-            foreach (var c in _components.Values)
-            {                
-                c.Render(_spriteBatch);
-            }
+            _interfaceController.RenderAll(_spriteBatch); 
+            
             _frameCounter++;
             
             if ((int)gameTime.TotalGameTime.TotalSeconds - _elapsedFPSTime > _timeRange)
             {
                 
-                _components["FPS"].Text = "FPS: " + (_frameCounter / 
+                _interfaceController.Components["FPS"].Text = "FPS: " + (_frameCounter / 
                     ((int)gameTime.TotalGameTime.TotalSeconds - _elapsedFPSTime)).ToString("N0");
                 _elapsedFPSTime = (int)gameTime.TotalGameTime.TotalSeconds;
                 _frameCounter = 0;               
@@ -340,7 +339,7 @@ namespace KARC.MVP
                 message
                 );
             gameOverMessage.IsCentered = true;
-            _components.Add("MbxGameOver", gameOverMessage);            
+            _interfaceController.Components.Add("MbxGameOver", gameOverMessage);            
         }
 
         public void ShowPauseMessage()
@@ -351,7 +350,7 @@ namespace KARC.MVP
                 message
                 );
             MbxPause.IsCentered = true;
-            _components.Add("MbxPause", MbxPause);
+            _interfaceController.Components.Add("MbxPause", MbxPause);
         }
     }
 }

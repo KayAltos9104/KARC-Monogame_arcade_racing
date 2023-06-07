@@ -1,8 +1,6 @@
-﻿using KARC.Settings;
-using KARC.WitchEngine.Primitives;
+﻿using KARC.WitchEngine.Primitives;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 
 namespace KARC.WitchEngine.UI;
