@@ -1,11 +1,83 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System;
+using KARC.Settings;
+using KARC.WitchEngine.Animations;
 
 namespace KARC.WitchEngine.Primitives;
 public static class Graphics2D
 {
     public static SpriteBatch SpriteBatch;
+    public static GraphicsDeviceManager Graphics;
+    public static Vector2 VisualShift = new Vector2(0, 0);
+    private static Rectangle VisionArea;
+
+    public static void UpdateVisionArea()
+    {
+        VisionArea = new Rectangle(-100, -100, Graphics.PreferredBackBufferWidth+100, Graphics.PreferredBackBufferHeight+100);
+    }
+    public static void UpdateVisionArea (int x, int y, int width, int height)
+    {
+        VisionArea = new Rectangle(x, y, width, height);
+    }
+    public static bool IsInVisionArea(Vector2 pos)
+    {
+        if (VisionArea.Contains(pos)) return true;
+        else return false;
+    }
+    public static void RenderObject(IObject obj)
+    {
+        foreach (var sprite in obj.Sprites)
+        {
+            if (sprite.ImageId == -1)
+                continue;
+
+            Vector2 v = obj.Pos + sprite.ImagePos - VisualShift;
+            if (IsInVisionArea(v))
+            {
+                SpriteBatch.Draw(
+                texture: LoadableObjects.Textures[sprite.ImageId],
+                position: obj.Pos - VisualShift + sprite.ImagePos,
+                sourceRectangle: null,
+                Color.White,
+                rotation: 0,
+                origin: Vector2.Zero,
+                scale: 1,
+                SpriteEffects.None,
+                layerDepth: obj.Layer);
+            }            
+        }
+    }
+    
+    public static void RenderAnimation (IAnimated a)
+    {
+        if (a.Animation.ActiveAnimation != null &&
+            a.Animation.ActiveAnimation.IsActive)
+        {            
+            var centerShift = a.Animation.ActiveAnimation.IsCentered ?
+                new Vector2(a.Animation.ActiveAnimation.CurrentFrame.Width / 2,
+                a.Animation.ActiveAnimation.CurrentFrame.Height / 2) :
+                Vector2.Zero;
+            Vector2 v = a.Animation.Pos - VisualShift;
+            if (IsInVisionArea(v))
+            {
+                SpriteBatch.Draw(
+               LoadableObjects.Textures[a.Animation.ActiveAnimation.GetPictureId()],
+                v,
+                new Rectangle(
+                    a.Animation.ActiveAnimation.CurrentFrame.Point,
+                    new Point(
+                    a.Animation.ActiveAnimation.CurrentFrame.Width,
+                    a.Animation.ActiveAnimation.CurrentFrame.Height)),
+                Color.White,
+                0,
+                centerShift,
+                1,
+                SpriteEffects.None, a.Animation.Layer);
+            }
+        }
+    }
+   
     public static void DrawLine(Vector2 point1, Vector2 point2, Color color)
     {
         DrawLine(point1, point2, color, 1);

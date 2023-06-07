@@ -1,57 +1,30 @@
-﻿using KARC.Objects;
-using KARC.Settings;
-using KARC.WitchEngine;
+﻿using KARC.WitchEngine.Primitives;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Xna.Framework.Graphics;
 
-namespace KARC.WitchEngine.UI
-{
-    public class MessageBox : IObject, IComponent    
+
+namespace KARC.WitchEngine.UI;
+public class MessageBox : InterfaceComponent    
+{   
+    public MessageBox(Vector2 pos, string text) : base(pos)
     {
-        
-        public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
+        Pos = pos;
+        Text = text;
+        TextPos = Vector2.Zero;  
+        Layer = 1.0f; 
+        MarginText = new Vector2 (20, 0);
+    }
+    public void Move(Vector2 pos)
+    {
+        Pos = pos;
+    }
 
-        public Vector2 Pos { get; private set; }
-
-        public Vector2 Speed { get; set; }
-        public string Name { get; set; }
-        public string Text { get; set; }
-       
-        public float Layer { get; set; }
-        public bool IsCentered { get; set; }
-        public Vector2 TextPos { get; set; }
-        public bool IsSpriteScaled { get; set; }
-        
-        public MessageBox(Vector2 pos, string text)
-        {            
-
-            Pos = pos;
-            Text = text;
-            Name = "";
-            TextPos = Vector2.Zero;
-            Sprites = new List<(int ImageId, Vector2 ImagePos)>();
-            Sprites.Add(((int)Sprite.window, Vector2.Zero));
-            IsSpriteScaled = true;
-            Layer = 1.0f;            
-        }
-
-        public MessageBox(Vector2 pos, string name, string text) : this(pos, text)
-        {
-            Name = name;
-        }
-
-        
-
-        public void Move(Vector2 pos)
-        {
-            Pos = pos;
-        }
-
-        public void Update(GameTime gameTime)
-        {
-
-        }
+    public override void Render(SpriteBatch spriteBatch)
+    {        
+        int x = (int)(Pos - (IsCentered ? _textSize / 2 : Vector2.Zero)).X;
+        int y = (int)(Pos - (IsCentered ? _textSize / 2 : Vector2.Zero)).Y;        
+        Graphics2D.FillRectangle(x, y, (int)(_textSize.X + MarginText.X*2), (int)(_textSize.Y + MarginText.Y*2), Color.DarkSeaGreen);
+        Graphics2D.DrawRectangle(x, y, (int)(_textSize.X + MarginText.X*2), (int)(_textSize.Y + MarginText.Y * 2), Color.Black, 3);
+        RenderText(spriteBatch);
     }
 }
