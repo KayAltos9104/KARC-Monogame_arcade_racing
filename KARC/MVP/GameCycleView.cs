@@ -6,7 +6,6 @@ using KARC.WitchEngine.Animations;
 using KARC.WitchEngine.Primitives;
 using KARC.WitchEngine.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -14,11 +13,10 @@ using System.Collections.Generic;
 
 namespace KARC.MVP
 {
-    public class GameCycleView : Game, IGameplayView
+    public class GameCycleView : IGameplayView
     {
-        private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
 
+        public (int Width, int Height) Resolution;
         public event EventHandler<CycleViewEventArgs> CycleFinished = delegate { };
         public event EventHandler<ControlsEventArgs> PlayerSpeedChanged = delegate { };
         public event EventHandler GamePaused = delegate { };
@@ -38,27 +36,18 @@ namespace KARC.MVP
 
         private bool _isCollidersShown = false;
         private bool _isPaused = false;
+        
 
-        public GameCycleView()
+        public void Initialize()
         {
-            _graphics = new GraphicsDeviceManager(this);
-            Graphics2D.Graphics = _graphics;
-            Content.RootDirectory = "Content";
-            IsMouseVisible = true;
-
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-            this.Window.Title = "KARC";
-
-
             Graphics2D.Graphics.IsFullScreen = false;
             Graphics2D.Graphics.PreferredBackBufferWidth = 1600;
             Graphics2D.Graphics.PreferredBackBufferHeight = 900;
             Graphics2D.Graphics.ApplyChanges();
             Graphics2D.UpdateVisionArea();
+
+            Resolution = (Graphics2D.Graphics.PreferredBackBufferWidth, 
+                Graphics2D.Graphics.PreferredBackBufferHeight);
 
             MessageBox MbxScore = new MessageBox(new Vector2(
                 10, 10),
@@ -100,20 +89,7 @@ namespace KARC.MVP
             {
                 Resolution = (Graphics2D.Graphics.PreferredBackBufferWidth, Graphics2D.Graphics.PreferredBackBufferHeight)
             });
-        }
-        protected override void LoadContent()
-        {
-            Graphics2D.SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            LoadableObjects.Textures.Add((byte)Sprite.car, Content.Load<Texture2D>("Base_car"));
-            LoadableObjects.Textures.Add((byte)Sprite.wall, Content.Load<Texture2D>("Wall"));
-            LoadableObjects.Textures.Add((byte)Sprite.window, Content.Load<Texture2D>("Message_Window"));
-            LoadableObjects.Textures.Add((byte)Sprite.finishTape, Content.Load<Texture2D>("FinishSprite"));
-            LoadableObjects.Textures.Add((byte)Sprite.finishCounterWindow, Content.Load<Texture2D>("FinishCounterField"));
-            LoadableObjects.Textures.Add((byte)Sprite.shield, Content.Load<Texture2D>("Immortality"));
-            LoadableObjects.Textures.Add((byte)Sprite.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
-            LoadableObjects.TextBlock = Content.Load<SpriteFont>("DescriptionFont");
-        }
+        }        
 
         public void LoadGameCycleParameters(
             Dictionary<int, IObject> Objects,
@@ -151,7 +127,7 @@ namespace KARC.MVP
             f.FinishDistance = distToFinish;
             f.Update(new GameTime());
         }
-        protected override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             var keys = Keyboard.GetState().GetPressedKeys();
             if (keys.Length > 0)
@@ -209,7 +185,7 @@ namespace KARC.MVP
 
                 GameLaunched.Invoke(this, new InitializeEventArgs()
                 {
-                    Resolution = (_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)
+                    Resolution = this.Resolution
                 });
             }
 
@@ -221,10 +197,7 @@ namespace KARC.MVP
                     _isCollidersShown = true;
 
             }
-
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-            base.Update(gameTime);
+            
             _pressedPrevFrame = new List<Keys>(keys);
             CycleFinished.Invoke(this, new CycleViewEventArgs() { GameTime = gameTime });
         }
@@ -234,21 +207,16 @@ namespace KARC.MVP
             return Keyboard.GetState().IsKeyUp(key) && _pressedPrevFrame.Contains(key);
         }
 
-        protected override void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkSeaGreen);
+            
             Graphics2D.SpriteBatch.Begin();
-
 
             foreach (var o in _objects.Values)
             {
                 Graphics2D.RenderObject(o);
                 if (o is IAnimated)
                     Graphics2D.RenderAnimation(o as IAnimated);
-
-
-
-
                 // Отрисовка коллайдеров
                 if (_isCollidersShown && (o is ISolid))
                 {
@@ -296,7 +264,7 @@ namespace KARC.MVP
                 _frameCounter = 0;
             }
             Graphics2D.SpriteBatch.End();
-            base.Draw(gameTime);
+
         }
         public void ShowGameOver(bool isWin)
         {
@@ -304,7 +272,7 @@ namespace KARC.MVP
                 ? "Игра окончена!\nВы выиграли!\nНажмите R, чтобы начать заново"
                 : "Игра окончена!\nВы проиграли!\nНажмите R для перезагрузки";
             MessageBox gameOverMessage = new MessageBox(new Vector2(
-                _graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2),
+                Resolution.Width / 2, Resolution.Height / 2),
                 message
                 );
             gameOverMessage.IsCentered = true;
@@ -315,7 +283,7 @@ namespace KARC.MVP
         {
             string message = "Пауза\nНажмите P, чтобы продолжить";
             MessageBox MbxPause = new MessageBox(new Vector2(
-                _graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2),
+                Resolution.Width / 2, Resolution.Height / 2),
                 message
                 );
             MbxPause.IsCentered = true;

@@ -21,8 +21,7 @@ namespace KARC.WitchEngine
             List<(byte effectSprite, int timeLeft)> effects
             );
        
-        void ShowGameOver(bool isWin);
-        void Run();
+        void ShowGameOver(bool isWin);       
     }
 
     public class InitializeEventArgs

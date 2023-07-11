@@ -1,4 +1,5 @@
 ﻿using KARC.MVP;
+using Microsoft.Xna.Framework;
 using System;
 
 namespace KARC
@@ -11,8 +12,9 @@ namespace KARC
             //using (var game = new GameCycleView())
             //var game = new GameCycleView();
             //game.Run();         
-            GameplayPresenter g = new GameplayPresenter(new GameCycleView(), new GameCycle());
-            g.LaunchGame();
+            //GameplayPresenter g = new GameplayPresenter(new GameCycleView(), new GameCycle());
+            var game = new GameProcessor();
+            game.Run();
         }
     }
 }

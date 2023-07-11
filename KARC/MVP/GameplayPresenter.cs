@@ -40,11 +40,6 @@ namespace KARC.MVP
             _gameplayModel.SwitchPause();
         }
 
-        public void LaunchGame()
-        {
-            _gameplayView.Run();
-        }
-
         private void ViewModelMovePlayer(object sender, ControlsEventArgs e)
         {
             _gameplayModel.ChangePlayerSpeed(e.Direction);
