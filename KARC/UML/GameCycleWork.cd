@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="KARC.MVP.GameCycle">
+    <Position X="5.5" Y="0.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AFQAIAJgAAAAAQAAAABIBgEAIAAAhAAAQGAAE4AAIAE=</HashCode>
+      <FileName>MVP\GameCycle.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_mapBuilder" />
+      <Field Name="_map" />
+      <Property Name="ObjectsController" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KARC.Maps.MapBuilder">
+    <Position X="10.5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAIAAAAAAAgAAIAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Maps\MapBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KARC.Models.Map">
+    <Position X="10.5" Y="2.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAABAAAAAAAAAAAAEAgAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Map.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KARC.Models.ObjectsController">
+    <Position X="1" Y="0.5" Width="2.75" />
+    <AssociationLine Name="Storage" Type="KARC.Models.Storage" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="2.375" Y="5.391" />
+        <Point X="2.375" Y="8" />
+        <Point X="5.75" Y="8" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAJEAAAgAAABAAAAAIAgAAAAEAACQAQAQEQBAAhg=</HashCode>
+      <FileName>Models\ObjectsController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Storage" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="KARC.Models.Storage">
+    <Position X="5.75" Y="7.5" Width="2.75" />
+    <AssociationLine Name="Objects" Type="KARC.WitchEngine.IObject" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="8.5" Y="8.5" />
+        <Point X="8.875" Y="8.5" />
+        <Point X="8.875" Y="10.412" />
+        <Point X="9.25" Y="10.412" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAABAAQAAAAAAAAAAQEAAAACAAAAAEAAAAAAAAEAAA=</HashCode>
+      <FileName>Models\Storage.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Objects" />
+      <Property Name="SolidObjects" />
+      <Property Name="Timers" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="KARC.WitchEngine.Timer">
+    <Position X="0.5" Y="8.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAABBEAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>WitchEngine\Timer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="KARC.WitchEngine.IObject">
+    <Position X="9.25" Y="9.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAIAAAAAAAAAAAAABAACAAAAEAIAAAAAAAAA=</HashCode>
+      <FileName>WitchEngine\IObject.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="KARC.WitchEngine.ISolid">
+    <Position X="5" Y="11" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAgAAAAAAAAAAAAAAAAAAAASAAAAAAAAAAA=</HashCode>
+      <FileName>WitchEngine\ISolid.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

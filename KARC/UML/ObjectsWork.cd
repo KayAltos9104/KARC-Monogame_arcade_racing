@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="KARC.WitchEngine.Animations.AnimationController">
+    <Position X="2" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIBAAAAAAAAAAQAQAAKgAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>WitchEngine\Animations\AnimationController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="ActiveAnimation" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Animations" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="KARC.WitchEngine.Animations.Animator">
+    <Position X="6.75" Y="3.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AASABAAAAABAIABAMAAAAAAAAAAAAAAAACQAACAAEAA=</HashCode>
+      <FileName>WitchEngine\Animations\Animator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="KARC.WitchEngine.IObject">
+    <Position X="5.25" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAIAAAAAAAAAAAAABAACAAAAEAIAAAAAAAAA=</HashCode>
+      <FileName>WitchEngine\IObject.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="KARC.WitchEngine.ISolid">
+    <Position X="8.75" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAgAAAAAAAAAAAAAAAAAAAASAAAAAAAAAAA=</HashCode>
+      <FileName>WitchEngine\ISolid.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="KARC.WitchEngine.Animations.IAnimated">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>WitchEngine\Animations\IAnimated.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Animation" />
+    </ShowAsAssociation>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

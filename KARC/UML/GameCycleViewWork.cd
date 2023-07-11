@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="KARC.MVP.GameCycleView">
+    <Position X="4" Y="3.75" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAQaAgIACQAAAwQAgAgAAAAEgICAAAACAIAAgAAAAAQ=</HashCode>
+      <FileName>MVP\GameCycleView.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_interfaceController" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="_objects" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KARC.Models.InterfaceController">
+    <Position X="8.5" Y="0.75" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAIAAAAAAAAIAAAAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Models\InterfaceController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="KARC.WitchEngine.IObject">
+    <Position X="0.5" Y="0.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAIAAAAAAAAAAAAABAACAAAAEAIAAAAAAAAA=</HashCode>
+      <FileName>WitchEngine\IObject.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
