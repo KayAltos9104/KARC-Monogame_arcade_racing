@@ -13,7 +13,7 @@ using System.Collections.Generic;
 
 namespace KARC.MVP
 {
-    public class GameCycleView : IGameplayView
+    public class GameCycleView : IView
     {
 
         public (int Width, int Height) Resolution;
@@ -137,22 +137,22 @@ namespace KARC.MVP
                 {
                     case Keys.W:
                         {
-                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.forward });
+                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IModel.Direction.forward });
                             break;
                         }
                     case Keys.S:
                         {
-                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.backward });
+                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IModel.Direction.backward });
                             break;
                         }
                     case Keys.D:
                         {
-                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.right });
+                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IModel.Direction.right });
                             break;
                         }
                     case Keys.A:
                         {
-                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IGameplayModel.Direction.left });
+                            PlayerSpeedChanged.Invoke(this, new ControlsEventArgs { Direction = IModel.Direction.left });
                             break;
                         }
                     case Keys.Escape:
@@ -289,6 +289,14 @@ namespace KARC.MVP
             MbxPause.IsCentered = true;
             _interfaceController.Components.Add("MbxPause", MbxPause);
         }
+    }
+    public class InitializeEventArgs
+    {
+        public (int width, int height) Resolution { get; set; }
+    }
+    public class ControlsEventArgs : EventArgs
+    {
+        public IModel.Direction Direction { get; set; }
     }
 }
 

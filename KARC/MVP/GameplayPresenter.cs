@@ -3,12 +3,12 @@ using System;
 
 namespace KARC.MVP
 {
-    public class GameplayPresenter
+    public class GameplayPresenter : IPresenter
     {
-        private IGameplayView _gameplayView = null;
-        private IGameplayModel _gameplayModel = null;
+        private GameCycleView _gameplayView = null;
+        private GameCycle _gameplayModel = null;
 
-        public GameplayPresenter(IGameplayView gameplayView, IGameplayModel gameplayModel)
+        public GameplayPresenter(GameCycleView gameplayView, GameCycle gameplayModel)
         {
             _gameplayView = gameplayView;
             _gameplayModel = gameplayModel;
@@ -47,7 +47,14 @@ namespace KARC.MVP
 
         private void ModelViewUpdate(object sender, GameplayEventArgs e)
         {
-            _gameplayView.LoadGameCycleParameters(e.Objects, e.POVShift, e.Score, e.Speed, e.DistanceToFinish, e.Effects);
+            var racingEventArg = (RacingEventArgs)e;
+            _gameplayView.LoadGameCycleParameters(
+                e.Objects, 
+                e.POVShift,
+                racingEventArg.Score,
+                racingEventArg.Speed, 
+                racingEventArg.DistanceToFinish, 
+                racingEventArg.Effects);
         }
 
 

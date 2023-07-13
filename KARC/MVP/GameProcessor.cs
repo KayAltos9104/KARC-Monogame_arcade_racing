@@ -1,4 +1,5 @@
 ﻿using KARC.Settings;
+using KARC.WitchEngine;
 using KARC.WitchEngine.Primitives;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,9 +11,9 @@ namespace KARC.MVP;
 public class GameProcessor : Game
 {
     private GraphicsDeviceManager _graphics;
-    private GameCycleView _currentView;
-    private GameplayPresenter _gameplayPresenter;
-    public Dictionary<string, GameCycleView> _gameCycleViews;
+    private IView _currentView;
+    private IPresenter _currentPresenter;
+    public Dictionary<string, IView> _views;
     public GameProcessor()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -20,11 +21,11 @@ public class GameProcessor : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
-        _gameCycleViews = new Dictionary<string, GameCycleView>(){
+        _views = new Dictionary<string, IView>(){
                                                                     { "GamePlay", new GameCycleView()},
                                                                  };
-        _currentView = _gameCycleViews.First().Value;
-        _gameplayPresenter = new GameplayPresenter(_currentView, new GameCycle());
+        _currentView = _views.First().Value;
+        _currentPresenter = new GameplayPresenter((GameCycleView)_currentView, new GameCycle());
 
     }
     protected override void Initialize()
@@ -56,9 +57,7 @@ public class GameProcessor : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.DarkSeaGreen);
-        //Graphics2D.SpriteBatch.Begin();
         _currentView.Draw(gameTime);
-        //Graphics2D.SpriteBatch.End();
         base.Draw(gameTime);
     }
 }

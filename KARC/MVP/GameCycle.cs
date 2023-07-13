@@ -4,15 +4,12 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using KARC.WitchEngine.Animations;
 using KARC.Models;
 using KARC.Maps;
-using KARC.Settings;
-using KARC.Animations;
 
 namespace KARC.MVP;
 
-public class GameCycle : IGameplayModel
+public class GameCycle : IModel
 {
     public event EventHandler<GameplayEventArgs> Updated = delegate { };
     public event EventHandler<GameOverEventArgs> GameFinished = delegate { };
@@ -109,7 +106,7 @@ public class GameCycle : IGameplayModel
                 -GameParameters.Resolution.height * 0.8f + ObjectsController.Player.Object.Pos.Y
             );
 
-        Updated.Invoke(this, new GameplayEventArgs()
+        Updated.Invoke(this, new RacingEventArgs()
         {
             Objects = ObjectsController.Storage.Objects,
             POVShift = _playerShift,
@@ -125,8 +122,7 @@ public class GameCycle : IGameplayModel
         int y = yTile * GameParameters.TileSize;
         IObject generatedObject;
         if (sign == 'C')
-        {            
-            //ObjectsController.CarGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
+        {   
             ObjectsController.CarGenerator.CreateObject(x, y);
             generatedObject = ObjectsController.CarGenerator.GetObject();
             (generatedObject as Car).Speed = new Vector2(0, _random.Next(-800, -400));
@@ -144,7 +140,7 @@ public class GameCycle : IGameplayModel
         else if (sign == 'S')
         {
             ObjectsController.ShieldGenerator.CreateObject(x + GameParameters.TileSize / 2, y + GameParameters.TileSize / 2);
-            //ObjectsController.ShieldGenerator.CreateObject(x, y);
+            
         }
     }
     private void GenerateObject(char sign, int xInitTile, int yInitTile, int xEndTile, int yEndTile)
@@ -266,7 +262,7 @@ public class GameCycle : IGameplayModel
             effectsOut.Add(((byte)e.Value, ObjectsController.Storage.Timers[e.Key].Time));
         }
 
-        Updated.Invoke(this, new GameplayEventArgs
+        Updated.Invoke(this, new RacingEventArgs
         {
             Objects = sortedObjects,
             POVShift = _playerShift,
@@ -373,29 +369,29 @@ public class GameCycle : IGameplayModel
             GameFinished.Invoke(this, new GameOverEventArgs { IsWin = isWin });
         }            
     }
-    public void ChangePlayerSpeed(IGameplayModel.Direction dir)
+    public void ChangePlayerSpeed(IModel.Direction dir)
     {           
         if (!_isPaused&&!_isGameOver)
         {
             Car p = (Car)ObjectsController.Player.Object;
             switch (dir)
             {
-                case IGameplayModel.Direction.forward:
+                case IModel.Direction.forward:
                     {
                         p.Speed += new Vector2(0, -1000);
                         break;
                     }
-                case IGameplayModel.Direction.backward:
+                case IModel.Direction.backward:
                     {
                         p.Speed += new Vector2(0, 0);
                         break;
                     }
-                case IGameplayModel.Direction.right:
+                case IModel.Direction.right:
                     {
                         p.Speed += new Vector2(500, 0);
                         break;
                     }
-                case IGameplayModel.Direction.left:
+                case IModel.Direction.left:
                     {
                         p.Speed += new Vector2(-500, 0);
                         break;
@@ -411,4 +407,17 @@ public class GameCycle : IGameplayModel
             _isPaused = true;
     }
 
+}
+
+public class RacingEventArgs : GameplayEventArgs
+{
+    public int Score { get; set; }
+    public int Speed { get; set; }
+    public List<(byte, int timeLeft)> Effects { get; set; }
+    public float DistanceToFinish { get; set; }
+}
+
+public class GameOverEventArgs
+{
+    public bool IsWin { get; set; }
 }
