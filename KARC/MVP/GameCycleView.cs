@@ -40,12 +40,6 @@ namespace KARC.MVP
 
         public void Initialize()
         {
-            Graphics2D.Graphics.IsFullScreen = false;
-            Graphics2D.Graphics.PreferredBackBufferWidth = 1600;
-            Graphics2D.Graphics.PreferredBackBufferHeight = 900;
-            Graphics2D.Graphics.ApplyChanges();
-            Graphics2D.UpdateVisionArea();
-
             Resolution = (Graphics2D.Graphics.PreferredBackBufferWidth, 
                 Graphics2D.Graphics.PreferredBackBufferHeight);
 

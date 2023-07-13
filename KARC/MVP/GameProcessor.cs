@@ -21,17 +21,24 @@ public class GameProcessor : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
-        _views = new Dictionary<string, IView>(){
-                                                                    { "GamePlay", new GameCycleView()},
-                                                                 };
+        _views = new Dictionary<string, IView>()
+        {
+            { "MainMenu", new MenuView()},
+            { "GamePlay", new GameCycleView()},            
+        };
         _currentView = _views.First().Value;
-        _currentPresenter = new GameplayPresenter((GameCycleView)_currentView, new GameCycle());
+        //_currentPresenter = new GameplayPresenter((GameCycleView)_currentView, new GameCycle());
 
     }
     protected override void Initialize()
     {
         base.Initialize();
         this.Window.Title = "KARC";
+        Graphics2D.Graphics.IsFullScreen = false;
+        Graphics2D.Graphics.PreferredBackBufferWidth = 1600;
+        Graphics2D.Graphics.PreferredBackBufferHeight = 900;
+        Graphics2D.Graphics.ApplyChanges();
+        Graphics2D.UpdateVisionArea();
         _currentView.Initialize();
     }
 
