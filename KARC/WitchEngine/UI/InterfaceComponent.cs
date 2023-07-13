@@ -14,7 +14,9 @@ public abstract class InterfaceComponent : IComponent
     public Vector2 TextPos { get; set; }
     public string Text { get; set ; }
     public bool IsCentered { get; set; }
-    public float Layer { get; set; }    
+    public float Layer { get; set; }
+    
+    public Color TextColor { get; set; }
 
     public InterfaceComponent(Vector2 pos) 
     {
@@ -22,7 +24,7 @@ public abstract class InterfaceComponent : IComponent
         Sprites = new List<(int ImageId, Vector2 ImagePos)>();       
         Layer = 1.0f;
         MarginText = Vector2.Zero;
-
+        TextColor = Color.Black;
 
     }
     public void LoadSprite(byte sprite, Vector2 pos)
@@ -61,7 +63,7 @@ public abstract class InterfaceComponent : IComponent
                     spriteFont: LoadableObjects.TextBlock,
                     Text,
                     position: TextPos + MarginText + textShift,
-                    color: Color.Black,
+                    color: TextColor,
                     rotation: 0,
                     origin: Vector2.Zero,
                     scale: 1,

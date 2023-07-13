@@ -117,7 +117,13 @@ public static class Graphics2D
 
     public static void FillRectangle (int x, int y, int width, int height, Color color)
     {
-        Texture2D pixel = new Texture2D(SpriteBatch.GraphicsDevice, 1, 1);
+        Texture2D pixel = new Texture2D(SpriteBatch.GraphicsDevice, width, height);
+        var colorArray = new Color[width*height];
+        for (int i = 0; i < colorArray.Length; i++)
+        {
+            colorArray[i] = Color.White;
+        }
+        pixel.SetData(colorArray);
         SpriteBatch.Draw(pixel, new Rectangle(x, y, width, height), color);
     }
 

@@ -7,7 +7,8 @@ namespace KARC.WitchEngine
 {
     public interface IModel
     {       
-        GameTime GameTime { get; set; }        
+        GameTime GameTime { get; set; }
+        
         event EventHandler<GameplayEventArgs> Updated; 
        
         void Update();

@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using KARC.WitchEngine;
+using Microsoft.Xna.Framework;
+using System;
 
-namespace KARC.MVP
+namespace KARC.MVP;
+public class MenuModel : IModel
 {
-    internal class MenuModel
+    public GameTime GameTime { get; set; }
+
+    public event EventHandler<GameplayEventArgs> Updated;
+
+    public void Initialize((int width, int height) resolution)
     {
+        throw new NotImplementedException();
+    }
+
+    public void Update()
+    {
+        throw new NotImplementedException();
     }
 }
