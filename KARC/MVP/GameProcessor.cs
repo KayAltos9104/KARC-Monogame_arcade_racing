@@ -67,4 +67,10 @@ public class GameProcessor : Game
         _currentView.Draw(gameTime);
         base.Draw(gameTime);
     }
+
+    public void SetCurrentScene (string sceneName)
+    {
+        if (_views.ContainsKey(sceneName))
+            _currentView = _views[sceneName];
+    }
 }
