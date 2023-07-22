@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31613.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KARC", "KARC\KARC.csproj", "{37533065-7B81-4DD4-8FB4-A3DE4E8874A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WitchEngine", "WitchEngine\WitchEngine.csproj", "{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{37533065-7B81-4DD4-8FB4-A3DE4E8874A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37533065-7B81-4DD4-8FB4-A3DE4E8874A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37533065-7B81-4DD4-8FB4-A3DE4E8874A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
