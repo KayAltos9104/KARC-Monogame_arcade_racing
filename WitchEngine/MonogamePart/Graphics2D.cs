@@ -2,10 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 
-
-
-
-namespace WitchEngine;
+namespace WitchEngine.MonogamePart;
 public static class Graphics2D
 {
     public static SpriteBatch SpriteBatch;
@@ -15,9 +12,9 @@ public static class Graphics2D
 
     public static void UpdateVisionArea()
     {
-        VisionArea = new Rectangle(-100, -100, Graphics.PreferredBackBufferWidth+100, Graphics.PreferredBackBufferHeight+100);
+        VisionArea = new Rectangle(-100, -100, Graphics.PreferredBackBufferWidth + 100, Graphics.PreferredBackBufferHeight + 100);
     }
-    public static void UpdateVisionArea (int x, int y, int width, int height)
+    public static void UpdateVisionArea(int x, int y, int width, int height)
     {
         VisionArea = new Rectangle(x, y, width, height);
     }
@@ -46,15 +43,15 @@ public static class Graphics2D
                 scale: 1,
                 SpriteEffects.None,
                 layerDepth: obj.Layer);
-            }            
+            }
         }
     }
-    
-    public static void RenderAnimation (IAnimated a)
+
+    public static void RenderAnimation(IAnimated a)
     {
         if (a.Animation.ActiveAnimation != null &&
             a.Animation.ActiveAnimation.IsActive)
-        {            
+        {
             var centerShift = a.Animation.ActiveAnimation.IsCentered ?
                 new Vector2(a.Animation.ActiveAnimation.CurrentFrame.Width / 2,
                 a.Animation.ActiveAnimation.CurrentFrame.Height / 2) :
@@ -78,7 +75,7 @@ public static class Graphics2D
             }
         }
     }
-   
+
     public static void DrawLine(Vector2 point1, Vector2 point2, Color color)
     {
         DrawLine(point1, point2, color, 1);
@@ -99,9 +96,9 @@ public static class Graphics2D
         SpriteBatch.Draw(pixel, point1, null, color, angle, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
     }
 
-    public static void DrawRectangle (int x, int y, int width, int height, Color color)
+    public static void DrawRectangle(int x, int y, int width, int height, Color color)
     {
-        DrawRectangle(x, y,width, height, color, 1);
+        DrawRectangle(x, y, width, height, color, 1);
     }
 
     public static void DrawRectangle(int x, int y, int width, int height, Color color, int contourWidth)
@@ -116,10 +113,10 @@ public static class Graphics2D
         DrawLine(leftBottom, leftTop, color, contourWidth);
     }
 
-    public static void FillRectangle (int x, int y, int width, int height, Color color)
+    public static void FillRectangle(int x, int y, int width, int height, Color color)
     {
         Texture2D pixel = new Texture2D(SpriteBatch.GraphicsDevice, width, height);
-        var colorArray = new Color[width*height];
+        var colorArray = new Color[width * height];
         for (int i = 0; i < colorArray.Length; i++)
         {
             colorArray[i] = Color.White;
@@ -146,7 +143,7 @@ public static class Graphics2D
         }
     }
 
-    public static void FillCircle (int radius)
+    public static void FillCircle(int radius)
     {
         Texture2D circleTexture = new Texture2D(SpriteBatch.GraphicsDevice, radius * 2, radius * 2);
 
