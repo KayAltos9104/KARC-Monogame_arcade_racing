@@ -25,7 +25,6 @@ public class GameProcessor : Game
         //};
         //_currentView = _views.First().Value;
         //_currentPresenter = new GameplayPresenter((GameCycleView)_currentView, new GameCycle());
-
     }
     protected override void Initialize()
     {
@@ -61,7 +60,7 @@ public class GameProcessor : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.DarkSeaGreen);
-        _currentView.Draw(gameTime);
+        //_currentView.Draw(gameTime);
         base.Draw(gameTime);
     }
 

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KARC", "KARC\KARC.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WitchEngine", "WitchEngine\WitchEngine.csproj", "{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{88F5A44A-AA84-458B-A44C-C35F0124EAF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{617C5FA8-08F7-45BF-8A81-2B271F2CF17E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88F5A44A-AA84-458B-A44C-C35F0124EAF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88F5A44A-AA84-458B-A44C-C35F0124EAF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88F5A44A-AA84-458B-A44C-C35F0124EAF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88F5A44A-AA84-458B-A44C-C35F0124EAF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
