@@ -10,24 +10,31 @@ namespace WitchEngine;
 public abstract class View
 {
     
-    private ModelViewData _currentModelData;
-    private Dictionary<string, IComponent> _interfaceElements;
+    protected ModelViewData _currentModelData;
+    protected Dictionary<string, IComponent> _interfaceElements;
 
-    private List<Keys> _pressedCurrentFrame;
-    private List<Keys> _pressedPrevFrame;
-    private GameTime _gameTime;
+    protected List<Keys> _pressedCurrentFrame;
+    protected List<Keys> _pressedPrevFrame;
+    protected GameTime _gameTime;
 
+    public (int Width, int Height) Resolution;
     /// <value>
     /// Event <c>CycleFinished</c> that activates when View ended cycle processing
     /// </value>
     public EventHandler<CycleFinishedEventArgs> CycleFinished;
 
+    public View()
+    {
+        Resolution = (Graphics2D.Graphics.PreferredBackBufferWidth,
+           Graphics2D.Graphics.PreferredBackBufferHeight);
+        _interfaceElements = new Dictionary<string, IComponent>();        
+    }
+
     /// <summary>
     /// Processes inputs, draws objects and invoke event about cycle ending.
     /// </summary>
-    public void Update ()
-    {
-        ReadInput();
+    public virtual void Update ()
+    {        
         CycleFinished?.Invoke(this, new CycleFinishedEventArgs() { GameTime = _gameTime});
     }
     /// <summary>
@@ -47,19 +54,28 @@ public abstract class View
     public virtual void Draw(GameTime gameTime)
     {
         Graphics2D.SpriteBatch.Begin();
-
-        foreach (var o in _currentModelData.CurrentFrameObjects)
+        if (_currentModelData != null)
         {
-            Graphics2D.RenderObject(o);
-            if (o is IAnimated)
-                Graphics2D.RenderAnimation(o as IAnimated);
-        }
+            foreach (var o in _currentModelData.CurrentFrameObjects)
+            {
+                Graphics2D.RenderObject(o);
+                if (o is IAnimated)
+                    Graphics2D.RenderAnimation(o as IAnimated);
+            }
+        }        
+        foreach (var ui in _interfaceElements.Values)
+            ui.Render(Graphics2D.SpriteBatch);
         Graphics2D.SpriteBatch.End();
     }
     /// <summary>
     /// Loads all inputs from user.
     /// </summary>
-    public abstract void ReadInput();
+    public virtual void ReadInputs()
+    {
+        _pressedCurrentFrame = new List<Keys>(Keyboard.GetState().GetPressedKeys());
+        // Потом добавить мышу
+    }
+
 
 }
 public class CycleFinishedEventArgs : EventArgs

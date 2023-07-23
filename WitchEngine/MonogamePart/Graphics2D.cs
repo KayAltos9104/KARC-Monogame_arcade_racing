@@ -34,7 +34,7 @@ public static class Graphics2D
             if (IsInVisionArea(v))
             {
                 SpriteBatch.Draw(
-                texture: LoadableObjects.Textures[sprite.ImageId],
+                texture: LoadableObjects.GetTexture(sprite.ImageId),
                 position: obj.Pos - VisualShift + sprite.ImagePos,
                 sourceRectangle: null,
                 Color.White,
@@ -60,7 +60,7 @@ public static class Graphics2D
             if (IsInVisionArea(v))
             {
                 SpriteBatch.Draw(
-               LoadableObjects.Textures[a.Animation.ActiveAnimation.GetPictureId()],
+               LoadableObjects.GetTexture(a.Animation.ActiveAnimation.GetPictureId()),
                 v,
                 new Rectangle(
                     a.Animation.ActiveAnimation.CurrentFrame.Point,

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using WitchEngine.MonogamePart;
 
 namespace WitchEngine;
 
@@ -17,14 +18,16 @@ public abstract class InterfaceComponent : IComponent
     
     public Color TextColor { get; set; }
 
-    public InterfaceComponent(Vector2 pos) 
+    public SpriteFont Font { get; set; }
+
+    public InterfaceComponent(Vector2 pos, SpriteFont font) 
     {
         Pos = pos;        
         Sprites = new List<(int ImageId, Vector2 ImagePos)>();       
         Layer = 1.0f;
         MarginText = Vector2.Zero;
         TextColor = Color.Black;
-
+        Font = font;
     }
     public void LoadSprite(byte sprite, Vector2 pos)
     {
@@ -36,7 +39,7 @@ public abstract class InterfaceComponent : IComponent
         foreach (var sprite in Sprites)
         {
             spriteBatch.Draw(
-                   texture: LoadableObjects.Textures[sprite.ImageId],
+                   texture: LoadableObjects.GetTexture(sprite.ImageId),
                    position: Pos + sprite.ImagePos,
                    sourceRectangle: null,
                    Color.White,
@@ -51,15 +54,15 @@ public abstract class InterfaceComponent : IComponent
     {
         if (Text == null)
             return;
-        _textSize = LoadableObjects.TextBlock.MeasureString(Text) != Vector2.Zero ?
-                LoadableObjects.TextBlock.MeasureString(Text):
+        _textSize = Font.MeasureString(Text) != Vector2.Zero ?
+                Font.MeasureString(Text):
                 Vector2.One;
         Vector2 textShift = new Vector2(
-            Pos.X + (_textSize.X - LoadableObjects.TextBlock.MeasureString(Text).X) / 2 - (IsCentered ? _textSize.X / 2 : 0),
-            Pos.Y + (_textSize.Y - LoadableObjects.TextBlock.MeasureString(Text).Y) / 2 - (IsCentered ? _textSize.Y / 2 : 0)
+            Pos.X + (_textSize.X - Font.MeasureString(Text).X) / 2 - (IsCentered ? _textSize.X / 2 : 0),
+            Pos.Y + (_textSize.Y - Font.MeasureString(Text).Y) / 2 - (IsCentered ? _textSize.Y / 2 : 0)
             );
         spriteBatch.DrawString(
-                    spriteFont: LoadableObjects.TextBlock,
+                    spriteFont: Font,
                     Text,
                     position: TextPos + MarginText + textShift,
                     color: TextColor,

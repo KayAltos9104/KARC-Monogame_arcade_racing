@@ -1,22 +1,24 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using System.Linq;
+
 
 namespace WitchEngine.MonogamePart;
 
 public class GameProcessor : Game
 {
     private GraphicsDeviceManager _graphics;
-    private View _currentView;
-    //private IPresenter _currentPresenter;
-    //public Dictionary<string, IView> _views;
+    private Scene _currentScene;
+    private string _pathToResources;
+    public Dictionary<string, Scene> _scenes;
     public GameProcessor()
     {
+        _scenes = new Dictionary<string, Scene>();
         _graphics = new GraphicsDeviceManager(this);
         Graphics2D.Graphics = _graphics;
-        Content.RootDirectory = "Content";
+        Content.RootDirectory = "Resources";
         IsMouseVisible = true;
+
+        
 
         //_views = new Dictionary<string, IView>()
         //{
@@ -36,37 +38,40 @@ public class GameProcessor : Game
         Graphics2D.Graphics.ApplyChanges();
         Graphics2D.UpdateVisionArea();
         //_currentView.Initialize();
+        
     }
 
     protected override void LoadContent()
     {
         Graphics2D.SpriteBatch = new SpriteBatch(GraphicsDevice);
+        LoadableObjects.AddTexture(Content.Load<Texture2D>("Base_car"));
+        LoadableObjects.AddFont("MainFont", Content.Load<SpriteFont>("DescriptionFont"));
 
-        //LoadableObjects.Textures.Add((byte)Sprite.car, Content.Load<Texture2D>("Base_car"));
-        //LoadableObjects.Textures.Add((byte)Sprite.wall, Content.Load<Texture2D>("Wall"));
-        //LoadableObjects.Textures.Add((byte)Sprite.window, Content.Load<Texture2D>("Message_Window"));
-        //LoadableObjects.Textures.Add((byte)Sprite.finishTape, Content.Load<Texture2D>("FinishSprite"));
-        //LoadableObjects.Textures.Add((byte)Sprite.finishCounterWindow, Content.Load<Texture2D>("FinishCounterField"));
-        //LoadableObjects.Textures.Add((byte)Sprite.shield, Content.Load<Texture2D>("Immortality"));
-        //LoadableObjects.Textures.Add((byte)Sprite.explosion, Content.Load<Texture2D>("Explosion_Atlas"));
-        //LoadableObjects.TextBlock = Content.Load<SpriteFont>("DescriptionFont");
+        // Добавить создание элементов во View не в конструкторе, а сделать метод Initalize
     }
 
     protected override void Update(GameTime gameTime)
     {
-        //_currentView.Update(gameTime);
+        if (_currentScene != null)
+        {
+            _currentScene.Update(gameTime);
+        }        
         base.Update(gameTime);
     }
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.DarkSeaGreen);
-        //_currentView.Draw(gameTime);
+        if (_currentScene != null)
+        {
+            _currentScene.Draw(gameTime);
+        }       
         base.Draw(gameTime);
     }
 
     public void SetCurrentScene(string sceneName)
     {
-        //if (_views.ContainsKey(sceneName))
-        //    _currentView = _views[sceneName];
+        if (_scenes.ContainsKey(sceneName))
+            _currentScene = _scenes[sceneName];
     }
+
 }

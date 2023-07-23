@@ -10,7 +10,7 @@ public class Button : MessageBox
     public event EventHandler<ClickEventArgs> Click;
     public bool IsChosen { get; set; }
 
-    public Button(Vector2 pos, string text) : base(pos, text)
+    public Button(Vector2 pos, SpriteFont font, string text) : base(pos, font, text)
     {
         IsChosen = false;
     }
@@ -22,8 +22,8 @@ public class Button : MessageBox
     
     public override void Render(SpriteBatch spriteBatch)
     {
-        _textSize = LoadableObjects.TextBlock.MeasureString(Text) != Vector2.Zero ?
-                LoadableObjects.TextBlock.MeasureString(Text) :
+        _textSize = Font.MeasureString(Text) != Vector2.Zero ?
+                Font.MeasureString(Text) :
                 Vector2.One;
         if (IsChosen)
         {

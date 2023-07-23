@@ -5,7 +5,7 @@ using WitchEngine.MonogamePart;
 namespace WitchEngine;
 public class MessageBox : InterfaceComponent    
 {   
-    public MessageBox(Vector2 pos, string text) : base(pos)
+    public MessageBox(Vector2 pos, SpriteFont font, string text) : base(pos, font)
     {
         Pos = pos;
         Text = text;
@@ -21,8 +21,8 @@ public class MessageBox : InterfaceComponent
 
     public override void Render(SpriteBatch spriteBatch)
     {
-        _textSize = LoadableObjects.TextBlock.MeasureString(Text) != Vector2.Zero ?
-                LoadableObjects.TextBlock.MeasureString(Text) :
+        _textSize = Font.MeasureString(Text) != Vector2.Zero ?
+                Font.MeasureString(Text) :
                 Vector2.One;
         int x = (int)(Pos - (IsCentered ? _textSize / 2 : Vector2.Zero)).X;
         int y = (int)(Pos - (IsCentered ? _textSize / 2 : Vector2.Zero)).Y;        

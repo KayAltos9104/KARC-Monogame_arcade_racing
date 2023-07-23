@@ -7,7 +7,7 @@ namespace WitchEngine;
 
 public class Parameter : InterfaceComponent
 {
-    public Parameter (Vector2 pos, string text, byte sprite):base(pos)
+    public Parameter (Vector2 pos, SpriteFont font, string text, byte sprite) : base(pos, font)
     {
         Pos = pos;
         Text = text;
