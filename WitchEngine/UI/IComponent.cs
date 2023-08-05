@@ -8,5 +8,6 @@ public interface IComponent
     string Text { get; set; }
     bool IsCentered { get; set; }
     float Layer { get; set; }
+    public bool IsChosen { get; set; }
     void Render(SpriteBatch spriteBatch);
 }

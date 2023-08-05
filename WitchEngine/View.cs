@@ -13,8 +13,8 @@ public abstract class View
     protected ModelViewData _currentModelData;
     protected Dictionary<string, IComponent> _interfaceElements;
 
-    protected List<Keys> _pressedCurrentFrame;
-    protected List<Keys> _pressedPrevFrame;
+    protected KeyboardState _pressedCurrentFrame;
+    protected KeyboardState _pressedPrevFrame;
     protected GameTime _gameTime;
 
     public (int Width, int Height) Resolution;
@@ -76,8 +76,31 @@ public abstract class View
     /// </summary>
     public virtual void ReadInputs()
     {
-        _pressedCurrentFrame = new List<Keys>(Keyboard.GetState().GetPressedKeys());
+        _pressedCurrentFrame = Keyboard.GetState();
         // Потом добавить мышу
+    }
+    /// <summary>
+    /// Save all inputs from user to use on the next frame.
+    /// </summary>
+    public void SaveInputs()
+    {
+        _pressedPrevFrame = Keyboard.GetState();
+    }
+    /// <summary>
+    /// Checks single pressing of button.
+    /// </summary>
+    /// <param name="key">
+    /// Which single pressing key must be checked.
+    /// </param>
+    /// <returns>
+    /// Is this key was pressed single time.
+    /// </returns>
+    protected bool IsSinglePressed(Keys key)
+    {
+        //var a = Keyboard.GetState().IsKeyUp(key);
+        //var b = _pressedPrevFrame.Contains(key);
+        //return Keyboard.GetState().IsKeyUp(key) && _pressedPrevFrame.Contains(key);
+        return _pressedCurrentFrame.IsKeyUp(key) && _pressedPrevFrame.IsKeyDown(key);
     }
 }
 public class CycleFinishedEventArgs : EventArgs

@@ -19,6 +19,7 @@ public abstract class InterfaceComponent : IComponent
     public Color TextColor { get; set; }
 
     public SpriteFont Font { get; set; }
+    public bool IsChosen { get; set; }
 
     public InterfaceComponent(Vector2 pos, SpriteFont font) 
     {

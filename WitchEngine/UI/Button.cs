@@ -8,7 +8,7 @@ namespace WitchEngine;
 public class Button : MessageBox
 {
     public event EventHandler<ClickEventArgs> Click;
-    public bool IsChosen { get; set; }
+    
 
     public Button(Vector2 pos, SpriteFont font, string text) : base(pos, font, text)
     {

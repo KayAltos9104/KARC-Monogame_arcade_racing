@@ -9,16 +9,19 @@ public interface IKeyboardCursor
         {
             case DiscreteDirection.Up:
                 {
-                    CursorPos++;
-                    if (CursorPos > InteractiveElements.Count - 1)
-                        CursorPos = 0;
-                    break;
-                }
-            case DiscreteDirection.Down:
-                {
                     CursorPos--;
                     if (CursorPos < 0)
                         CursorPos = InteractiveElements.Count - 1;
+                    UpdateActivationOnElement();
+                    break;
+                    
+                }
+            case DiscreteDirection.Down:
+                {
+                    CursorPos++;
+                    if (CursorPos > InteractiveElements.Count - 1)
+                        CursorPos = 0;
+                    UpdateActivationOnElement();
                     break;
                 }
             default:
@@ -26,5 +29,10 @@ public interface IKeyboardCursor
                     throw new ArgumentException("Wrong cursor direction");                    
                 }
         }
+    }
+    void UpdateActivationOnElement()
+    {
+        InteractiveElements.ForEach(element => element.IsChosen = false);
+        InteractiveElements[CursorPos].IsChosen = true;
     }
 }

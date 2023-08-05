@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,22 @@ public class MainMenuView : View, IKeyboardCursor
         InteractiveElements.Add(BtnTest2);
         _interfaceElements.Add("BtnTest3", BtnTest3);
         InteractiveElements.Add(BtnTest3);
+        ((IKeyboardCursor)this).UpdateActivationOnElement();
+    }
+
+    public override void Update()
+    {
+        ReadInputs();
+
+        //if (_pressedCurrentFrame.IsKeyUp(Keys.Q))
+        //    ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Up);
+        if (IsSinglePressed(Keys.W))
+            ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Up);
+        if (IsSinglePressed(Keys.S))
+            ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Down);
+
+        SaveInputs();
+        base.Update();
     }
 
     public override void LoadModelData(ModelViewData currentModelData)
