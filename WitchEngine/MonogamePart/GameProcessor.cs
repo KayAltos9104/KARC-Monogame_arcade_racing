@@ -36,9 +36,8 @@ public class GameProcessor : Game
         Graphics2D.Graphics.PreferredBackBufferWidth = 1600;
         Graphics2D.Graphics.PreferredBackBufferHeight = 900;
         Graphics2D.Graphics.ApplyChanges();
-        Graphics2D.UpdateVisionArea();
-        //_currentView.Initialize();
-        
+        Graphics2D.UpdateVisionArea();        
+        _currentScene.Initialize();        
     }
 
     protected override void LoadContent()

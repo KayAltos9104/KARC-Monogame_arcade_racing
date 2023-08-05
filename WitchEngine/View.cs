@@ -29,6 +29,10 @@ public abstract class View
            Graphics2D.Graphics.PreferredBackBufferHeight);
         _interfaceElements = new Dictionary<string, IComponent>();        
     }
+    /// <summary>
+    /// Initialize all view elements. Must be called. 
+    /// </summary>
+    public abstract void Initialize();
 
     /// <summary>
     /// Processes inputs, draws objects and invoke event about cycle ending.
@@ -75,8 +79,6 @@ public abstract class View
         _pressedCurrentFrame = new List<Keys>(Keyboard.GetState().GetPressedKeys());
         // Потом добавить мышу
     }
-
-
 }
 public class CycleFinishedEventArgs : EventArgs
 {

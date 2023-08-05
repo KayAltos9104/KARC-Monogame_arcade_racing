@@ -11,7 +11,12 @@ namespace Test;
 
 public class MainMenuView : View
 {
-    public MainMenuView(): base()
+    //public MainMenuView(): base()
+    //{
+        
+    //}
+
+    public override void Initialize()
     {
         MessageBox MbxTest = new MessageBox(new Vector2(
                 Resolution.Width / 2, Resolution.Height / 2 - 100),
@@ -36,7 +41,7 @@ public class MainMenuView : View
         _interfaceElements.Add("BtnTest2", BtnTest2);
         _interfaceElements.Add("BtnTest3", BtnTest3);
     }
-    
+
     public override void LoadModelData(ModelViewData currentModelData)
     {
         throw new NotImplementedException();
