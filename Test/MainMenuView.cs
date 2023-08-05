@@ -6,15 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using WitchEngine;
 using WitchEngine.MonogamePart;
+using WitchEngine.UI;
 
 namespace Test;
 
-public class MainMenuView : View
+public class MainMenuView : View, IKeyboardCursor
 {
-    //public MainMenuView(): base()
-    //{
-        
-    //}
+    public List<IComponent> InteractiveElements { get; set; } = new List<IComponent>();
+
+    public int CursorPos { get; set; } = 0;
 
     public override void Initialize()
     {
@@ -38,15 +38,17 @@ public class MainMenuView : View
 
         _interfaceElements.Add("MbxTest", MbxTest);
         _interfaceElements.Add("BtnTest", BtnTest);
+        InteractiveElements.Add(BtnTest);  
         _interfaceElements.Add("BtnTest2", BtnTest2);
+        InteractiveElements.Add(BtnTest2);
         _interfaceElements.Add("BtnTest3", BtnTest3);
+        InteractiveElements.Add(BtnTest3);
     }
 
     public override void LoadModelData(ModelViewData currentModelData)
     {
         throw new NotImplementedException();
     }
-
     private void BtnTest1_Click(object sender, ClickEventArgs e)
     {
         MessageBox MbxTest1 = new MessageBox(new Vector2(

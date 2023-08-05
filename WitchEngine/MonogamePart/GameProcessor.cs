@@ -9,10 +9,10 @@ public class GameProcessor : Game
     private GraphicsDeviceManager _graphics;
     private Scene _currentScene;
     private string _pathToResources;
-    public Dictionary<string, Scene> _scenes;
+    public Dictionary<string, Scene> Scenes;
     public GameProcessor()
     {
-        _scenes = new Dictionary<string, Scene>();
+        Scenes = new Dictionary<string, Scene>();
         _graphics = new GraphicsDeviceManager(this);
         Graphics2D.Graphics = _graphics;
         Content.RootDirectory = "Resources";
@@ -45,8 +45,6 @@ public class GameProcessor : Game
         Graphics2D.SpriteBatch = new SpriteBatch(GraphicsDevice);
         LoadableObjects.AddTexture(Content.Load<Texture2D>("Base_car"));
         LoadableObjects.AddFont("MainFont", Content.Load<SpriteFont>("DescriptionFont"));
-
-        // Добавить создание элементов во View не в конструкторе, а сделать метод Initalize
     }
 
     protected override void Update(GameTime gameTime)
@@ -69,8 +67,7 @@ public class GameProcessor : Game
 
     public void SetCurrentScene(string sceneName)
     {
-        if (_scenes.ContainsKey(sceneName))
-            _currentScene = _scenes[sceneName];
+        if (Scenes.ContainsKey(sceneName))
+            _currentScene = Scenes[sceneName];
     }
-
 }

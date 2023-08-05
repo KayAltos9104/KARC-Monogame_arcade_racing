@@ -21,7 +21,7 @@ public static class Program
         var game = new GameProcessor();
         var scene1 = new Scene();
         scene1.View = new MainMenuView();
-        game._scenes.Add("Test1", scene1);
+        game.Scenes.Add("Test1", scene1);
         game.SetCurrentScene("Test1");
         game.Run();
     }
