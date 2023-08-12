@@ -10,18 +10,20 @@ namespace WitchEngine;
 public abstract class View
 {
     
-    protected ModelViewData _currentModelData;
+    protected ModelViewData? _currentModelData;
     protected Dictionary<string, IComponent> _interfaceElements;
 
     protected KeyboardState _pressedCurrentFrame;
     protected KeyboardState _pressedPrevFrame;
-    protected GameTime _gameTime;
-
+    protected GameTime? _gameTime;
+    /// <value>
+    /// The <c>Resolution</c> property represents a tuple of screen width and height
+    /// </value>
     public (int Width, int Height) Resolution;
     /// <value>
     /// Event <c>CycleFinished</c> that activates when View ended cycle processing
     /// </value>
-    public EventHandler<CycleFinishedEventArgs> CycleFinished;
+    public EventHandler<CycleFinishedEventArgs>? CycleFinished;
 
     public View()
     {
@@ -96,16 +98,20 @@ public abstract class View
     /// Is this key was pressed single time.
     /// </returns>
     protected bool IsSinglePressed(Keys key)
-    {
-        //var a = Keyboard.GetState().IsKeyUp(key);
-        //var b = _pressedPrevFrame.Contains(key);
-        //return Keyboard.GetState().IsKeyUp(key) && _pressedPrevFrame.Contains(key);
+    {        
         return _pressedCurrentFrame.IsKeyUp(key) && _pressedPrevFrame.IsKeyDown(key);
     }
 }
+
+/// <summary>
+/// Class with fields for transfer from view to model after one cycle
+/// </summary>
 public class CycleFinishedEventArgs : EventArgs
 {
-    public GameTime GameTime { get; set; }
+    /// <value>
+    /// The <c>GameTime</c> property represents game time - frame elapsed and total time 
+    /// </value>
+    public GameTime? GameTime { get; set; }
 }
 
 

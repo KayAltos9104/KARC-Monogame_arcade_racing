@@ -50,9 +50,7 @@ public class MainMenuView : View, IKeyboardCursor
     public override void Update()
     {
         ReadInputs();
-
-        //if (_pressedCurrentFrame.IsKeyUp(Keys.Q))
-        //    ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Up);
+       
         if (IsSinglePressed(Keys.W))
             ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Up);
         if (IsSinglePressed(Keys.S))
