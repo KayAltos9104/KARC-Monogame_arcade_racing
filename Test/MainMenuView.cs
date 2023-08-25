@@ -2,11 +2,9 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WitchEngine;
 using WitchEngine.MonogamePart;
+using WitchEngine.MVP;
 using WitchEngine.UI;
 
 namespace Test;
@@ -20,18 +18,18 @@ public class MainMenuView : View, IKeyboardCursor
     public override void Initialize()
     {
         MessageBox MbxTest = new MessageBox(new Vector2(
-                Resolution.Width / 2, Resolution.Height / 2 - 100),
+                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 - 100),
                 LoadableObjects.GetFont("MainFont"),
                 "Тестовое окно\nНажмите Q, чтобы поменять текст"
                 );
         MbxTest.IsCentered = true;
 
         Button BtnTest = new Button(new Vector2(
-                Resolution.Width / 2, Resolution.Height / 2 + 100), LoadableObjects.GetFont("MainFont"), "Нажми меня!");
+                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 100), LoadableObjects.GetFont("MainFont"), "Нажми меня!");
         Button BtnTest2 = new Button(new Vector2(
-                Resolution.Width / 2, Resolution.Height / 2 + 150), LoadableObjects.GetFont("MainFont"), "Нет, меня!");
+                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 150), LoadableObjects.GetFont("MainFont"), "Нет, меня!");
         Button BtnTest3 = new Button(new Vector2(
-                Resolution.Width / 2, Resolution.Height / 2 + 250), LoadableObjects.GetFont("MainFont"), "Выход");
+                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 250), LoadableObjects.GetFont("MainFont"), "Выход");
 
         BtnTest.Click += BtnTest1_Click;
         BtnTest2.Click += BtnTest2_Click;
@@ -55,6 +53,8 @@ public class MainMenuView : View, IKeyboardCursor
             ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Up);
         if (IsSinglePressed(Keys.S))
             ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Down);
+        if (IsSinglePressed(Keys.Space))
+            (((IKeyboardCursor)this).GetCurrentElement() as Button).PerformClick();
 
         SaveInputs();
         base.Update();

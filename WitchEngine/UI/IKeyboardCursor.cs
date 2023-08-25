@@ -30,6 +30,10 @@ public interface IKeyboardCursor
                 }
         }
     }
+    IComponent GetCurrentElement()
+    {
+        return InteractiveElements[CursorPos];
+    }
     void UpdateActivationOnElement()
     {
         InteractiveElements.ForEach(element => element.IsChosen = false);

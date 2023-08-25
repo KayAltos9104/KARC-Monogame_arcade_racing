@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 
 
-namespace WitchEngine;
+namespace WitchEngine.MVP;
 /// <summary>
 /// Scene class which contains all scene MVP elements - View, Presenter and Model
 /// </summary>
@@ -14,9 +14,9 @@ public class Scene
     /// <summary>
     /// Initialize all scene elements - view, model and presenter 
     /// </summary>
-    public void Initialize ()
+    public void Initialize()
     {
-        View.Initialize ();
+        View.Initialize();
     }
     /// <summary>
     /// Update scene state 
@@ -24,7 +24,7 @@ public class Scene
     /// <param name="gameTime">
     /// GameTime element parameter
     /// </param>
-    public void Update (GameTime gameTime)
+    public void Update()
     {
         View.Update();
     }
@@ -34,8 +34,8 @@ public class Scene
     /// <param name="gameTime">
     /// GameTime element parameter
     /// </param>
-    public void Draw(GameTime gameTime)
+    public void Draw()
     {
-        View.Draw(gameTime);
+        View.Draw();
     }
 }

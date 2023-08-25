@@ -29,6 +29,6 @@ public interface IObject
     /// Should be called every frame
     /// </remarks>
     ///  <param name="gameTime"> GameTime element parameter</param>
-    void Update(GameTime gameTime);
+    void Update();
 }
 

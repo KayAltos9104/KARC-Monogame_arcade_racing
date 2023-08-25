@@ -1,15 +1,15 @@
-﻿namespace WitchEngine;
+﻿namespace WitchEngine.MVP;
 /// <summary>
 /// Class which contains data that model transfer to view
 /// </summary>
-public class ModelViewData
+public class ModelViewData : GameData
 {
     /// <value>
     /// The <c>CurrentFrameObjects</c> property represents a list with all objects in scene
     /// </value>
     public List<IObject> CurrentFrameObjects { get; set; }
-    
-    public ModelViewData() 
+
+    public ModelViewData()
     {
         CurrentFrameObjects = new List<IObject>();
     }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using WitchEngine.MVP;
 
 namespace WitchEngine.MonogamePart;
 /// <summary>
@@ -31,9 +31,7 @@ public class GameProcessor : Game
         base.Initialize();
         Window.Title = "KARC";
         Graphics2D.Graphics.IsFullScreen = false;
-        Graphics2D.Graphics.PreferredBackBufferWidth = 1600;
-        Graphics2D.Graphics.PreferredBackBufferHeight = 900;
-        Graphics2D.Graphics.ApplyChanges();
+        SetResolution(1600, 900);
         Graphics2D.UpdateVisionArea();
         
         if (_currentScene == null)
@@ -44,6 +42,18 @@ public class GameProcessor : Game
         {
             _currentScene.Initialize();
         }              
+    }
+    /// <summary>
+    /// Set screen resolution 
+    /// </summary>
+    /// <param name="width">Screen width</param>
+    /// <param name="height">Screen height</param>
+    public void SetResolution (int width, int height)
+    {
+        Graphics2D.Graphics.PreferredBackBufferWidth = width;
+        Graphics2D.Graphics.PreferredBackBufferHeight = height;
+        Globals.Resolution = (width, height);   
+        Graphics2D.Graphics.ApplyChanges();
     }
     /// <summary>
     /// Loads graphics and game files
@@ -62,9 +72,10 @@ public class GameProcessor : Game
     {
         if (_currentScene != null)
         {
-            _currentScene.Update(gameTime);
+            _currentScene.Update();
         }        
         base.Update(gameTime);
+        Globals.Time = gameTime;
     }
     /// <summary>
     /// Draw scene elements
@@ -75,7 +86,7 @@ public class GameProcessor : Game
         GraphicsDevice.Clear(Color.DarkSeaGreen);
         if (_currentScene != null)
         {
-            _currentScene.Draw(gameTime);
+            _currentScene.Draw();
         }       
         base.Draw(gameTime);
     }

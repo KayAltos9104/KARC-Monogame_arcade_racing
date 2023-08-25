@@ -3,7 +3,7 @@
   <Class Name="WitchEngine.MonogamePart.GameProcessor">
     <Position X="4" Y="0.5" Width="3" />
     <TypeIdentifier>
-      <HashCode>AAQAAAQAAAAAAwAAAAAAAAAAAAAAAAACAAAAEIAAAAQ=</HashCode>
+      <HashCode>AAQAAAQAAAAAAwAAgAAAAAAAAAAAAAACAAAAAIAAAAQ=</HashCode>
       <FileName>MonogamePart\GameProcessor.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -25,7 +25,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="WitchEngine.Scene">
-    <Position X="4.75" Y="4" Width="1.5" />
+    <Position X="4.75" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAQAAAAAAAAAAwAAAAAAAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Scene.cs</FileName>
@@ -35,9 +35,9 @@
     </ShowAsAssociation>
   </Class>
   <Class Name="WitchEngine.View">
-    <Position X="4" Y="6" Width="3.75" />
+    <Position X="4" Y="6.5" Width="3.75" />
     <TypeIdentifier>
-      <HashCode>AAQLAAAAQAAAAwAAAABAABAABAggAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAULAAAAQAAAAwAAgABAABAABAggAAAAAAAAAAAAAAA=</HashCode>
       <FileName>View.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
