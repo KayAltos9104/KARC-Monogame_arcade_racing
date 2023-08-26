@@ -82,7 +82,11 @@ public class GameProcessor : Game
     protected override void LoadContent()
     {
         Graphics2D.SpriteBatch = new SpriteBatch(GraphicsDevice);
-        LoadableObjects.AddFont("MainFont", Content.Load<SpriteFont>("DescriptionFont"));
+        string workingDirectory = Environment.CurrentDirectory + "\\Resources";
+        string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.Parent.Parent.FullName +
+            "\\WitchEngine\\SystemResources";
+        //LoadableObjects.AddFont("MainFont", Content.Load<SpriteFont>("DescriptionFont"));
+        LoadableObjects.AddFont("SystemFont", Content.Load<SpriteFont>(projectDirectory+"\\SystemFont"));
         foreach (var t in _textures)
         {
             LoadTexture(t.key, t.path);
@@ -132,10 +136,13 @@ public class GameProcessor : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.DarkSeaGreen);
+        Graphics2D.SpriteBatch.Begin();
         if (_currentScene != null)
         {
             _currentScene.Draw();
-        }       
+        }
+        GameConsole.Render(Graphics2D.SpriteBatch);
+        Graphics2D.SpriteBatch.End();
         base.Draw(gameTime);
     }
     /// <summary>

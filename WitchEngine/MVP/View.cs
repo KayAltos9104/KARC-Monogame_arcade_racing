@@ -62,8 +62,7 @@ public abstract class View
     /// Draws all game objects and interface elements.
     /// </summary>
     public virtual void Draw()
-    {
-        Graphics2D.SpriteBatch.Begin();
+    {        
         if (_currentModelData != null)
         {
             foreach (var o in _currentModelData.CurrentFrameObjects)
@@ -75,7 +74,7 @@ public abstract class View
         }
         foreach (var ui in _interfaceElements.Values)
             ui.Render(Graphics2D.SpriteBatch);
-        Graphics2D.SpriteBatch.End();
+        
     }
     /// <summary>
     /// Loads all inputs from user.

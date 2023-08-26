@@ -21,16 +21,17 @@ public static class Program
         //var game = new GameProcessor();
         //game.Run();
         string workingDirectory = Environment.CurrentDirectory+"\\Resources";
-        string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+        string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.Parent.Parent.FullName+
+            "\\WitchEngine\\SystemResources";
         var game = new GameProcessor(workingDirectory,
             new List<(string, string)>()
             {
                 ("base_car","Base_car")
             },
             new List<(string, string)>()
-            //{
-            //    ("MainFont", "DescriptionFont")
-            //}
+            {
+                ("MainFont", "DescriptionFont")
+            }
             );
 
         var v1 = new MainMenuView();

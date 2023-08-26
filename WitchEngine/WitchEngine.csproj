@@ -11,4 +11,8 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SystemResources\" />
+  </ItemGroup>
+
 </Project>
