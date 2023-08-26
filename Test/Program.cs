@@ -32,11 +32,18 @@ public static class Program
             //    ("MainFont", "DescriptionFont")
             //}
             );
+
         var v1 = new MainMenuView();
-        var scene1 = new Scene(v1, null, new Presenter(game, v1, null));        
+        var scene1 = new Scene(v1, null, new Presenter(game, v1, null));
         game.Scenes.Add("Test1", scene1);
+
+        var v2 = new SettingsMenuView();
+        var scene2 = new Scene(v2, null, new Presenter(game, v2, null));
+        game.Scenes.Add("Test2", scene2);
+
         game.SetCurrentScene("Test1");
         game.Run();
         
+
     }
 }

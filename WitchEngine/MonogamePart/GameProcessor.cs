@@ -45,8 +45,7 @@ public class GameProcessor : Game
         Window.Title = "KARC";        
         SetResolution(Globals.Resolution.Width, Globals.Resolution.Height);
         SetFullScreenMode(Globals.IsFullScreen);
-        
-        
+
         if (_currentScene == null)
         {
             throw new ArgumentNullException("Current scene was not choosed");
@@ -54,7 +53,7 @@ public class GameProcessor : Game
         else
         {
             _currentScene.Initialize();
-        }              
+        }
     }
     /// <summary>
     /// Set screen resolution 
@@ -119,6 +118,8 @@ public class GameProcessor : Game
     {
         if (_currentScene != null)
         {
+            if (_currentScene.IsInitalized == false)
+                _currentScene.Initialize();
             _currentScene.Update();
         }        
         base.Update(gameTime);
@@ -144,6 +145,8 @@ public class GameProcessor : Game
     public void SetCurrentScene(string sceneName)
     {
         if (Scenes.ContainsKey(sceneName))
-            _currentScene = Scenes[sceneName];
+        {
+            _currentScene = Scenes[sceneName];            
+        }            
     }
 }

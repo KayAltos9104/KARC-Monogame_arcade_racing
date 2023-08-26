@@ -11,14 +11,17 @@ public class Scene
     public Presenter Presenter { get; set; }
     public Model Model { get; set; }
 
+    public bool IsInitalized { get; private set; }
+
     public Scene(View view, Model model, Presenter presenter)
     {
         View = view;
         Presenter = presenter;
         Model = model;
+        IsInitalized = false;
     }
     /// <summary>
-    /// Initialize all scene elements - view, model and presenter 
+    /// Initialize all scene elements - view and model
     /// </summary>
     public void Initialize()
     {
@@ -26,7 +29,8 @@ public class Scene
         if (Model != null)
         {
             Model.Initialize();
-        }        
+        }
+        IsInitalized = true;
     }
     /// <summary>
     /// Update scene state 
