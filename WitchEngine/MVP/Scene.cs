@@ -8,15 +8,25 @@ namespace WitchEngine.MVP;
 public class Scene
 {
     public View View { get; set; }
-    //TODO:
-    // Добавить презентер и модель
+    public Presenter Presenter { get; set; }
+    public Model Model { get; set; }
 
+    public Scene(View view, Model model, Presenter presenter)
+    {
+        View = view;
+        Presenter = presenter;
+        Model = model;
+    }
     /// <summary>
     /// Initialize all scene elements - view, model and presenter 
     /// </summary>
     public void Initialize()
     {
         View.Initialize();
+        if (Model != null)
+        {
+            Model.Initialize();
+        }        
     }
     /// <summary>
     /// Update scene state 

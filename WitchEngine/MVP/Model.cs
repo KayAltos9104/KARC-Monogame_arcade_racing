@@ -12,6 +12,7 @@ public abstract class Model
         GameObjects = new Dictionary<string, IObject>();
     }
 
+    public abstract void Initialize();
     public virtual void Update(ViewCycleFinishedEventArgs e)
     {
         foreach (var obj in GameObjects.Values)

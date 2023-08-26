@@ -30,6 +30,15 @@ public abstract class View
         _interfaceElements = new Dictionary<string, IComponent>();
     }
     /// <summary>
+    /// Invokes <see cref="SceneFinished"/> event
+    /// </summary>
+    /// <param name="e">Object of <see cref="SceneFinishedEventArgs"/> which contains new scene name</param>
+    protected void OnSceneFinished(SceneFinishedEventArgs e)
+    {
+        SceneFinished?.Invoke(this, e);
+    }
+
+    /// <summary>
     /// Initialize all view elements. Must be called. 
     /// </summary>
     public abstract void Initialize();

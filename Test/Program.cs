@@ -32,9 +32,8 @@ public static class Program
             //    ("MainFont", "DescriptionFont")
             //}
             );
-        
-        var scene1 = new Scene();
-        scene1.View = new MainMenuView();
+        var v1 = new MainMenuView();
+        var scene1 = new Scene(v1, null, new Presenter(game, v1, null));        
         game.Scenes.Add("Test1", scene1);
         game.SetCurrentScene("Test1");
         game.Run();

@@ -16,16 +16,27 @@ public sealed class Presenter
         _model = model;
         
         _view.CycleFinished += UpdateModel;
-        _model.CycleFinished += LoadModelDataToView;
+        _view.SceneFinished += SwitchScene;
+
+        if (_model != null) 
+        {
+            _model.CycleFinished += LoadModelDataToView;
+        }
+        
     }
 
     private void UpdateModel(object sender, ViewCycleFinishedEventArgs e)
     {
-        _model.Update(e);
+        if (_model != null) _model.Update(e);
     }
 
     private void LoadModelDataToView (object sender, ModelCycleFinishedEventArgs e)
     {
-        _view.LoadModelData(e.ModelViewData);
+        if (_model != null) _view.LoadModelData(e.ModelViewData);
+    }
+
+    private void SwitchScene (object sender, SceneFinishedEventArgs e)
+    {
+        _processor.SetCurrentScene(e.NewSceneName);
     }
 }
