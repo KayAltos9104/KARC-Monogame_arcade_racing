@@ -17,14 +17,16 @@ public abstract class View
     protected KeyboardState _pressedPrevFrame;    
 
     /// <value>
-    /// Event <c>CycleFinished</c> that activates when View ended cycle processing
+    /// Event <c>CycleFinished</c> invokes when View ended cycle processing
     /// </value>
     public EventHandler<ViewCycleFinishedEventArgs>? CycleFinished;
+    /// <value>
+    /// Event <c>SceneFinished</c> invokes when we should finish of pause current scene and switch to another
+    /// </value>
+    public EventHandler<SceneFinishedEventArgs>? SceneFinished;
 
     public View()
-    {
-        Globals.Resolution = (Graphics2D.Graphics.PreferredBackBufferWidth,
-           Graphics2D.Graphics.PreferredBackBufferHeight);
+    {        
         _interfaceElements = new Dictionary<string, IComponent>();
     }
     /// <summary>
@@ -58,8 +60,8 @@ public abstract class View
             foreach (var o in _currentModelData.CurrentFrameObjects)
             {
                 Graphics2D.RenderObject(o);
-                if (o is IAnimated)
-                    Graphics2D.RenderAnimation(o as IAnimated);
+                //if (o is IAnimated)
+                //    Graphics2D.RenderAnimation(o as IAnimated);
             }
         }
         foreach (var ui in _interfaceElements.Values)
@@ -102,5 +104,11 @@ public class ViewCycleFinishedEventArgs : EventArgs
 {
     public GameData CurrentViewData { get; set; }
 }
-
+/// <summary>
+/// Class that contains name of scene for GameProcessor to switch for
+/// </summary>
+public class SceneFinishedEventArgs : EventArgs
+{
+    public string NewSceneName {  get; set;}
+}
 

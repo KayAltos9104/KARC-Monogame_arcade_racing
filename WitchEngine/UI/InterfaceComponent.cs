@@ -9,7 +9,7 @@ public abstract class InterfaceComponent : IComponent
 {
     protected Vector2 _textSize;
     public Vector2 MarginText { get; set; }
-    public List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }    
+    public List<(string ImageName, Vector2 ImagePos)> Sprites { get; set; }    
     public Vector2 Pos { get; set; }
     public Vector2 TextPos { get; set; }
     public string Text { get; set ; }
@@ -24,15 +24,15 @@ public abstract class InterfaceComponent : IComponent
     public InterfaceComponent(Vector2 pos, SpriteFont font) 
     {
         Pos = pos;        
-        Sprites = new List<(int ImageId, Vector2 ImagePos)>();       
+        Sprites = new List<(string ImageName, Vector2 ImagePos)>();       
         Layer = 1.0f;
         MarginText = Vector2.Zero;
         TextColor = Color.Black;
         Font = font;
     }
-    public void LoadSprite(byte sprite, Vector2 pos)
+    public void LoadSprite(string spriteName, Vector2 pos)
     {
-        Sprites.Add((sprite, pos));
+        Sprites.Add((spriteName, pos));
     }
     public abstract void Render(SpriteBatch spriteBatch);  
     protected void RenderSprites(SpriteBatch spriteBatch)
@@ -40,7 +40,7 @@ public abstract class InterfaceComponent : IComponent
         foreach (var sprite in Sprites)
         {
             spriteBatch.Draw(
-                   texture: LoadableObjects.GetTexture(sprite.ImageId),
+                   texture: LoadableObjects.GetTexture(sprite.ImageName),
                    position: Pos + sprite.ImagePos,
                    sourceRectangle: null,
                    Color.White,

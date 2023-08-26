@@ -12,7 +12,8 @@ public static class Graphics2D
 
     public static void UpdateVisionArea()
     {
-        VisionArea = new Rectangle(-100, -100, Graphics.PreferredBackBufferWidth + 100, Graphics.PreferredBackBufferHeight + 100);
+        VisionArea = new Rectangle(-100, -100, 
+            Globals.Resolution.Width + 100, Globals.Resolution.Height + 100);
     }
     public static void UpdateVisionArea(int x, int y, int width, int height)
     {
@@ -27,14 +28,14 @@ public static class Graphics2D
     {
         foreach (var sprite in obj.Sprites)
         {
-            if (sprite.ImageId == -1)
-                continue;
+            //if (sprite.ImageName == "NULL")
+            //    continue;
 
             Vector2 v = obj.Pos + sprite.ImagePos - VisualShift;
             if (IsInVisionArea(v))
             {
                 SpriteBatch.Draw(
-                texture: LoadableObjects.GetTexture(sprite.ImageId),
+                texture: LoadableObjects.GetTexture(sprite.ImageName),
                 position: obj.Pos - VisualShift + sprite.ImagePos,
                 sourceRectangle: null,
                 Color.White,
@@ -47,34 +48,34 @@ public static class Graphics2D
         }
     }
 
-    public static void RenderAnimation(IAnimated a)
-    {
-        if (a.Animation.ActiveAnimation != null &&
-            a.Animation.ActiveAnimation.IsActive)
-        {
-            var centerShift = a.Animation.ActiveAnimation.IsCentered ?
-                new Vector2(a.Animation.ActiveAnimation.CurrentFrame.Width / 2,
-                a.Animation.ActiveAnimation.CurrentFrame.Height / 2) :
-                Vector2.Zero;
-            Vector2 v = a.Animation.Pos - VisualShift;
-            if (IsInVisionArea(v))
-            {
-                SpriteBatch.Draw(
-               LoadableObjects.GetTexture(a.Animation.ActiveAnimation.GetPictureId()),
-                v,
-                new Rectangle(
-                    a.Animation.ActiveAnimation.CurrentFrame.Point,
-                    new Point(
-                    a.Animation.ActiveAnimation.CurrentFrame.Width,
-                    a.Animation.ActiveAnimation.CurrentFrame.Height)),
-                Color.White,
-                0,
-                centerShift,
-                1,
-                SpriteEffects.None, a.Animation.Layer);
-            }
-        }
-    }
+    //public static void RenderAnimation(IAnimated a)
+    //{
+    //    if (a.Animation.ActiveAnimation != null &&
+    //        a.Animation.ActiveAnimation.IsActive)
+    //    {
+    //        var centerShift = a.Animation.ActiveAnimation.IsCentered ?
+    //            new Vector2(a.Animation.ActiveAnimation.CurrentFrame.Width / 2,
+    //            a.Animation.ActiveAnimation.CurrentFrame.Height / 2) :
+    //            Vector2.Zero;
+    //        Vector2 v = a.Animation.Pos - VisualShift;
+    //        if (IsInVisionArea(v))
+    //        {
+    //            SpriteBatch.Draw(
+    //           LoadableObjects.GetTexture(a.Animation.ActiveAnimation.GetPictureName()),
+    //            v,
+    //            new Rectangle(
+    //                a.Animation.ActiveAnimation.CurrentFrame.Point,
+    //                new Point(
+    //                a.Animation.ActiveAnimation.CurrentFrame.Width,
+    //                a.Animation.ActiveAnimation.CurrentFrame.Height)),
+    //            Color.White,
+    //            0,
+    //            centerShift,
+    //            1,
+    //            SpriteEffects.None, a.Animation.Layer);
+    //        }
+    //    }
+    //}
 
     public static void DrawLine(Vector2 point1, Vector2 point2, Color color)
     {

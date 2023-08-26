@@ -1,27 +1,31 @@
-﻿using static WitchEngine.MVP.Model;
+﻿using WitchEngine.MonogamePart;
+using static WitchEngine.MVP.Model;
 
 namespace WitchEngine.MVP;
 
 public sealed class Presenter
 {
-    private View View { get; set; }
-    private Model Model { get; set; }
+    private GameProcessor _processor;
+    private View _view;
+    private Model _model;
 
-    public Presenter (View view, Model model)
+    public Presenter (GameProcessor processor, View view, Model model)
     {
-        View = view;
-        Model = model;
-        View.CycleFinished += UpdateModel;
-        Model.CycleFinished += LoadModelDataToView;
+        _processor = processor;
+        _view = view;
+        _model = model;
+        
+        _view.CycleFinished += UpdateModel;
+        _model.CycleFinished += LoadModelDataToView;
     }
 
     private void UpdateModel(object sender, ViewCycleFinishedEventArgs e)
     {
-        Model.Update(e);
+        _model.Update(e);
     }
 
     private void LoadModelDataToView (object sender, ModelCycleFinishedEventArgs e)
     {
-        View.LoadModelData(e.ModelViewData);
+        _view.LoadModelData(e.ModelViewData);
     }
 }

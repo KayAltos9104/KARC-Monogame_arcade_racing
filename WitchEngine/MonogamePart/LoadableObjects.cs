@@ -5,9 +5,8 @@ namespace WitchEngine.MonogamePart;
 /// Static class which store game resources in xna format
 /// </summary>
 public static class LoadableObjects
-{
-    private static int _currentId = 1;
-    private static Dictionary<int, Texture2D> Textures = new Dictionary<int, Texture2D>();
+{    
+    private static Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
     private static Dictionary<string, SpriteFont> Fonts = new Dictionary<string, SpriteFont>();
     /// <summary>
     /// Adds new texture in storage
@@ -15,10 +14,9 @@ public static class LoadableObjects
     /// <param name="texture">
     /// Texture that should be added
     /// </param>
-    public static void AddTexture (Texture2D texture)
+    public static void AddTexture (string name, Texture2D texture)
     {
-        Textures.Add(_currentId, texture);
-        _currentId++;
+        Textures.Add(name, texture);
     }
     /// <summary>
     /// Tries to get texture from storage
@@ -26,10 +24,10 @@ public static class LoadableObjects
     /// <param name="key">
     /// Texture id for search
     /// </param>
-    public static Texture2D? GetTexture (int key)
+    public static Texture2D? GetTexture (string name)
     {
-        if (Textures.ContainsKey(key))
-            return Textures[key];
+        if (Textures.ContainsKey(name))
+            return Textures[name];
         else
             return null;
     }

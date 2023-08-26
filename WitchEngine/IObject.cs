@@ -17,7 +17,7 @@ public interface IObject
     /// <value>
     /// The <c>Sprites</c> property represents a dictionary with all object sprites
     /// </value>
-    List<(int ImageId, Vector2 ImagePos)> Sprites { get; set; }
+    List<(string ImageName, Vector2 ImagePos)> Sprites { get; set; }
     /// <value>
     /// The <c>Pos</c> property represents position where object is placed
     /// </value>
