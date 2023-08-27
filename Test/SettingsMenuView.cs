@@ -25,13 +25,12 @@ public class SettingsMenuView : View
         _interfaceElements.Add("MbxTest", MbxTest);
     }
     public override void Update()
-    {
-        ReadInputs();
+    {        
         
-        if (IsSinglePressed(Keys.Space))
+        if (InputsManager.IsSinglePressed(Keys.Space))
             OnSceneFinished(new SceneFinishedEventArgs() { NewSceneName = "Test1" });
 
-        SaveInputs();
+        
         base.Update();
     }
     public override void LoadModelData(ModelViewData currentModelData)

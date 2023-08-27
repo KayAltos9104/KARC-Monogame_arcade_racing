@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using WitchEngine.MVP;
 
 namespace WitchEngine.MonogamePart;
@@ -120,14 +121,22 @@ public class GameProcessor : Game
     /// <param name="gameTime"> GameTime element parameter </param>
     protected override void Update(GameTime gameTime)
     {
+        InputsManager.ReadInputs();
         if (_currentScene != null)
         {
             if (_currentScene.IsInitalized == false)
                 _currentScene.Initialize();
             _currentScene.Update();
         }        
-        base.Update(gameTime);
+        
+
         Globals.Time = gameTime;
+        if (InputsManager.PressedCurrentFrame.IsKeyDown(Keys.LeftControl) && InputsManager.IsSinglePressed(Keys.Q))
+            GameConsole.SwitchVisibility();
+
+        InputsManager.SaveInputs();
+
+        base.Update(gameTime);
     }
     /// <summary>
     /// Draw scene elements
@@ -141,7 +150,10 @@ public class GameProcessor : Game
         {
             _currentScene.Draw();
         }
-        GameConsole.Render(Graphics2D.SpriteBatch);
+
+        if (GameConsole.IsShown)    
+            GameConsole.Render(Graphics2D.SpriteBatch);
+
         Graphics2D.SpriteBatch.End();
         base.Draw(gameTime);
     }

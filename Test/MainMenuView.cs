@@ -49,17 +49,20 @@ public class MainMenuView : View, IKeyboardCursor
     }
 
     public override void Update()
-    {
-        ReadInputs();
+    {       
        
-        if (IsSinglePressed(Keys.W))
+        if (InputsManager.IsSinglePressed(Keys.W))
             ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Up);
-        if (IsSinglePressed(Keys.S))
+        if (InputsManager.IsSinglePressed(Keys.S))
             ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Down);
-        if (IsSinglePressed(Keys.Space))
-            (((IKeyboardCursor)this).GetCurrentElement() as Button).PerformClick();
+        if (InputsManager.IsSinglePressed(Keys.Space))
 
-        SaveInputs();
+            (((IKeyboardCursor)this).GetCurrentElement() as Button).PerformClick();
+        if (InputsManager.IsSinglePressed(Keys.F))
+            GameConsole.WriteLine("Ты нажал кнопку F");
+        
+
+        
         base.Update();
     }
 

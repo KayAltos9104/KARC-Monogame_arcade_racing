@@ -13,8 +13,7 @@ public abstract class View
     protected ModelViewData? _currentModelData;
     protected Dictionary<string, IComponent> _interfaceElements;
 
-    protected KeyboardState _pressedCurrentFrame;
-    protected KeyboardState _pressedPrevFrame;    
+  
 
     /// <value>
     /// Event <c>CycleFinished</c> invokes when View ended cycle processing
@@ -77,33 +76,11 @@ public abstract class View
         
     }
     /// <summary>
-    /// Loads all inputs from user.
+    /// Process all inputs from user (inputs should be taken from <see cref="InputsManager"/>).
     /// </summary>
-    public virtual void ReadInputs()
-    {
-        _pressedCurrentFrame = Keyboard.GetState();
-        // Потом добавить мышу
-    }
-    /// <summary>
-    /// Save all inputs from user to use on the next frame.
-    /// </summary>
-    public void SaveInputs()
-    {
-        _pressedPrevFrame = Keyboard.GetState();
-    }
-    /// <summary>
-    /// Checks single pressing of button.
-    /// </summary>
-    /// <param name="key">
-    /// Which single pressing key must be checked.
-    /// </param>
-    /// <returns>
-    /// True if this key was pressed single time.
-    /// </returns>
-    protected bool IsSinglePressed(Keys key)
-    {
-        return _pressedCurrentFrame.IsKeyUp(key) && _pressedPrevFrame.IsKeyDown(key);
-    }
+    //public abstract void ProcessInputs();
+    
+    
 }
 /// <summary>
 /// Class with fields for transfer from view to model after one cycle
