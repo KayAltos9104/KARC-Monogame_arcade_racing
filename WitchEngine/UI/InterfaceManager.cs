@@ -10,16 +10,32 @@ public class InterfaceManager: IKeyboardCursor
 {
     public List<IComponent> InterfaceElements { get; private set; }
     public int CursorPos { get; set; }
+    public int firstActiveElementIndex { get; set; }
+    public int lastActiveElementIndex { get; set; }
 
     public InterfaceManager()
     { 
         InterfaceElements = new List<IComponent>();
-        CursorPos = 0;
+        firstActiveElementIndex = InterfaceElements.FindIndex(e => e.IsInteractive == true);
+        lastActiveElementIndex = InterfaceElements.FindLastIndex(e => e.IsInteractive == true);
+        CursorPos = firstActiveElementIndex;
+        if (CursorPos != -1)
+            InterfaceElements[CursorPos].IsChosen = true;
+       
     }
 
     public void AddElement(IComponent component)
     {
         InterfaceElements.Add(component);
+        firstActiveElementIndex = InterfaceElements.FindIndex(e => e.IsInteractive == true);
+        lastActiveElementIndex = InterfaceElements.FindLastIndex(e => e.IsInteractive == true);
+        if (CursorPos == -1)
+        {
+            CursorPos = firstActiveElementIndex;
+            ((IKeyboardCursor)this).UpdateActivationOnElement();
+        }
+
+
     }
 
 }

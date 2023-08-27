@@ -43,7 +43,7 @@ public class MainMenuView : View
         _interfaceManager.AddElement(BtnTest2);
         _interfaceManager.AddElement(BtnTest3);
 
-        ((IKeyboardCursor)_interfaceManager).UpdateActivationOnElement();
+        //((IKeyboardCursor)_interfaceManager).UpdateActivationOnElement();
     }
 
     public override void Update()

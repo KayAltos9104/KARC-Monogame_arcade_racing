@@ -3,6 +3,8 @@ public interface IKeyboardCursor
 {
     List<IComponent> InterfaceElements { get; }
     int CursorPos { get; set; }
+    int firstActiveElementIndex { get; set; }
+    int lastActiveElementIndex { get; set; }
     void MoveCursor (DiscreteDirection cursorDir)
     {
         switch (cursorDir)
@@ -11,12 +13,12 @@ public interface IKeyboardCursor
                 {
                     do
                     {
-                        CursorPos--;                        
+                        CursorPos--;
+                        if (CursorPos < firstActiveElementIndex)
+                        {
+                            CursorPos = lastActiveElementIndex;
+                        }
                     } while (GetCurrentElement().IsInteractive == false);
-                    
-                    if (CursorPos < 0)
-                        CursorPos = InterfaceElements.Count - 1;
-
                     UpdateActivationOnElement();
                     break;
                     
@@ -26,10 +28,9 @@ public interface IKeyboardCursor
                     do
                     {
                         CursorPos++;
+                        if (CursorPos > lastActiveElementIndex)
+                            CursorPos = firstActiveElementIndex;
                     } while (GetCurrentElement().IsInteractive == false);
-                    
-                    if (CursorPos > InterfaceElements.Count - 1)
-                        CursorPos = 0;
                     UpdateActivationOnElement();
                     break;
                 }
@@ -45,10 +46,8 @@ public interface IKeyboardCursor
     }
     void UpdateActivationOnElement()
     {
-        InterfaceElements.ForEach(element => element.IsChosen = false);
-        int firstActive = InterfaceElements.FindIndex(e => e.IsInteractive == true);
-        CursorPos = firstActive;
-        if (firstActive != -1) 
+        InterfaceElements.ForEach(element => element.IsChosen = false);       
+        if (CursorPos != -1) 
             InterfaceElements[CursorPos].IsChosen = true;
     }
 }
