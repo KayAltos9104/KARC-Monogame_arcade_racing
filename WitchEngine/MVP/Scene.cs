@@ -6,7 +6,8 @@ namespace WitchEngine.MVP;
 /// Scene class which contains all scene MVP elements - View, Presenter and Model
 /// </summary>
 /// <remarks>
-/// Scene must have <see cref="View"/>
+/// Scene must have <see cref="View"/>, but can not have <see cref="Model"/> and, thus, <see cref="Presenter"/>.
+/// It might make sense for pure interface scenes such as menu. 
 /// </remarks>
 public class Scene
 {
