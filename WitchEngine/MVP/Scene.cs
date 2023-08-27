@@ -5,11 +5,23 @@ namespace WitchEngine.MVP;
 /// <summary>
 /// Scene class which contains all scene MVP elements - View, Presenter and Model
 /// </summary>
+/// <remarks>
+/// Scene must have <see cref="View"/>
+/// </remarks>
 public class Scene
 {
+    /// <value>
+    /// Property represents the <see cref="View"/>
+    /// </value>
     public View View { get; set; }
-    public Presenter Presenter { get; set; }
-    public Model Model { get; set; }
+    /// <value>
+    /// Property represents the <see cref="Presenter"/>
+    /// </value>
+    public Presenter? Presenter { get; set; }
+    /// <value>
+    /// Property represents the <see cref="Model"/>
+    /// </value>
+    public Model? Model { get; set; }
     public bool IsInitalized { get; private set; }
 
     public Scene(View view, Model model, Presenter presenter)
@@ -34,9 +46,6 @@ public class Scene
     /// <summary>
     /// Update scene state 
     /// </summary>
-    /// <param name="gameTime">
-    /// GameTime element parameter
-    /// </param>
     public void Update()
     {
         View.Update();
@@ -44,9 +53,6 @@ public class Scene
     /// <summary>
     /// Draw scene 
     /// </summary>
-    /// <param name="gameTime">
-    /// GameTime element parameter
-    /// </param>
     public void Draw()
     {
         View.Draw();

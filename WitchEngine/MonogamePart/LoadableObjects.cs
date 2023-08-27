@@ -53,8 +53,13 @@ public static class LoadableObjects
     public static SpriteFont? GetFont(string key)
     {
         if (Fonts.ContainsKey(key))
+        {
             return Fonts[key];
+        }            
         else
+        {
+            GameConsole.WriteLine($"No font with name {key}");
             return null;
+        }            
     }
 }

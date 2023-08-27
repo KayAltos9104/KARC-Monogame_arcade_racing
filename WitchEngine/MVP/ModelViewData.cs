@@ -1,6 +1,6 @@
 ﻿namespace WitchEngine.MVP;
 /// <summary>
-/// Class which contains data that model transfer to view
+/// Class which contains data that model transfer to <see cref="View"/>
 /// </summary>
 public class ModelViewData : GameData
 {

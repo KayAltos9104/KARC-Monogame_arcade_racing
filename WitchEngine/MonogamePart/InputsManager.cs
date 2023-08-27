@@ -1,19 +1,23 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WitchEngine.MonogamePart;
 
+/// <summary>
+/// Single static class which reads keyboard and mouse inputs
+/// </summary>
 public static class InputsManager
 {
+    /// <value>
+    /// Property <c>PressedCurrentFrame</c> stores all keys which was pressed in current frame
+    /// </value>
     public static KeyboardState PressedCurrentFrame { get; private set; }
+    /// <value>
+    /// Property <c>PressedPrevFrame</c> stores all keys which was pressed in previous frame
+    /// </value>
     public static KeyboardState PressedPrevFrame { get; private set; }
 
     /// <summary>
-    /// Loads all inputs from user.
+    /// Loads all inputs from user and saves in <see cref="PressedCurrentFrame"/>
     /// </summary>
     public static void ReadInputs()
     {
@@ -22,7 +26,7 @@ public static class InputsManager
     }
 
     /// <summary>
-    /// Save all inputs from user to use on the next frame.
+    /// Save all inputs from user in <see cref="PressedPrevFrame"/> to use on the next frame
     /// </summary>
     public static void SaveInputs()
     {

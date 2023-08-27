@@ -7,9 +7,9 @@ namespace WitchEngine.MonogamePart;
 /// <summary>
 /// Main game class, which contains technical fields and manage game scenes
 /// </summary>
-public class GameProcessor : Game
+public sealed class GameProcessor : Game
 {
-    private GraphicsDeviceManager _graphics;
+    //private GraphicsDeviceManager _graphics;
     private Scene? _currentScene;
     private string? _pathToResources;
     private List<(string key, string path)> _textures;
@@ -30,8 +30,8 @@ public class GameProcessor : Game
         List<(string key, string path)> fonts)
     {
         Scenes = new Dictionary<string, Scene>();
-        _graphics = new GraphicsDeviceManager(this);
-        Graphics2D.Graphics = _graphics;
+        //_graphics = new GraphicsDeviceManager(this);
+        Graphics2D.Graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = resourcesPath;
         IsMouseVisible = true; 
         _textures = textures;
@@ -57,7 +57,7 @@ public class GameProcessor : Game
         }
     }
     /// <summary>
-    /// Set screen resolution 
+    /// Sets screen resolution 
     /// </summary>
     /// <param name="width">Screen width</param>
     /// <param name="height">Screen height</param>
@@ -69,7 +69,10 @@ public class GameProcessor : Game
         Graphics2D.Graphics.ApplyChanges();
         Graphics2D.UpdateVisionArea();
     }
-
+    /// <summary>
+    /// Sets fullscreen mode true or false
+    /// </summary>
+    /// <param name="isFullScreen">True for fullscreen, false - not</param>
     public void SetFullScreenMode(bool isFullScreen)
     {
         Globals.IsFullScreen = isFullScreen;
@@ -85,8 +88,7 @@ public class GameProcessor : Game
         Graphics2D.SpriteBatch = new SpriteBatch(GraphicsDevice);
         string workingDirectory = Environment.CurrentDirectory + "\\Resources";
         string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.Parent.Parent.FullName +
-            "\\WitchEngine\\SystemResources";
-        //LoadableObjects.AddFont("MainFont", Content.Load<SpriteFont>("DescriptionFont"));
+            "\\WitchEngine\\SystemResources";        
         LoadableObjects.AddFont("SystemFont", Content.Load<SpriteFont>(projectDirectory+"\\SystemFont"));
         foreach (var t in _textures)
         {
@@ -119,6 +121,9 @@ public class GameProcessor : Game
     /// Updates scene
     /// </summary>
     /// <param name="gameTime"> GameTime element parameter </param>
+    /// <remarks>
+    /// Its override of original Monogame Update and is called automatically
+    /// </remarks>
     protected override void Update(GameTime gameTime)
     {
         InputsManager.ReadInputs();
@@ -127,9 +132,7 @@ public class GameProcessor : Game
             if (_currentScene.IsInitalized == false)
                 _currentScene.Initialize();
             _currentScene.Update();
-        }        
-        
-
+        }  
         Globals.Time = gameTime;
         if (InputsManager.PressedCurrentFrame.IsKeyDown(Keys.LeftControl) && InputsManager.IsSinglePressed(Keys.Q))
             GameConsole.SwitchVisibility();
@@ -142,6 +145,9 @@ public class GameProcessor : Game
     /// Draw scene elements
     /// </summary>
     /// <param name="gameTime"> GameTime element parameter </param>
+    /// <remarks>
+    /// Its override of original Monogame Draw and is called automatically
+    /// </remarks>
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.DarkSeaGreen);
@@ -164,8 +170,8 @@ public class GameProcessor : Game
     public void SetCurrentScene(string sceneName)
     {
         if (Scenes.ContainsKey(sceneName))
-        {
-            _currentScene = Scenes[sceneName];            
-        }            
+            _currentScene = Scenes[sceneName];
+        else
+            GameConsole.WriteLine($"Scene {sceneName} is missed");
     }
 }
