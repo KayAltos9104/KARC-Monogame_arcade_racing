@@ -7,12 +7,14 @@ namespace WitchEngine;
 
 public abstract class InterfaceComponent : IComponent
 {
+    public string Name { get; set; }
+
     protected Vector2 _textSize;
     public Vector2 MarginText { get; set; }
     public List<(string ImageName, Vector2 ImagePos)> Sprites { get; set; }    
     public Vector2 Pos { get; set; }
     public Vector2 TextPos { get; set; }
-    public string Text { get; set ; }
+    public string Text { get; set; }
     public bool IsCentered { get; set; }
     public float Layer { get; set; }
     
@@ -20,6 +22,7 @@ public abstract class InterfaceComponent : IComponent
 
     public SpriteFont Font { get; set; }
     public bool IsChosen { get; set; }
+    public bool IsInteractive { get; set; }
 
     public InterfaceComponent(Vector2 pos, SpriteFont font) 
     {
@@ -28,7 +31,11 @@ public abstract class InterfaceComponent : IComponent
         Layer = 1.0f;
         MarginText = Vector2.Zero;
         TextColor = Color.Black;
-        Font = font;
+        Text = "";
+        Name = Guid.NewGuid().ToString();
+        Font = font;  
+        IsInteractive = false;
+        IsChosen = false;
     }
     public void LoadSprite(string spriteName, Vector2 pos)
     {

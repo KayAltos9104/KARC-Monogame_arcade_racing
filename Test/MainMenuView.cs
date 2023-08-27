@@ -9,9 +9,8 @@ using WitchEngine.UI;
 
 namespace Test;
 
-public class MainMenuView : View, IKeyboardCursor
-{
-    public List<IComponent> InteractiveElements { get; set; } = new List<IComponent>();
+public class MainMenuView : View
+{   
 
     public int CursorPos { get; set; } = 0;
 
@@ -23,46 +22,40 @@ public class MainMenuView : View, IKeyboardCursor
                 "Тестовое окно\nНажмите Q, чтобы поменять текст"
                 );
         MbxTest.IsCentered = true;
+        
 
         Button BtnTest = new Button(new Vector2(
-                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 100), 
+                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 100),
                 LoadableObjects.GetFont("MainFont"), "Перейти к сцене 2");
         Button BtnTest2 = new Button(new Vector2(
-                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 150), 
+                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 150),
                 LoadableObjects.GetFont("MainFont"), "Нет, меня!");
         Button BtnTest3 = new Button(new Vector2(
-                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 250), 
+                Globals.Resolution.Width / 2, Globals.Resolution.Height / 2 + 250),
                 LoadableObjects.GetFont("MainFont"), "Выход");
 
         BtnTest.Click += BtnTest1_Click;
         BtnTest2.Click += BtnTest2_Click;
         BtnTest3.Click += BtnTest3_Click;
 
-        _interfaceElements.Add("MbxTest", MbxTest);
-        _interfaceElements.Add("BtnTest", BtnTest);
-        InteractiveElements.Add(BtnTest);  
-        _interfaceElements.Add("BtnTest2", BtnTest2);
-        InteractiveElements.Add(BtnTest2);
-        _interfaceElements.Add("BtnTest3", BtnTest3);
-        InteractiveElements.Add(BtnTest3);
-        ((IKeyboardCursor)this).UpdateActivationOnElement();
+        _interfaceManager.AddElement(MbxTest);
+        _interfaceManager.AddElement(BtnTest);
+        _interfaceManager.AddElement(BtnTest2);
+        _interfaceManager.AddElement(BtnTest3);
+
+        ((IKeyboardCursor)_interfaceManager).UpdateActivationOnElement();
     }
 
     public override void Update()
     {       
        
         if (InputsManager.IsSinglePressed(Keys.W))
-            ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Up);
+            ((IKeyboardCursor)_interfaceManager).MoveCursor(DiscreteDirection.Up);
         if (InputsManager.IsSinglePressed(Keys.S))
-            ((IKeyboardCursor)this).MoveCursor(DiscreteDirection.Down);
+            ((IKeyboardCursor)_interfaceManager).MoveCursor(DiscreteDirection.Down);
         if (InputsManager.IsSinglePressed(Keys.Space))
+            (((IKeyboardCursor)_interfaceManager).GetCurrentElement() as Button).PerformClick();
 
-            (((IKeyboardCursor)this).GetCurrentElement() as Button).PerformClick();
-        if (InputsManager.IsSinglePressed(Keys.F))
-            GameConsole.WriteLine("Ты нажал кнопку F");
-        
-
-        
         base.Update();
     }
 
@@ -84,24 +77,24 @@ public class MainMenuView : View, IKeyboardCursor
     }
     private void BtnTest2_Click(object sender, ClickEventArgs e)
     {
-        MessageBox MbxTest2 = new MessageBox(new Vector2(
-                250, 60),
-                LoadableObjects.GetFont("MainFont"),
-                "Нажата кнопка 2"
-                );
-        MbxTest2.IsCentered = true;
+        //MessageBox MbxTest2 = new MessageBox(new Vector2(
+        //        250, 60),
+        //        LoadableObjects.GetFont("MainFont"),
+        //        "Нажата кнопка 2"
+        //        );
+        //MbxTest2.IsCentered = true;
 
-        _interfaceElements.Add("MbxTest2", MbxTest2);
+        //_interfaceElements.Add("MbxTest2", MbxTest2);
     }
     private void BtnTest3_Click(object sender, ClickEventArgs e)
     {
-        MessageBox MbxTest3 = new MessageBox(new Vector2(
-                250, 90),
-                LoadableObjects.GetFont("MainFont"),
-                "Заглушка на выход из программы"
-                );
-        MbxTest3.IsCentered = true;
+        //MessageBox MbxTest3 = new MessageBox(new Vector2(
+        //        250, 90),
+        //        LoadableObjects.GetFont("MainFont"),
+        //        "Заглушка на выход из программы"
+        //        );
+        //MbxTest3.IsCentered = true;
 
-        _interfaceElements.Add("MbxTest3", MbxTest3);
+        //_interfaceElements.Add("MbxTest3", MbxTest3);
     }
 }

@@ -10,7 +10,6 @@ public class Scene
     public View View { get; set; }
     public Presenter Presenter { get; set; }
     public Model Model { get; set; }
-
     public bool IsInitalized { get; private set; }
 
     public Scene(View view, Model model, Presenter presenter)

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using System.Security.Cryptography.X509Certificates;
 using WitchEngine.MonogamePart;
+using WitchEngine.UI;
 
 namespace WitchEngine.MVP;
 
@@ -11,9 +12,7 @@ namespace WitchEngine.MVP;
 public abstract class View
 {
     protected ModelViewData? _currentModelData;
-    protected Dictionary<string, IComponent> _interfaceElements;
-
-  
+    protected InterfaceManager _interfaceManager;
 
     /// <value>
     /// Event <c>CycleFinished</c> invokes when View ended cycle processing
@@ -26,7 +25,7 @@ public abstract class View
 
     public View()
     {        
-        _interfaceElements = new Dictionary<string, IComponent>();
+        _interfaceManager = new InterfaceManager();
     }
     /// <summary>
     /// Invokes <see cref="SceneFinished"/> event
@@ -71,9 +70,11 @@ public abstract class View
                 //    Graphics2D.RenderAnimation(o as IAnimated);
             }
         }
-        foreach (var ui in _interfaceElements.Values)
-            ui.Render(Graphics2D.SpriteBatch);
-        
+        if (_interfaceManager != null)
+        {
+            foreach (var ui in _interfaceManager.InterfaceElements)
+                ui.Render(Graphics2D.SpriteBatch);
+        } 
     }
     /// <summary>
     /// Process all inputs from user (inputs should be taken from <see cref="InputsManager"/>).

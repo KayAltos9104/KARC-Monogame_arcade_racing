@@ -22,7 +22,7 @@ public class SettingsMenuView : View
                 "Новое окно новой сцены!!!"
                 );
         MbxTest.IsCentered = true;
-        _interfaceElements.Add("MbxTest", MbxTest);
+        _interfaceManager.AddElement(MbxTest);
     }
     public override void Update()
     {        

@@ -8,11 +8,10 @@ namespace WitchEngine;
 public class Button : MessageBox
 {
     public event EventHandler<ClickEventArgs>? Click;
-    
-
     public Button(Vector2 pos, SpriteFont font, string text) : base(pos, font, text)
     {
         IsChosen = false;
+        IsInteractive = true;
     }
 
     public void PerformClick()
